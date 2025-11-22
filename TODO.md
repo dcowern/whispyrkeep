@@ -37,7 +37,7 @@
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
 | 0.1.1 | Create monorepo skeleton | `DONE` | N/A |
-| 0.1.2 | Docker Compose baseline | `NOT_STARTED` | N/A |
+| 0.1.2 | Docker Compose baseline | `DONE` | N/A |
 | 0.1.3 | CI pipeline (GitHub Actions) | `NOT_STARTED` | N/A |
 
 ---
@@ -392,7 +392,7 @@
 
 | Epic | Total | Done | In Progress | Not Started |
 |------|-------|------|-------------|-------------|
-| 0 | 3 | 1 | 0 | 2 |
+| 0 | 3 | 2 | 0 | 1 |
 | 1 | 8 | 0 | 0 | 8 |
 | 2 | 5 | 0 | 0 | 5 |
 | 3 | 4 | 0 | 0 | 4 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **1** | **0** | **91** |
+| **TOTAL** | **92** | **2** | **0** | **90** |

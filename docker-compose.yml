@@ -1,0 +1,127 @@
+# WhispyrKeep Docker Compose Configuration
+# Development environment setup
+
+services:
+  # PostgreSQL 16 - Primary database
+  postgres:
+    image: postgres:16-alpine
+    container_name: whispyrkeep-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-whispyrkeep}
+      POSTGRES_USER: ${POSTGRES_USER:-whispyrkeep}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-whispyrkeep}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 7.x - Celery broker + cache
+  redis:
+    image: redis:7-alpine
+    container_name: whispyrkeep-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ChromaDB - Vector store for lore
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: whispyrkeep-chromadb
+    environment:
+      CHROMA_SERVER_HOST: 0.0.0.0
+      CHROMA_SERVER_HTTP_PORT: 8000
+      ANONYMIZED_TELEMETRY: "false"
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Backend
+  backend:
+    build:
+      context: .
+      dockerfile: ops/docker/backend/Dockerfile
+    container_name: whispyrkeep-backend
+    environment:
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-whispyrkeep}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-whispyrkeep}
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_URL=http://chromadb:8000
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # Celery Worker
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ops/docker/backend/Dockerfile
+    container_name: whispyrkeep-celery
+    environment:
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-whispyrkeep}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-whispyrkeep}
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_URL=http://chromadb:8000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    command: celery -A whispyrkeep worker -l info -Q lore_embed_queue,lore_compaction_queue,export_queue
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: ops/docker/frontend/Dockerfile
+    container_name: whispyrkeep-frontend
+    environment:
+      - API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    command: npm start -- --host 0.0.0.0
+
+volumes:
+  postgres_data:
+  redis_data:
+  chroma_data:

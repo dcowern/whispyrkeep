@@ -1,0 +1,49 @@
+# WhispyrKeep Docker Ignore
+
+# Git
+.git
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log
+.angular/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Testing
+coverage/
+.nyc_output/
+
+# Docker
+docker-compose*.yml
+.dockerignore
+
+# Claude
+.claude/
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
