@@ -110,6 +110,13 @@ Scopes: `auth`, `characters`, `universes`, `campaigns`, `mechanics`, `lore`, `fr
 
 ## Testing Requirements
 
+**IMPORTANT: All development and testing MUST be done against PostgreSQL.**
+
+- Do NOT use SQLite for testing - always use the PostgreSQL database
+- Ensure `docker compose up -d` is running before running tests
+- Tests rely on PostgreSQL-specific features and behaviors
+- The `DATABASE_URL` environment variable should point to PostgreSQL
+
 ### Backend Tests (pytest)
 
 Every module needs:

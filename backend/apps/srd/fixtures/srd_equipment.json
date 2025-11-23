@@ -1,0 +1,452 @@
+[
+  {
+    "model": "srd.item",
+    "pk": 1,
+    "fields": {
+      "name": "Dagger",
+      "category": 1,
+      "description": "A small, easily concealed blade.",
+      "cost_gp": "2.00",
+      "weight_lb": "1.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 1,
+    "fields": {
+      "item": 1,
+      "weapon_type": "simple_melee",
+      "damage_dice": "1d4",
+      "damage_type": 8,
+      "properties": ["finesse", "light", "thrown"],
+      "range_normal": 20,
+      "range_long": 60,
+      "versatile_dice": ""
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 2,
+    "fields": {
+      "name": "Shortsword",
+      "category": 1,
+      "description": "A versatile blade favored by rogues.",
+      "cost_gp": "10.00",
+      "weight_lb": "2.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 2,
+    "fields": {
+      "item": 2,
+      "weapon_type": "martial_melee",
+      "damage_dice": "1d6",
+      "damage_type": 8,
+      "properties": ["finesse", "light"],
+      "range_normal": null,
+      "range_long": null,
+      "versatile_dice": ""
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 3,
+    "fields": {
+      "name": "Longsword",
+      "category": 1,
+      "description": "A versatile blade suitable for one or two-handed use.",
+      "cost_gp": "15.00",
+      "weight_lb": "3.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 3,
+    "fields": {
+      "item": 3,
+      "weapon_type": "martial_melee",
+      "damage_dice": "1d8",
+      "damage_type": 12,
+      "properties": ["versatile"],
+      "range_normal": null,
+      "range_long": null,
+      "versatile_dice": "1d10"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 4,
+    "fields": {
+      "name": "Greatsword",
+      "category": 1,
+      "description": "A massive two-handed blade.",
+      "cost_gp": "50.00",
+      "weight_lb": "6.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 4,
+    "fields": {
+      "item": 4,
+      "weapon_type": "martial_melee",
+      "damage_dice": "2d6",
+      "damage_type": 12,
+      "properties": ["heavy", "two-handed"],
+      "range_normal": null,
+      "range_long": null,
+      "versatile_dice": ""
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 5,
+    "fields": {
+      "name": "Handaxe",
+      "category": 1,
+      "description": "A light axe suitable for melee or throwing.",
+      "cost_gp": "5.00",
+      "weight_lb": "2.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 5,
+    "fields": {
+      "item": 5,
+      "weapon_type": "simple_melee",
+      "damage_dice": "1d6",
+      "damage_type": 12,
+      "properties": ["light", "thrown"],
+      "range_normal": 20,
+      "range_long": 60,
+      "versatile_dice": ""
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 6,
+    "fields": {
+      "name": "Longbow",
+      "category": 1,
+      "description": "A tall bow requiring significant strength to draw.",
+      "cost_gp": "50.00",
+      "weight_lb": "2.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 6,
+    "fields": {
+      "item": 6,
+      "weapon_type": "martial_ranged",
+      "damage_dice": "1d8",
+      "damage_type": 8,
+      "properties": ["ammunition", "heavy", "two-handed"],
+      "range_normal": 150,
+      "range_long": 600,
+      "versatile_dice": ""
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 7,
+    "fields": {
+      "name": "Light Crossbow",
+      "category": 1,
+      "description": "A mechanical bow that fires bolts.",
+      "cost_gp": "25.00",
+      "weight_lb": "5.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 7,
+    "fields": {
+      "item": 7,
+      "weapon_type": "simple_ranged",
+      "damage_dice": "1d8",
+      "damage_type": 8,
+      "properties": ["ammunition", "loading", "two-handed"],
+      "range_normal": 80,
+      "range_long": 320,
+      "versatile_dice": ""
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 8,
+    "fields": {
+      "name": "Quarterstaff",
+      "category": 1,
+      "description": "A sturdy wooden staff.",
+      "cost_gp": "0.20",
+      "weight_lb": "4.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.weapon",
+    "pk": 8,
+    "fields": {
+      "item": 8,
+      "weapon_type": "simple_melee",
+      "damage_dice": "1d6",
+      "damage_type": 2,
+      "properties": ["versatile"],
+      "range_normal": null,
+      "range_long": null,
+      "versatile_dice": "1d8"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 50,
+    "fields": {
+      "name": "Leather Armor",
+      "category": 2,
+      "description": "The breastplate and shoulder protectors of this armor are made of leather that has been stiffened by being boiled in oil.",
+      "cost_gp": "10.00",
+      "weight_lb": "10.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 1,
+    "fields": {
+      "item": 50,
+      "armor_type": "light",
+      "base_ac": 11,
+      "dex_bonus": "full",
+      "strength_requirement": null,
+      "stealth_disadvantage": false,
+      "don_time": "1 minute",
+      "doff_time": "1 minute"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 51,
+    "fields": {
+      "name": "Studded Leather",
+      "category": 2,
+      "description": "Made from tough but flexible leather, studded leather is reinforced with close-set rivets or spikes.",
+      "cost_gp": "45.00",
+      "weight_lb": "13.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 2,
+    "fields": {
+      "item": 51,
+      "armor_type": "light",
+      "base_ac": 12,
+      "dex_bonus": "full",
+      "strength_requirement": null,
+      "stealth_disadvantage": false,
+      "don_time": "1 minute",
+      "doff_time": "1 minute"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 52,
+    "fields": {
+      "name": "Chain Shirt",
+      "category": 2,
+      "description": "Made of interlocking metal rings, a chain shirt is worn between layers of clothing or leather.",
+      "cost_gp": "50.00",
+      "weight_lb": "20.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 3,
+    "fields": {
+      "item": 52,
+      "armor_type": "medium",
+      "base_ac": 13,
+      "dex_bonus": "max2",
+      "strength_requirement": null,
+      "stealth_disadvantage": false,
+      "don_time": "5 minutes",
+      "doff_time": "1 minute"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 53,
+    "fields": {
+      "name": "Scale Mail",
+      "category": 2,
+      "description": "This armor consists of a coat and leggings of leather covered with overlapping pieces of metal.",
+      "cost_gp": "50.00",
+      "weight_lb": "45.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 4,
+    "fields": {
+      "item": 53,
+      "armor_type": "medium",
+      "base_ac": 14,
+      "dex_bonus": "max2",
+      "strength_requirement": null,
+      "stealth_disadvantage": true,
+      "don_time": "5 minutes",
+      "doff_time": "1 minute"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 54,
+    "fields": {
+      "name": "Chain Mail",
+      "category": 2,
+      "description": "Made of interlocking metal rings, chain mail includes a layer of quilted fabric worn underneath.",
+      "cost_gp": "75.00",
+      "weight_lb": "55.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 5,
+    "fields": {
+      "item": 54,
+      "armor_type": "heavy",
+      "base_ac": 16,
+      "dex_bonus": "none",
+      "strength_requirement": 13,
+      "stealth_disadvantage": true,
+      "don_time": "10 minutes",
+      "doff_time": "5 minutes"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 55,
+    "fields": {
+      "name": "Plate",
+      "category": 2,
+      "description": "Plate consists of shaped, interlocking metal plates to cover the entire body.",
+      "cost_gp": "1500.00",
+      "weight_lb": "65.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 6,
+    "fields": {
+      "item": 55,
+      "armor_type": "heavy",
+      "base_ac": 18,
+      "dex_bonus": "none",
+      "strength_requirement": 15,
+      "stealth_disadvantage": true,
+      "don_time": "10 minutes",
+      "doff_time": "5 minutes"
+    }
+  },
+  {
+    "model": "srd.item",
+    "pk": 56,
+    "fields": {
+      "name": "Shield",
+      "category": 2,
+      "description": "A shield is made from wood or metal and is carried in one hand.",
+      "cost_gp": "10.00",
+      "weight_lb": "6.00",
+      "rarity": "common",
+      "magical": false,
+      "requires_attunement": false,
+      "attunement_requirements": "",
+      "properties": {}
+    }
+  },
+  {
+    "model": "srd.armor",
+    "pk": 7,
+    "fields": {
+      "item": 56,
+      "armor_type": "shield",
+      "base_ac": 2,
+      "dex_bonus": "none",
+      "strength_requirement": null,
+      "stealth_disadvantage": false,
+      "don_time": "1 action",
+      "doff_time": "1 action"
+    }
+  }
+]

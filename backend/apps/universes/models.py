@@ -86,3 +86,17 @@ class UniverseHardCanonDoc(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.universe.name})"
+
+
+# Import homebrew models to make them available from this module
+from .homebrew_models import (  # noqa: E402, F401
+    HomebrewBackground,
+    HomebrewBase,
+    HomebrewClass,
+    HomebrewFeat,
+    HomebrewItem,
+    HomebrewMonster,
+    HomebrewSpecies,
+    HomebrewSpell,
+    HomebrewSubclass,
+)

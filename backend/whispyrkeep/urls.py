@@ -22,6 +22,7 @@ urlpatterns = [
     # API v1 endpoints
     path("api/auth/", include("apps.accounts.urls")),
     path("api/llm/", include("apps.llm_config.urls")),
+    path("api/srd/", include("apps.srd.urls")),
     path("api/characters/", include("apps.characters.urls")),
     path("api/universes/", include("apps.universes.urls")),
     path("api/campaigns/", include("apps.campaigns.urls")),
