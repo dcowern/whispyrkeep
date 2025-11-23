@@ -7,3 +7,4 @@ export * from './campaign.service';
 export * from './catalog.service';
 export * from './export.service';
 export * from './llm-config.service';
+export * from './llm-endpoint.service';

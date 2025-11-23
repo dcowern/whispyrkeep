@@ -37,9 +37,46 @@ export interface UserSettings {
   font_size?: 'small' | 'medium' | 'large';
   line_spacing?: 'standard' | 'roomy' | 'relaxed';
   content_rating?: 'G' | 'PG' | 'PG13' | 'R' | 'NC17';
-  endpoint_pref?: string;
+  endpoint_pref?: EndpointPreference;
   created_at?: string;
   updated_at?: string;
+}
+
+export type LlmProvider = 'openai' | 'anthropic' | 'meta' | 'mistral' | 'google' | 'custom';
+export type LlmCompatibility = 'openai' | 'anthropic' | 'google';
+
+export interface EndpointPreference {
+  provider: LlmProvider;
+  base_url?: string;
+  compatibility?: LlmCompatibility;
+  model?: string;
+  manual?: boolean;
+  max_tokens?: number;
+  temperature?: number;
+}
+
+export interface LlmModelListRequest {
+  provider: LlmProvider;
+  base_url?: string;
+  compatibility?: LlmCompatibility;
+  api_key?: string;
+}
+
+export interface LlmModelListResponse {
+  models: string[];
+  resolved_base_url: string;
+  compatibility: LlmCompatibility;
+}
+
+export interface LlmValidationRequest extends LlmModelListRequest {
+  model?: string;
+  max_tokens?: number;
+  temperature?: number;
+}
+
+export interface LlmValidationResponse extends LlmModelListResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface LoginRequest {

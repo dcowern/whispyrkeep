@@ -8,6 +8,7 @@ from rest_framework import serializers
 
 from apps.llm_config.encryption import encrypt_api_key
 from apps.llm_config.models import LlmEndpointConfig
+from apps.llm_config.services import DEFAULT_BRAND_ENDPOINTS, DEFAULT_COMPATIBILITY
 
 
 class LlmEndpointConfigSerializer(serializers.ModelSerializer):
@@ -83,3 +84,61 @@ class LlmEndpointConfigUpdateSerializer(LlmEndpointConfigSerializer):
         if value:
             return value.strip()
         return value
+
+
+class LlmEndpointProbeSerializer(serializers.Serializer):
+    """Serializer for listing models and validating endpoint settings."""
+
+    provider = serializers.ChoiceField(
+        choices=["openai", "anthropic", "meta", "mistral", "google", "custom"],
+        help_text="Provider name or custom endpoint",
+    )
+    base_url = serializers.URLField(
+        required=False,
+        allow_blank=True,
+        help_text="Base URL; required for custom providers",
+    )
+    compatibility = serializers.ChoiceField(
+        choices=["openai", "anthropic", "google"],
+        required=False,
+        help_text="Protocol compatibility for the endpoint",
+    )
+    api_key = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+        help_text="API key used to talk to the provider (not persisted)",
+    )
+    model = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text="Optional model name to validate",
+    )
+    max_tokens = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        help_text="Optional max_tokens to send during probe; omitted when not provided.",
+    )
+    temperature = serializers.FloatField(
+        required=False,
+        help_text="Optional temperature to send during probe; omitted when not provided.",
+    )
+
+    def validate(self, attrs):
+        provider = attrs.get("provider", "")
+        base_url = attrs.get("base_url", "")
+
+        if provider == "custom" and not base_url:
+            raise serializers.ValidationError(
+                {"base_url": "Base URL is required for custom providers."}
+            )
+
+        if provider != "custom":
+            attrs["base_url"] = base_url or DEFAULT_BRAND_ENDPOINTS.get(provider, "")
+            attrs["compatibility"] = attrs.get("compatibility") or DEFAULT_COMPATIBILITY.get(
+                provider, "openai"
+            )
+        else:
+            attrs["compatibility"] = attrs.get("compatibility") or "openai"
+
+        return attrs

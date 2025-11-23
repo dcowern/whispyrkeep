@@ -199,3 +199,82 @@ class TestLlmConfigDetailView:
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestLlmEndpointDiscoveryViews:
+    """Tests for model discovery and validation helpers."""
+
+    def test_list_models_maps_brand_url(self, authenticated_client, monkeypatch):
+        """Default providers should map to known base URLs and return parsed models."""
+
+        called = {}
+
+        def fake_get(url, headers=None, params=None, timeout=None):  # pragma: no cover - monkeypatched
+            called["url"] = url
+
+            class Resp:
+                status_code = 200
+
+                def json(self):
+                    return {"data": [{"id": "gpt-4o"}, {"id": "gpt-4o-mini"}]}
+
+            return Resp()
+
+        monkeypatch.setattr("apps.llm_config.services.requests.get", fake_get)
+
+        url = reverse("llm_model_list")
+        response = authenticated_client.post(
+            url,
+            {"provider": "openai", "api_key": "sk-test"},
+            format="json",
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert called["url"] == "https://api.openai.com/v1/models"
+        assert response.data["models"] == ["gpt-4o", "gpt-4o-mini"]
+
+    def test_validate_endpoint_falls_back_to_probe(self, authenticated_client, monkeypatch):
+        """If model listing fails, validation should probe the provided model."""
+
+        def fake_get(url, headers=None, params=None, timeout=None):  # pragma: no cover - monkeypatched
+            from requests import RequestException
+
+            raise RequestException("boom")
+
+        class FakeResp:
+            status_code = 200
+            text = "ok"
+
+            def json(self):
+                return {}
+
+        monkeypatch.setattr("apps.llm_config.services.requests.get", fake_get)
+        monkeypatch.setattr("apps.llm_config.services.requests.post", lambda *args, **kwargs: FakeResp())
+
+        url = reverse("llm_config_validate")
+        response = authenticated_client.post(
+            url,
+            {
+                "provider": "custom",
+                "base_url": "https://local.llm",
+                "compatibility": "openai",
+                "model": "my-local-model",
+            },
+            format="json",
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["success"] is True
+
+    def test_validate_requires_base_url_for_custom(self, authenticated_client):
+        """Custom providers must supply a base_url."""
+
+        url = reverse("llm_config_validate")
+        response = authenticated_client.post(
+            url,
+            {"provider": "custom", "model": "foo"},
+            format="json",
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

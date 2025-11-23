@@ -231,6 +231,10 @@ All patches must pass:
 3. Implement accessibility (keyboard nav, ARIA, ND modes)
 4. Write component tests
 5. Add route if needed
+6. Run npm run build
+7. Resolve any build errors
+8. Repeat npm run build to ensure errors are fixed; repeat as needed until it builds cleanly
+9. Test the feature using playwright and resolve any issues
 
 ## Resources
 

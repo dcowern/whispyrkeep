@@ -128,4 +128,46 @@ class UserSettingsSerializer(serializers.ModelSerializer):
                         {"safety_defaults": f"Invalid content_rating. Must be one of: {valid_ratings}"}
                     )
 
+        # Validate endpoint preference
+        if "endpoint_pref" in value:
+            endpoint_pref = value["endpoint_pref"]
+            if isinstance(endpoint_pref, str):
+                # Legacy string-based setting; allow passthrough until user updates.
+                endpoint_pref = {"model": endpoint_pref, "manual": True}
+                value["endpoint_pref"] = endpoint_pref
+
+            if not isinstance(endpoint_pref, dict):
+                raise serializers.ValidationError(
+                    {"endpoint_pref": "Must be a JSON object."}
+                )
+
+            provider = endpoint_pref.get("provider")
+            if provider and provider not in {
+                "openai",
+                "anthropic",
+                "meta",
+                "mistral",
+                "google",
+                "custom",
+            }:
+                raise serializers.ValidationError(
+                    {"endpoint_pref": "Invalid provider selection."}
+                )
+
+            if provider == "custom" and not endpoint_pref.get("base_url"):
+                raise serializers.ValidationError(
+                    {"endpoint_pref": "Custom providers require a base_url."}
+                )
+
+            compatibility = endpoint_pref.get("compatibility")
+            if compatibility and compatibility not in {"openai", "anthropic", "google"}:
+                raise serializers.ValidationError(
+                    {"endpoint_pref": "Invalid compatibility value."}
+                )
+
+            if "model" in endpoint_pref and not isinstance(endpoint_pref.get("model"), str):
+                raise serializers.ValidationError(
+                    {"endpoint_pref": "Model must be a string if provided."}
+                )
+
         return value
