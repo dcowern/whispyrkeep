@@ -13,9 +13,6 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
-from typing import Optional
-
-from django.db import transaction
 
 from apps.campaigns.models import Campaign, CanonicalCampaignState, TurnEvent
 from apps.characters.models import CharacterSheet
@@ -71,7 +68,7 @@ class StateReplayResult:
     """Result of state replay operation."""
 
     success: bool
-    state: Optional[CampaignState] = None
+    state: CampaignState | None = None
     turn_index: int = 0
     from_snapshot: bool = False
     turns_replayed: int = 0
@@ -163,7 +160,7 @@ class StateService:
                 "temp": 0,
             },
             "conditions": [],
-            "inventory": character.inventory_json,
+            "inventory": character.equipment_json,
             "features": character.features_json,
             "spell_slots": {},
             "resources": {},
@@ -193,7 +190,7 @@ class StateService:
     def replay_to_turn(
         self,
         campaign: Campaign,
-        turn_index: Optional[int] = None,
+        turn_index: int | None = None,
     ) -> StateReplayResult:
         """
         Replay campaign state to a specific turn.
@@ -319,7 +316,7 @@ class StateService:
         campaign: Campaign,
         state: CampaignState,
         force: bool = False,
-    ) -> Optional[CanonicalCampaignState]:
+    ) -> CanonicalCampaignState | None:
         """
         Save a state snapshot.
 

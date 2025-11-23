@@ -75,7 +75,8 @@ class UniverseHardCanonDocSerializer(serializers.ModelSerializer):
             "never_compact",
             "created_at",
         ]
-        read_only_fields = ["id", "checksum", "created_at"]
+        # universe is read-only since it's set from the URL in nested routes
+        read_only_fields = ["id", "universe", "checksum", "created_at"]
 
 
 # ==================== Base Homebrew Serializer ====================

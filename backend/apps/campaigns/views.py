@@ -4,8 +4,7 @@ Campaign views - CRUD operations and state management.
 Based on SYSTEM_DESIGN.md Epic 7 requirements.
 """
 
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView

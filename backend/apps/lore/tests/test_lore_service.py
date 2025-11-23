@@ -4,9 +4,10 @@ Tests for lore service.
 Tests the LoreService for hard canon ingestion and lore retrieval.
 """
 
+from unittest.mock import MagicMock
+
 import pytest
 from django.contrib.auth import get_user_model
-from unittest.mock import MagicMock, patch
 
 from apps.lore.models import LoreChunk
 from apps.lore.services.lore_service import LoreService

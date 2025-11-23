@@ -8,9 +8,7 @@ import pytest
 
 from apps.characters.services import (
     ABILITY_ABBREVIATIONS,
-    MAX_ABILITY_SCORE,
     MAX_LEVEL,
-    MIN_ABILITY_SCORE,
     MIN_LEVEL,
     CharacterValidationService,
     ValidationResult,
@@ -78,7 +76,7 @@ class TestValidationResult:
 class TestCharacterValidationService:
     """Tests for CharacterValidationService."""
 
-    def test_valid_character(self, validation_service, valid_character_data):
+    def test_valid_character(self, validation_service, valid_character_data, srd_data):
         """Test validation of a valid character."""
         result = validation_service.validate(**valid_character_data)
         assert result.is_valid is True
@@ -115,7 +113,7 @@ class TestCharacterValidationService:
         assert result.is_valid is False
         assert any(e.field == "level" and e.code == "max_value" for e in result.errors)
 
-    def test_valid_level_range(self, validation_service, valid_character_data):
+    def test_valid_level_range(self, validation_service, valid_character_data, srd_data):
         """Test that all valid levels work."""
         for level in [MIN_LEVEL, 10, MAX_LEVEL]:
             valid_character_data["level"] = level
@@ -202,7 +200,7 @@ class TestBackgroundValidation:
 class TestAbilityScoreValidation:
     """Tests for ability score validation."""
 
-    def test_valid_ability_scores(self, validation_service, valid_character_data):
+    def test_valid_ability_scores(self, validation_service, valid_character_data, srd_data):
         """Test valid ability scores."""
         result = validation_service.validate(**valid_character_data)
         assert result.is_valid is True
@@ -238,7 +236,7 @@ class TestAbilityScoreValidation:
         )
 
     def test_ability_above_standard_max_warning(
-        self, validation_service, valid_character_data
+        self, validation_service, valid_character_data, srd_data
     ):
         """Test that ability above 20 generates warning but is valid."""
         valid_character_data["ability_scores"]["str"] = 22
@@ -260,7 +258,7 @@ class TestAbilityScoreValidation:
             for e in result.errors
         )
 
-    def test_missing_abilities_warning(self, validation_service, valid_character_data):
+    def test_missing_abilities_warning(self, validation_service, valid_character_data, srd_data):
         """Test that missing abilities generate warning."""
         valid_character_data["ability_scores"] = {"str": 16}  # Only one ability
         result = validation_service.validate(**valid_character_data)
@@ -286,7 +284,7 @@ class TestSkillValidation:
     """Tests for skill validation."""
 
     def test_expertise_without_proficiency_warning(
-        self, validation_service, valid_character_data
+        self, validation_service, valid_character_data, srd_data
     ):
         """Test that expertise without proficiency generates warning."""
         valid_character_data["skills"] = {

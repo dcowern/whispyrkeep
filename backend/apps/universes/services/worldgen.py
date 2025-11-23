@@ -12,19 +12,11 @@ Based on SYSTEM_DESIGN.md section 9.
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import Optional
 
 from django.db import transaction
 
 from apps.llm_config.models import LlmEndpointConfig
 from apps.universes.models import (
-    HomebrewBackground,
-    HomebrewClass,
-    HomebrewFeat,
-    HomebrewItem,
-    HomebrewMonster,
-    HomebrewSpecies,
-    HomebrewSpell,
     Universe,
     UniverseHardCanonDoc,
 )
@@ -71,7 +63,7 @@ class WorldgenRequest:
     max_feats: int = 3
 
     # Seed for deterministic generation (optional)
-    seed: Optional[int] = None
+    seed: int | None = None
 
 
 @dataclass
@@ -79,11 +71,11 @@ class WorldgenResult:
     """Result of worldgen operation."""
 
     success: bool
-    universe_id: Optional[str] = None
+    universe_id: str | None = None
     created_content: dict = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
-    llm_prompt: Optional[str] = None  # For debugging
+    llm_prompt: str | None = None  # For debugging
 
 
 class WorldgenService:
@@ -105,7 +97,7 @@ class WorldgenService:
         self.user = user
         self.llm_config = self._get_llm_config()
 
-    def _get_llm_config(self) -> Optional[LlmEndpointConfig]:
+    def _get_llm_config(self) -> LlmEndpointConfig | None:
         """Get user's active LLM configuration."""
         return LlmEndpointConfig.objects.filter(
             user=self.user,
@@ -122,7 +114,6 @@ class WorldgenService:
         Returns:
             WorldgenResult with created universe and content
         """
-        errors = []
         warnings = []
 
         # Validate request
@@ -306,7 +297,7 @@ class WorldgenService:
 
         if request.low_high_magic < 0.3:
             tone_descriptions.append("low magic")
-        elif request.low_high_magic > 0.7:
+        elif request.low_high_magic >= 0.7:
             tone_descriptions.append("high magic")
 
         tone_str = ", ".join(tone_descriptions) if tone_descriptions else "balanced"
@@ -345,7 +336,7 @@ Assign appropriate power tiers (weak, standard, strong, very_strong, legendary) 
 
         return prompt
 
-    def _call_llm_for_content(self, prompt: str, request: WorldgenRequest) -> Optional[dict]:
+    def _call_llm_for_content(self, prompt: str, request: WorldgenRequest) -> dict | None:
         """
         Call LLM to generate content.
 

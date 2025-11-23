@@ -6,7 +6,6 @@ Tests the CharacterSheet model with all SRD 5.2 character attributes.
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError
 
 from apps.characters.models import CharacterSheet
 from apps.universes.models import Universe

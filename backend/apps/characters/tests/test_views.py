@@ -179,7 +179,7 @@ class TestCharacterCreateEndpoint:
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_create_character_success(self, authenticated_client, user):
+    def test_create_character_success(self, authenticated_client, user, srd_data):
         """Test creating a character."""
         data = {
             "name": "New Character",
@@ -203,9 +203,9 @@ class TestCharacterCreateEndpoint:
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["name"] == "New Character"
         assert response.data["level"] == 3
-        assert response.data["user"] == str(user.id)
+        assert str(response.data["user"]) == str(user.id)
 
-    def test_create_character_with_universe(self, authenticated_client, universe):
+    def test_create_character_with_universe(self, authenticated_client, universe, srd_data):
         """Test creating a character tied to a universe."""
         data = {
             "name": "Universe Character",
@@ -219,7 +219,7 @@ class TestCharacterCreateEndpoint:
         )
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data["universe"] == str(universe.id)
+        assert str(response.data["universe"]) == str(universe.id)
 
     def test_create_character_missing_required_fields(self, authenticated_client):
         """Test creating character with missing fields fails."""
@@ -302,7 +302,7 @@ class TestCharacterUpdateEndpoint:
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_full_update_character(self, authenticated_client, character):
+    def test_full_update_character(self, authenticated_client, character, srd_data):
         """Test full update of character."""
         data = {
             "name": "Updated Character",
@@ -329,7 +329,7 @@ class TestCharacterUpdateEndpoint:
         assert response.data["name"] == "Updated Character"
         assert response.data["level"] == 10
 
-    def test_partial_update_character(self, authenticated_client, character):
+    def test_partial_update_character(self, authenticated_client, character, srd_data):
         """Test partial update of character."""
         response = authenticated_client.patch(
             reverse("character_detail", kwargs={"id": character.id}),

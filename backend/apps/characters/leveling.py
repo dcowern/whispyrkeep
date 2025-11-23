@@ -11,11 +11,9 @@ Handles SRD 5.2 leveling mechanics including:
 
 import random
 from dataclasses import dataclass
-from typing import Optional
 
 from apps.characters.models import CharacterSheet
 from apps.srd.models import CharacterClass
-
 
 # SRD 5.2 Experience Point thresholds for each level
 XP_THRESHOLDS = {
@@ -96,7 +94,7 @@ class HitPointCalculation:
 
     hit_die: int
     constitution_modifier: int
-    roll_result: Optional[int]  # None if using average
+    roll_result: int | None  # None if using average
     total: int
     used_average: bool
 
@@ -138,7 +136,7 @@ class LevelingService:
         """
         return XP_THRESHOLDS.get(level, 0)
 
-    def get_xp_to_next_level(self, current_level: int, current_xp: int) -> Optional[int]:
+    def get_xp_to_next_level(self, current_level: int, current_xp: int) -> int | None:
         """
         Get XP needed to reach the next level.
 
@@ -183,7 +181,7 @@ class LevelingService:
         hit_die: int,
         constitution_modifier: int,
         use_average: bool = True,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> HitPointCalculation:
         """
         Calculate HP increase for leveling up.
@@ -275,7 +273,7 @@ class LevelingService:
         self,
         character: CharacterSheet,
         use_average_hp: bool = True,
-        hp_roll_seed: Optional[int] = None,
+        hp_roll_seed: int | None = None,
     ) -> LevelUpResult:
         """
         Process a level-up for a character.
@@ -378,7 +376,7 @@ class LevelingService:
         self,
         character: CharacterSheet,
         use_average_hp: bool = True,
-        hp_roll_seed: Optional[int] = None,
+        hp_roll_seed: int | None = None,
     ) -> LevelUpResult:
         """
         Apply level-up to character and save.

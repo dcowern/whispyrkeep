@@ -7,6 +7,7 @@ Tests async tasks for worldgen and catalog pre-generation.
 import pytest
 from django.contrib.auth import get_user_model
 
+from apps.srd.models import ItemCategory, MonsterType, SpellSchool
 from apps.universes.models import (
     HomebrewBackground,
     HomebrewFeat,
@@ -69,38 +70,50 @@ def universe_with_homebrew(universe):
         universe=universe,
         name="Test Species",
         description="A test species",
-        traits_json={"speed": 30},
+        speed=30,
         is_locked=False,
     )
+    # Create spell school for homebrew spells
+    evocation = SpellSchool.objects.create(name="Evocation", description="Damage spells")
     HomebrewSpell.objects.create(
         universe=universe,
         name="Test Spell",
         description="A test spell",
         level=1,
-        school="evocation",
+        school=evocation,
+        casting_time="1 action",
         is_locked=False,
     )
+    # Create item category for homebrew items
+    weapon_category = ItemCategory.objects.create(name="Weapon", description="Weapons")
     HomebrewItem.objects.create(
         universe=universe,
         name="Test Item",
         description="A test item",
-        item_type="weapon",
+        category=weapon_category,
         rarity="common",
         is_locked=False,
     )
+    # Create monster type for homebrew monsters
+    beast_type = MonsterType.objects.create(name="Beast", description="Beasts")
     HomebrewMonster.objects.create(
         universe=universe,
         name="Test Monster",
         description="A test monster",
+        monster_type=beast_type,
+        size="medium",
+        armor_class=12,
+        hit_points=10,
+        hit_dice="2d8+2",
         challenge_rating="1",
-        stats_json={"hp": 10, "ac": 12},
+        experience_points=200,
         is_locked=False,
     )
     HomebrewFeat.objects.create(
         universe=universe,
         name="Test Feat",
         description="A test feat",
-        prerequisites_json={},
+        prerequisites={},
         is_locked=False,
     )
     HomebrewBackground.objects.create(

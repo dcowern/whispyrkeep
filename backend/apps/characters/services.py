@@ -6,10 +6,8 @@ Based on SYSTEM_DESIGN.md sections 5.1 and 7.4.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from apps.srd.models import (
-    AbilityScore,
     Background,
     CharacterClass,
     Skill,
@@ -70,7 +68,7 @@ class CharacterValidationService:
     - Universe-specific homebrew content (if universe is specified)
     """
 
-    def __init__(self, universe: Optional[Universe] = None):
+    def __init__(self, universe: Universe | None = None):
         """
         Initialize the validation service.
 
@@ -87,13 +85,13 @@ class CharacterValidationService:
         background: str,
         level: int = 1,
         subclass: str = "",
-        ability_scores: Optional[dict] = None,
-        skills: Optional[dict] = None,
-        proficiencies: Optional[dict] = None,
-        features: Optional[dict] = None,
-        spellbook: Optional[dict] = None,
-        equipment: Optional[dict] = None,
-        homebrew_overrides: Optional[dict] = None,
+        ability_scores: dict | None = None,
+        skills: dict | None = None,
+        proficiencies: dict | None = None,
+        features: dict | None = None,
+        spellbook: dict | None = None,
+        equipment: dict | None = None,
+        homebrew_overrides: dict | None = None,
     ) -> ValidationResult:
         """
         Validate all character data.
@@ -193,7 +191,7 @@ class CharacterValidationService:
 
     def _validate_class(
         self, character_class: str, result: ValidationResult
-    ) -> Optional[CharacterClass]:
+    ) -> CharacterClass | None:
         """Validate character class against SRD and homebrew."""
         if not character_class or not character_class.strip():
             result.add_error("character_class", "Character class is required", "required")
@@ -350,7 +348,7 @@ class CharacterValidationService:
                 )
 
         # Check all abilities are present
-        present_abilities = {k.lower() for k in ability_scores.keys()}
+        present_abilities = {k.lower() for k in ability_scores}
         missing = ABILITY_ABBREVIATIONS - present_abilities
         if missing:
             result.add_warning(
@@ -373,21 +371,19 @@ class CharacterValidationService:
                 )
                 continue
 
-            # Validate skill data structure
-            if isinstance(skill_data, dict):
-                # Check for expertise without proficiency
-                if skill_data.get("expertise") and not skill_data.get("proficient"):
-                    result.add_warning(
-                        f"Skill '{skill_name}' has expertise but not proficiency "
-                        "(expertise typically requires proficiency first)"
-                    )
+            # Validate skill data structure - check for expertise without proficiency
+            if isinstance(skill_data, dict) and skill_data.get("expertise") and not skill_data.get("proficient"):
+                result.add_warning(
+                    f"Skill '{skill_name}' has expertise but not proficiency "
+                    "(expertise typically requires proficiency first)"
+                )
 
     def _validate_spellbook(
         self,
         spellbook: dict,
         character_class: str,
         level: int,
-        class_obj: Optional[CharacterClass],
+        class_obj: CharacterClass | None,
         result: ValidationResult,
     ) -> None:
         """Validate spellbook data."""
@@ -432,14 +428,13 @@ class CharacterValidationService:
                     f"'{cantrip_name}' is not a cantrip (it's level {spell.level})",
                     "not_cantrip",
                 )
-            elif not spell:
-                # Check homebrew
-                if not self._is_valid_spell(cantrip_name):
-                    result.add_error(
-                        "spellbook",
-                        f"Unknown cantrip: '{cantrip_name}'",
-                        "invalid_spell",
-                    )
+            elif not spell and not self._is_valid_spell(cantrip_name):
+                # Not a known SRD spell and not valid homebrew
+                result.add_error(
+                    "spellbook",
+                    f"Unknown cantrip: '{cantrip_name}'",
+                    "invalid_spell",
+                )
 
         # Validate spell slots
         spell_slots = spellbook.get("spell_slots", {})
@@ -512,7 +507,7 @@ class CharacterValidationService:
         # Convert warnings to errors for campaign play
         ability_scores = kwargs.get("ability_scores", {})
         if ability_scores:
-            present_abilities = {k.lower() for k in ability_scores.keys()}
+            present_abilities = {k.lower() for k in ability_scores}
             missing = ABILITY_ABBREVIATIONS - present_abilities
             if missing:
                 result.add_error(

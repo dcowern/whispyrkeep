@@ -38,7 +38,7 @@ def embed_hard_canon_document_task(
     from apps.universes.models import UniverseHardCanonDoc
 
     try:
-        doc = UniverseHardCanonDoc.objects.get(id=doc_id)
+        UniverseHardCanonDoc.objects.get(id=doc_id)
     except UniverseHardCanonDoc.DoesNotExist:
         return {"success": False, "error": "Document not found"}
 

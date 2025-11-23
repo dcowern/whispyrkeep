@@ -13,13 +13,12 @@ Based on SYSTEM_DESIGN.md:
 import hashlib
 import logging
 from dataclasses import dataclass, field
-from typing import Optional
 
 from django.db import transaction
 
 from apps.lore.models import LoreChunk
-from apps.lore.services.chroma_client import ChromaClientService, LoreQueryResult
-from apps.lore.services.chunking import ChunkingService, LoreDeltaChunker, TextChunk
+from apps.lore.services.chroma_client import ChromaClientService
+from apps.lore.services.chunking import ChunkingService, LoreDeltaChunker
 from apps.universes.models import Universe, UniverseHardCanonDoc
 
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ class LoreIngestionResult:
     """Result of lore ingestion operation."""
 
     success: bool
-    document_id: Optional[str] = None
+    document_id: str | None = None
     chunks_created: int = 0
     errors: list[str] = field(default_factory=list)
 
@@ -73,7 +72,7 @@ class LoreService:
         title: str,
         raw_text: str,
         source_type: str = "upload",
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
         never_compact: bool = True,
     ) -> LoreIngestionResult:
         """

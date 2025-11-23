@@ -12,7 +12,6 @@ Based on SYSTEM_DESIGN.md:
 import hashlib
 import logging
 from dataclasses import dataclass, field
-from typing import Optional
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
@@ -54,7 +53,7 @@ class ChromaClientService:
         results = service.query(universe_id, "What is the history of...", top_k=5)
     """
 
-    def __init__(self, chroma_url: Optional[str] = None):
+    def __init__(self, chroma_url: str | None = None):
         """
         Initialize ChromaDB client.
 
@@ -114,9 +113,9 @@ class ChromaClientService:
         document_id: str,
         text: str,
         chunk_type: str = "hard_canon",
-        source_ref: Optional[str] = None,
-        tags: Optional[list[str]] = None,
-        time_range: Optional[dict] = None,
+        source_ref: str | None = None,
+        tags: list[str] | None = None,
+        time_range: dict | None = None,
     ) -> str:
         """
         Add a document/chunk to the universe collection.
@@ -218,7 +217,7 @@ class ChromaClientService:
         universe_id: str,
         query_text: str,
         top_k: int = 5,
-        chunk_type: Optional[str] = None,
+        chunk_type: str | None = None,
         include_soft_lore: bool = True,
     ) -> LoreQueryResult:
         """

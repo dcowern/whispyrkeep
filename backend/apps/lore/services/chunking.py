@@ -10,9 +10,7 @@ Based on SYSTEM_DESIGN.md:
 
 import hashlib
 import re
-import uuid
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -65,8 +63,8 @@ class ChunkingService:
         text: str,
         source_ref: str,
         chunk_type: str = "hard_canon",
-        tags: Optional[list[str]] = None,
-        time_range: Optional[dict] = None,
+        tags: list[str] | None = None,
+        time_range: dict | None = None,
         strategy: str = "auto",
     ) -> list[TextChunk]:
         """
@@ -298,8 +296,8 @@ class ChunkingService:
         new_text: str,
         source_ref: str,
         chunk_type: str = "hard_canon",
-        tags: Optional[list[str]] = None,
-        time_range: Optional[dict] = None,
+        tags: list[str] | None = None,
+        time_range: dict | None = None,
     ) -> tuple[list[TextChunk], list[str]]:
         """
         Re-chunk a document and determine which chunks changed.

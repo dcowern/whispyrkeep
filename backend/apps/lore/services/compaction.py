@@ -12,7 +12,6 @@ Based on SYSTEM_DESIGN.md:
 import logging
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Optional
 
 from django.db import transaction
 from django.utils import timezone
@@ -284,7 +283,7 @@ class CompactionService:
         self,
         chunks: list[LoreChunk],
         ratio: float,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Summarize a list of chunks.
 
@@ -301,7 +300,7 @@ class CompactionService:
         self,
         text: str,
         ratio: float,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Summarize text to target ratio.
 

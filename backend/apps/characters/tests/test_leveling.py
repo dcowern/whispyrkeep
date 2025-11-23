@@ -227,7 +227,7 @@ class TestASILevels:
 
     def test_standard_asi_levels(self, leveling_service):
         """Test standard class ASI levels."""
-        assert ASI_LEVELS == {4, 8, 12, 16, 19}
+        assert {4, 8, 12, 16, 19} == ASI_LEVELS
 
     def test_fighter_asi_levels(self, leveling_service):
         """Test Fighter gets extra ASIs."""
@@ -361,6 +361,7 @@ class TestLevelSummary:
         assert summary["asi_levels_remaining"] == []
 
 
+@pytest.mark.django_db
 class TestHitDie:
     """Tests for hit die retrieval."""
 

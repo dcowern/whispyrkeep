@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from apps.universes.models import Universe, UniverseHardCanonDoc
+from apps.universes.models import Universe
 from apps.universes.services.worldgen import WorldgenRequest, WorldgenService
 
 User = get_user_model()

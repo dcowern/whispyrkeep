@@ -38,40 +38,17 @@ def generate_universe_content_task(
 
     try:
         user = User.objects.get(id=user_id)
-        universe = Universe.objects.get(id=universe_id, user=user)
+        # Verify universe exists and belongs to user
+        Universe.objects.get(id=universe_id, user=user)
     except (User.DoesNotExist, Universe.DoesNotExist) as e:
         return {"success": False, "error": str(e)}
 
     # Build request based on content types
-    request = WorldgenRequest(
-        name=universe.name,
-        description=universe.description,
-        grimdark_cozy=universe.tone_profile_json.get("grimdark_cozy", 0.5),
-        comedy_serious=universe.tone_profile_json.get("comedy_serious", 0.5),
-        low_high_magic=universe.tone_profile_json.get("low_high_magic", 0.5),
-        sandbox_railroad=universe.tone_profile_json.get("sandbox_railroad", 0.5),
-        combat_roleplay=universe.tone_profile_json.get("combat_roleplay", 0.5),
-        themes=universe.tone_profile_json.get("themes", []),
-        generate_species="species" in content_types,
-        generate_classes="classes" in content_types,
-        generate_backgrounds="backgrounds" in content_types,
-        generate_spells="spells" in content_types,
-        generate_items="items" in content_types,
-        generate_monsters="monsters" in content_types,
-        generate_feats="feats" in content_types,
-        max_species=max_items_per_type if "species" in content_types else 0,
-        max_classes=max_items_per_type if "classes" in content_types else 0,
-        max_backgrounds=max_items_per_type if "backgrounds" in content_types else 0,
-        max_spells=max_items_per_type if "spells" in content_types else 0,
-        max_items=max_items_per_type if "items" in content_types else 0,
-        max_monsters=max_items_per_type if "monsters" in content_types else 0,
-        max_feats=max_items_per_type if "feats" in content_types else 0,
-    )
-
-    service = WorldgenService(user)
-
-    # Note: This is a stub - actual LLM generation would happen in the service
-    # For now, just return the request parameters
+    # Note: This is a stub - actual LLM generation would use WorldgenService
+    # For now, WorldgenRequest and WorldgenService are imported but unused
+    # pending LLM integration
+    _ = WorldgenRequest  # Silence unused import warning
+    _ = WorldgenService  # Silence unused import warning
     return {
         "success": True,
         "universe_id": str(universe_id),
