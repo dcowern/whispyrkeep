@@ -295,8 +295,8 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.3.1 | SRD picker UI | `NOT_STARTED` | `NOT_STARTED` |
-| 12.3.2 | Homebrew editor | `NOT_STARTED` | `NOT_STARTED` |
+| 12.3.1 | SRD picker UI | `DONE` | `DONE` |
+| 12.3.2 | Homebrew editor | `DONE` | `DONE` |
 
 ### FEAT 12.4 — Universe Builder UI
 
@@ -325,9 +325,9 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.7.1 | Low-stim toggle | `NOT_STARTED` | `NOT_STARTED` |
-| 12.7.2 | Concise recap toggle | `NOT_STARTED` | `NOT_STARTED` |
-| 12.7.3 | Readability controls | `NOT_STARTED` | `NOT_STARTED` |
+| 12.7.1 | Low-stim toggle | `DONE` | `DONE` |
+| 12.7.2 | Concise recap toggle | `DONE` | `DONE` |
+| 12.7.3 | Readability controls | `DONE` | `DONE` |
 
 ### FEAT 12.8 — Rewind UI
 
@@ -404,7 +404,7 @@
 | 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 2 | 0 | 0 |
 | 11 | 3 | 3 | 0 | 0 |
-| 12 | 23 | 10 | 0 | 13 |
+| 12 | 23 | 15 | 0 | 8 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **71** | **0** | **21** |
+| **TOTAL** | **92** | **76** | **0** | **16** |
