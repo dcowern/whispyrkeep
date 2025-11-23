@@ -163,15 +163,15 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 6.0.1 | SRD-ish calendar module | `NOT_STARTED` | `NOT_STARTED` |
-| 6.0.2 | Monotonic time validator | `NOT_STARTED` | `NOT_STARTED` |
+| 6.0.1 | SRD-ish calendar module | `DONE` | `DONE` |
+| 6.0.2 | Monotonic time validator | `DONE` | `DONE` |
 
 ### FEAT 6.1 — Scenario Placement
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 6.1.1 | Relative time resolver | `NOT_STARTED` | `NOT_STARTED` |
-| 6.1.2 | Universe timeline rebuild task | `NOT_STARTED` | `NOT_STARTED` |
+| 6.1.1 | Relative time resolver | `DONE` | `DONE` |
+| 6.1.2 | Universe timeline rebuild task | `DONE` | `DONE` |
 
 ---
 
@@ -199,32 +199,32 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 8.0.1 | OpenAI-compatible chat client | `NOT_STARTED` | `NOT_STARTED` |
-| 8.0.2 | Retry + backoff | `NOT_STARTED` | `NOT_STARTED` |
+| 8.0.1 | OpenAI-compatible chat client | `DONE` | `DONE` |
+| 8.0.2 | Retry + backoff | `DONE` | `DONE` |
 
 ### FEAT 8.1 — Prompt System
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 8.1.1 | System prompt template | `NOT_STARTED` | N/A |
-| 8.1.2 | Universe prompt builder | `NOT_STARTED` | `NOT_STARTED` |
-| 8.1.3 | Campaign prompt builder | `NOT_STARTED` | `NOT_STARTED` |
-| 8.1.4 | Lore injection | `NOT_STARTED` | `NOT_STARTED` |
+| 8.1.1 | System prompt template | `DONE` | N/A |
+| 8.1.2 | Universe prompt builder | `DONE` | `DONE` |
+| 8.1.3 | Campaign prompt builder | `DONE` | `DONE` |
+| 8.1.4 | Lore injection | `DONE` | `DONE` |
 
 ### FEAT 8.2 — Two-Stage Turn Flow
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 8.2.1 | Turn proposal call | `NOT_STARTED` | `NOT_STARTED` |
-| 8.2.2 | Mechanics execution + second call | `NOT_STARTED` | `NOT_STARTED` |
-| 8.2.3 | Turn persistence | `NOT_STARTED` | `NOT_STARTED` |
+| 8.2.1 | Turn proposal call | `DONE` | `DONE` |
+| 8.2.2 | Mechanics execution + second call | `DONE` | `DONE` |
+| 8.2.3 | Turn persistence | `DONE` | `DONE` |
 
 ### FEAT 8.3 — Repair Loop
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 8.3.1 | Patch/roll validation | `NOT_STARTED` | `NOT_STARTED` |
-| 8.3.2 | Auto-repair prompt | `NOT_STARTED` | `NOT_STARTED` |
+| 8.3.1 | Patch/roll validation | `DONE` | `DONE` |
+| 8.3.2 | Auto-repair prompt | `DONE` | `DONE` |
 
 ---
 
@@ -398,13 +398,13 @@
 | 3 | 4 | 4 | 0 | 0 |
 | 4 | 5 | 5 | 0 | 0 |
 | 5 | 8 | 8 | 0 | 0 |
-| 6 | 4 | 0 | 0 | 4 |
+| 6 | 4 | 4 | 0 | 0 |
 | 7 | 4 | 4 | 0 | 0 |
-| 8 | 10 | 0 | 0 | 10 |
+| 8 | 10 | 10 | 0 | 0 |
 | 9 | 5 | 0 | 0 | 5 |
 | 10 | 2 | 0 | 0 | 2 |
 | 11 | 3 | 0 | 0 | 3 |
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **37** | **0** | **55** |
+| **TOTAL** | **92** | **51** | **0** | **41** |
