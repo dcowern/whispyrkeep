@@ -37,8 +37,8 @@
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
 | 0.1.1 | Create monorepo skeleton | `DONE` | N/A |
-| 0.1.2 | Docker Compose baseline | `NOT_STARTED` | N/A |
-| 0.1.3 | CI pipeline (GitHub Actions) | `NOT_STARTED` | N/A |
+| 0.1.2 | Docker Compose baseline | `DONE` | N/A |
+| 0.1.3 | CI pipeline (GitHub Actions) | `DONE` | N/A |
 
 ---
 
@@ -48,14 +48,14 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 1.0.1 | Create Django project | `NOT_STARTED` | N/A |
-| 1.0.2 | Postgres connection + migrations | `NOT_STARTED` | N/A |
+| 1.0.1 | Create Django project | `DONE` | N/A |
+| 1.0.2 | Postgres connection + migrations | `DONE` | N/A |
 
 ### FEAT 1.1 — Auth & User Settings
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 1.1.1 | User model & profile | `NOT_STARTED` | `NOT_STARTED` |
+| 1.1.1 | User model & profile | `DONE` | `DONE` |
 | 1.1.2 | Auth endpoints | `NOT_STARTED` | `NOT_STARTED` |
 | 1.1.3 | User settings endpoints | `NOT_STARTED` | `NOT_STARTED` |
 
@@ -392,8 +392,8 @@
 
 | Epic | Total | Done | In Progress | Not Started |
 |------|-------|------|-------------|-------------|
-| 0 | 3 | 1 | 0 | 2 |
-| 1 | 8 | 0 | 0 | 8 |
+| 0 | 3 | 3 | 0 | 0 |
+| 1 | 8 | 3 | 0 | 5 |
 | 2 | 5 | 0 | 0 | 5 |
 | 3 | 4 | 0 | 0 | 4 |
 | 4 | 5 | 0 | 0 | 5 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **1** | **0** | **91** |
+| **TOTAL** | **92** | **6** | **0** | **86** |
