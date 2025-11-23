@@ -234,16 +234,16 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 9.0.1 | Dice roller | `NOT_STARTED` | `NOT_STARTED` |
-| 9.0.2 | Ability checks / saves | `NOT_STARTED` | `NOT_STARTED` |
-| 9.0.3 | Attack + damage resolution | `NOT_STARTED` | `NOT_STARTED` |
-| 9.0.4 | Conditions | `NOT_STARTED` | `NOT_STARTED` |
+| 9.0.1 | Dice roller | `DONE` | `DONE` |
+| 9.0.2 | Ability checks / saves | `DONE` | `DONE` |
+| 9.0.3 | Attack + damage resolution | `DONE` | `DONE` |
+| 9.0.4 | Conditions | `DONE` | `DONE` |
 
 ### FEAT 9.1 — Resting & Resources
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 9.1.1 | Short/long rest | `NOT_STARTED` | `NOT_STARTED` |
+| 9.1.1 | Short/long rest | `DONE` | `DONE` |
 
 ---
 
@@ -401,10 +401,10 @@
 | 6 | 4 | 4 | 0 | 0 |
 | 7 | 4 | 4 | 0 | 0 |
 | 8 | 10 | 10 | 0 | 0 |
-| 9 | 5 | 0 | 0 | 5 |
+| 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 0 | 0 | 2 |
 | 11 | 3 | 0 | 0 | 3 |
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **51** | **0** | **41** |
+| **TOTAL** | **92** | **56** | **0** | **36** |
