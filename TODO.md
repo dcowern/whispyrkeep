@@ -316,10 +316,10 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.6.1 | Chat stream | `NOT_STARTED` | `NOT_STARTED` |
-| 12.6.2 | Decision menu mode | `NOT_STARTED` | `NOT_STARTED` |
-| 12.6.3 | Sidebar | `NOT_STARTED` | `NOT_STARTED` |
-| 12.6.4 | Dice log panel | `NOT_STARTED` | `NOT_STARTED` |
+| 12.6.1 | Chat stream | `DONE` | `DONE` |
+| 12.6.2 | Decision menu mode | `DONE` | `DONE` |
+| 12.6.3 | Sidebar | `DONE` | `DONE` |
+| 12.6.4 | Dice log panel | `DONE` | `DONE` |
 
 ### FEAT 12.7 — Accessibility & ND Features
 
@@ -333,8 +333,8 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.8.1 | Timeline slider/turn picker | `NOT_STARTED` | `NOT_STARTED` |
-| 12.8.2 | Rewind confirmation modal | `NOT_STARTED` | `NOT_STARTED` |
+| 12.8.1 | Timeline slider/turn picker | `DONE` | `DONE` |
+| 12.8.2 | Rewind confirmation modal | `DONE` | `DONE` |
 
 ### FEAT 12.9 — Lore Browser UI
 
@@ -404,7 +404,7 @@
 | 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 2 | 0 | 0 |
 | 11 | 3 | 3 | 0 | 0 |
-| 12 | 23 | 4 | 0 | 19 |
+| 12 | 23 | 10 | 0 | 13 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **65** | **0** | **27** |
+| **TOTAL** | **92** | **71** | **0** | **21** |
