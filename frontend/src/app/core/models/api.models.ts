@@ -199,6 +199,8 @@ export interface CampaignCreate {
   character: string;
   name: string;
   description?: string;
+  difficulty?: 'easy' | 'normal' | 'hard';
+  content_rating?: 'G' | 'PG' | 'PG13' | 'R';
 }
 
 export interface TurnEvent {
@@ -261,6 +263,16 @@ export interface LoreSearchResult {
   content: string;
   category: string;
   relevance_score: number;
+}
+
+export interface LoreEntry {
+  id: string;
+  title?: string;
+  content: string;
+  is_canon: boolean;
+  source?: string;
+  tags?: string[];
+  created_at: string;
 }
 
 /**

@@ -302,15 +302,15 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.4.1 | Wizard flow | `NOT_STARTED` | `NOT_STARTED` |
-| 12.4.2 | Co-write chat mode | `NOT_STARTED` | `NOT_STARTED` |
-| 12.4.3 | Lore upload UI | `NOT_STARTED` | `NOT_STARTED` |
+| 12.4.1 | Wizard flow | `DONE` | `DONE` |
+| 12.4.2 | Co-write chat mode | `DONE` | `DONE` |
+| 12.4.3 | Lore upload UI | `DONE` | `DONE` |
 
 ### FEAT 12.5 — Campaign Setup UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.5.1 | Setup screen | `NOT_STARTED` | `NOT_STARTED` |
+| 12.5.1 | Setup screen | `DONE` | `DONE` |
 
 ### FEAT 12.6 — Play Screen
 
@@ -340,20 +340,20 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.9.1 | Canon vs rumor tabs | `NOT_STARTED` | `NOT_STARTED` |
-| 12.9.2 | Lore search | `NOT_STARTED` | `NOT_STARTED` |
+| 12.9.1 | Canon vs rumor tabs | `DONE` | `DONE` |
+| 12.9.2 | Lore search | `DONE` | `DONE` |
 
 ### FEAT 12.10 — Timeline Viewer UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.10.1 | Era + event visual | `NOT_STARTED` | `NOT_STARTED` |
+| 12.10.1 | Era + event visual | `DONE` | `DONE` |
 
 ### FEAT 12.11 — Export UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.11.1 | Export buttons | `NOT_STARTED` | `NOT_STARTED` |
+| 12.11.1 | Export buttons | `DONE` | `DONE` |
 
 ---
 
@@ -404,7 +404,7 @@
 | 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 2 | 0 | 0 |
 | 11 | 3 | 3 | 0 | 0 |
-| 12 | 23 | 15 | 0 | 8 |
+| 12 | 23 | 23 | 0 | 0 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **76** | **0** | **16** |
+| **TOTAL** | **92** | **84** | **0** | **8** |

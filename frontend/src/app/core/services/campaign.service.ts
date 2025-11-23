@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService, QueryParams } from './api.service';
-import { Campaign, CampaignCreate, TurnEvent, PaginatedResponse } from '../models/api.models';
+import { Campaign, CampaignCreate, TurnEvent, PaginatedResponse, LoreEntry } from '../models/api.models';
 
 export interface TurnInput {
   player_input: string;
@@ -67,5 +67,10 @@ export class CampaignService {
   // State
   getCurrentState(campaignId: string): Observable<Record<string, unknown>> {
     return this.api.get<Record<string, unknown>>(`${this.endpoint}${campaignId}/state/`);
+  }
+
+  // Lore
+  getLore(campaignId: string): Observable<LoreEntry[]> {
+    return this.api.get<LoreEntry[]>(`${this.endpoint}${campaignId}/lore/`);
   }
 }

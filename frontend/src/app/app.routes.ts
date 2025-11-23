@@ -36,6 +36,18 @@ export const routes: Routes = [
       {
         path: 'play/:campaignId',
         loadComponent: () => import('./features/play/play.component').then(m => m.PlayComponent)
+      },
+      {
+        path: 'lore',
+        loadChildren: () => import('./features/lore/lore.routes').then(m => m.loreRoutes)
+      },
+      {
+        path: 'timeline',
+        loadChildren: () => import('./features/timeline/timeline.routes').then(m => m.timelineRoutes)
+      },
+      {
+        path: 'exports',
+        loadChildren: () => import('./features/exports/exports.routes').then(m => m.exportsRoutes)
       }
     ]
   },
