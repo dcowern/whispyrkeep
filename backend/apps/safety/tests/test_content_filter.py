@@ -2,7 +2,6 @@
 Tests for content filtering service.
 """
 
-import pytest
 
 from apps.safety.models import RatingProfile
 from apps.safety.services.content_filter import ContentFilter, FilterResult

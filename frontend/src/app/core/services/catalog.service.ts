@@ -14,15 +14,15 @@ import {
 })
 export class CatalogService {
   private readonly api = inject(ApiService);
-  private readonly endpoint = '/catalog/';
+  private readonly endpoint = '/srd/';
 
-  // Races
+  // Species (races in SRD 5.2 terminology)
   listRaces(params?: QueryParams): Observable<PaginatedResponse<SrdRace>> {
-    return this.api.getList<SrdRace>(`${this.endpoint}races/`, params);
+    return this.api.getList<SrdRace>(`${this.endpoint}species/`, params);
   }
 
   getRace(id: string): Observable<SrdRace> {
-    return this.api.get<SrdRace>(`${this.endpoint}races/${id}/`);
+    return this.api.get<SrdRace>(`${this.endpoint}species/${id}/`);
   }
 
   // Classes

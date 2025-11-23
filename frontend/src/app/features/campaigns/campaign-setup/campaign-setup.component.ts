@@ -30,7 +30,10 @@ type Step = 'universe' | 'character' | 'details' | 'review';
         <!-- Universe Selection -->
         @if (step() === 'universe') {
           <section class="step-content">
-            <h2>Select Universe</h2>
+            <h2 class="label-with-help">
+              Select Universe
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['universe'] }}</span></span>
+            </h2>
             <p class="step-desc">Choose the universe where your adventure will take place.</p>
             @if (isLoadingUniverses()) {
               <p class="loading">Loading universes...</p>
@@ -59,7 +62,10 @@ type Step = 'universe' | 'character' | 'details' | 'review';
         <!-- Character Selection -->
         @if (step() === 'character') {
           <section class="step-content">
-            <h2>Select Character</h2>
+            <h2 class="label-with-help">
+              Select Character
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['character'] }}</span></span>
+            </h2>
             <p class="step-desc">Choose your character for this campaign.</p>
             @if (isLoadingCharacters()) {
               <p class="loading">Loading characters...</p>
@@ -91,15 +97,24 @@ type Step = 'universe' | 'character' | 'details' | 'review';
             <h2>Campaign Details</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="name">Campaign Name</label>
+                <label for="name" class="label-with-help">
+                  Campaign Name
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['name'] }}</span></span>
+                </label>
                 <input id="name" [(ngModel)]="campaign.name" class="form-input" placeholder="The Lost Mines..." />
               </div>
               <div class="form-group form-group--full">
-                <label for="description">Description (Optional)</label>
+                <label for="description" class="label-with-help">
+                  Description (Optional)
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['description'] }}</span></span>
+                </label>
                 <textarea id="description" [(ngModel)]="campaign.description" class="form-input" rows="3" placeholder="A brief description of your adventure..."></textarea>
               </div>
               <div class="form-group">
-                <label for="difficulty">Difficulty</label>
+                <label for="difficulty" class="label-with-help">
+                  Difficulty
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['difficulty'] }}</span></span>
+                </label>
                 <select id="difficulty" [(ngModel)]="campaign.difficulty" class="form-input">
                   <option value="easy">Easy - Forgiving encounters</option>
                   <option value="normal">Normal - Balanced challenge</option>
@@ -107,7 +122,10 @@ type Step = 'universe' | 'character' | 'details' | 'review';
                 </select>
               </div>
               <div class="form-group">
-                <label for="rating">Content Rating</label>
+                <label for="rating" class="label-with-help">
+                  Content Rating
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['content_rating'] }}</span></span>
+                </label>
                 <select id="rating" [(ngModel)]="campaign.content_rating" class="form-input">
                   <option value="G">G - General Audiences</option>
                   <option value="PG">PG - Parental Guidance</option>
@@ -208,6 +226,59 @@ type Step = 'universe' | 'character' | 'details' | 'review';
     .btn { padding: var(--wk-space-sm) var(--wk-space-lg); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: none; color: var(--wk-text-primary); cursor: pointer; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn--primary { background: var(--wk-primary); border-color: var(--wk-primary); }
+
+    /* Tooltip styles */
+    .help-trigger {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-border);
+      color: var(--wk-text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: help;
+      vertical-align: middle;
+    }
+    .help-trigger:hover { border-color: var(--wk-primary); color: var(--wk-primary); }
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      transform: translateY(-4px);
+      width: 280px;
+      padding: var(--wk-space-sm) var(--wk-space-md);
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-border);
+      border-radius: var(--wk-radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      color: var(--wk-text-primary);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      line-height: 1.5;
+      white-space: pre-line;
+      text-align: left;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+      pointer-events: none;
+    }
+    .help-trigger:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 8px;
+      border: 6px solid transparent;
+      border-bottom-color: var(--wk-border);
+    }
+    .label-with-help { display: flex; align-items: center; }
   `]
 })
 export class CampaignSetupComponent implements OnInit {
@@ -222,6 +293,15 @@ export class CampaignSetupComponent implements OnInit {
   };
   readonly difficultyLabels: Record<string, string> = {
     easy: 'Easy', normal: 'Normal', hard: 'Hard'
+  };
+
+  readonly helpText: Record<string, string> = {
+    universe: 'The universe defines the world setting, tone, and rules for your campaign. It includes lore, homebrew content, and gameplay modifiers that shape your adventure.',
+    character: 'Select the character you\'ll play as in this campaign. Your character\'s abilities, class, and backstory will influence gameplay and story options.',
+    name: 'A memorable name for your campaign. This helps you identify it in your campaign list and can reflect the adventure\'s theme or your character\'s journey.',
+    description: 'An optional summary of your campaign\'s premise or goals. Useful for remembering the context when returning to a campaign later.',
+    difficulty: 'Easy: Encounters are forgiving, enemies deal less damage, and death saves are more lenient.\n\nNormal: Standard SRD 5.2 balance with fair but challenging encounters.\n\nHard: Deadly encounters, smarter enemies, limited resources. Recommended for experienced players.',
+    content_rating: 'G: Family-friendly content, no violence or mature themes.\n\nPG: Mild peril and fantasy violence, suitable for all ages.\n\nPG-13: Moderate violence, mild horror elements, some mature themes.\n\nR: Graphic violence, horror, and mature themes. Adult content only.'
   };
 
   readonly step = signal<Step>('universe');

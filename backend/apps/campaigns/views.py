@@ -45,8 +45,18 @@ class CampaignListCreateView(APIView):
         if universe_filter:
             campaigns = campaigns.filter(universe_id=universe_filter)
 
+        # Pagination
+        page_size = int(request.query_params.get("page_size", 20))
+        page = int(request.query_params.get("page", 1))
+        offset = (page - 1) * page_size
+        total_count = campaigns.count()
+        campaigns = campaigns[offset:offset + page_size]
+
         serializer = CampaignListSerializer(campaigns, many=True)
-        return Response(serializer.data)
+        return Response({
+            "count": total_count,
+            "results": serializer.data,
+        })
 
     def post(self, request):
         """Create a new campaign."""

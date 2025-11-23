@@ -33,11 +33,17 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
             <h2>Universe Basics</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="name">Universe Name</label>
+                <label for="name" class="label-with-help">
+                  Universe Name
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['name'] }}</span></span>
+                </label>
                 <input id="name" [(ngModel)]="universe.name" class="form-input" />
               </div>
               <div class="form-group form-group--full">
-                <label for="description">Description</label>
+                <label for="description" class="label-with-help">
+                  Description
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['description'] }}</span></span>
+                </label>
                 <textarea id="description" [(ngModel)]="universe.description" class="form-input" rows="4"></textarea>
               </div>
             </div>
@@ -48,10 +54,13 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
         @if (step() === 'tone') {
           <section class="step-content">
             <h2>Universe Tone</h2>
-            <p class="step-desc">Adjust sliders to set the tone of your universe.</p>
+            <p class="step-desc">Adjust sliders to set the tone of your universe. Hover over the ? icons for details.</p>
             @for (slider of toneSliders; track slider.key) {
               <div class="slider-group">
-                <label class="slider-label">{{ slider.label }}</label>
+                <label class="slider-label label-with-help">
+                  {{ slider.label }}
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText[slider.key] }}</span></span>
+                </label>
                 <input type="range" min="0" max="100" [(ngModel)]="universe.tone![slider.key]" class="slider" />
                 <span class="slider-value">{{ universe.tone![slider.key] }}</span>
               </div>
@@ -63,18 +72,28 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
         @if (step() === 'rules') {
           <section class="step-content">
             <h2>Optional Rules</h2>
+            <p class="step-desc">Enable or disable optional gameplay rules. Hover over the ? icons for details.</p>
             <div class="rules-list">
               <label class="rule-toggle">
                 <input type="checkbox" [(ngModel)]="universe.rules!.permadeath" />
-                <span>Permadeath</span>
+                <span class="label-with-help">
+                  Permadeath
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['permadeath'] }}</span></span>
+                </span>
               </label>
               <label class="rule-toggle">
                 <input type="checkbox" [(ngModel)]="universe.rules!.critical_fumbles" />
-                <span>Critical Fumbles</span>
+                <span class="label-with-help">
+                  Critical Fumbles
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['critical_fumbles'] }}</span></span>
+                </span>
               </label>
               <label class="rule-toggle">
                 <input type="checkbox" [(ngModel)]="universe.rules!.encumbrance" />
-                <span>Encumbrance Tracking</span>
+                <span class="label-with-help">
+                  Encumbrance Tracking
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['encumbrance'] }}</span></span>
+                </span>
               </label>
             </div>
           </section>
@@ -83,7 +102,10 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
         <!-- Co-write chat -->
         @if (step() === 'cowrite') {
           <section class="step-content">
-            <h2>Co-write with AI</h2>
+            <h2 class="label-with-help">
+              Co-write with AI
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['cowrite'] }}</span></span>
+            </h2>
             <p class="step-desc">Chat with the AI to develop your universe's lore and details.</p>
             <div class="chat-box">
               @for (msg of chatMessages(); track $index) {
@@ -104,7 +126,10 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
         <!-- Lore upload -->
         @if (step() === 'lore') {
           <section class="step-content">
-            <h2>Upload Lore Documents</h2>
+            <h2 class="label-with-help">
+              Upload Lore Documents
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['lore'] }}</span></span>
+            </h2>
             <p class="step-desc">Upload existing documents to establish hard canon for your universe.</p>
             <div class="upload-area" (click)="fileInput.click()" (dragover)="$event.preventDefault()" (drop)="onFileDrop($event)">
               <p>Drag files here or click to upload</p>
@@ -164,11 +189,11 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
     .builder__header h1 { margin: var(--wk-space-sm) 0 0; font-size: 1.5rem; }
     .back-link { color: var(--wk-text-secondary); text-decoration: none; font-size: 0.875rem; }
 
-    .steps { display: flex; gap: var(--wk-space-xs); padding: var(--wk-space-md); overflow-x: auto; border-bottom: 1px solid var(--wk-border); }
+    .steps { display: flex; gap: var(--wk-space-xs); padding: var(--wk-space-md); overflow-x: auto; border-bottom: 1px solid var(--wk-border); position: relative; z-index: 1; background: var(--wk-background); }
     .step { padding: var(--wk-space-sm) var(--wk-space-md); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: none; color: var(--wk-text-secondary); cursor: pointer; }
     .step--active { border-color: var(--wk-primary); color: var(--wk-primary); }
 
-    .builder__content { flex: 1; padding: var(--wk-space-lg); overflow-y: auto; }
+    .builder__content { flex: 1; padding: var(--wk-space-lg); overflow-y: auto; position: relative; z-index: 2; }
     .step-content h2 { font-size: 1.25rem; margin: 0 0 var(--wk-space-md); }
     .step-desc { color: var(--wk-text-secondary); margin-bottom: var(--wk-space-md); }
 
@@ -214,6 +239,61 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
     .btn { padding: var(--wk-space-sm) var(--wk-space-lg); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: none; color: var(--wk-text-primary); cursor: pointer; }
     .btn:disabled { opacity: 0.5; }
     .btn--primary { background: var(--wk-primary); border-color: var(--wk-primary); }
+
+    /* Tooltip styles */
+    .help-trigger {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-border);
+      color: var(--wk-text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: help;
+      vertical-align: middle;
+    }
+    .help-trigger:hover { border-color: var(--wk-primary); color: var(--wk-primary); }
+
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      transform: translateY(-4px);
+      width: 280px;
+      padding: var(--wk-space-sm) var(--wk-space-md);
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-border);
+      border-radius: var(--wk-radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      color: var(--wk-text-primary);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      line-height: 1.5;
+      white-space: pre-line;
+      text-align: left;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+      pointer-events: none;
+    }
+    .help-trigger:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 8px;
+      border: 6px solid transparent;
+      border-bottom-color: var(--wk-border);
+    }
+
+    .label-with-help { display: flex; align-items: center; }
   `]
 })
 export class UniverseBuilderComponent implements OnInit {
@@ -232,6 +312,27 @@ export class UniverseBuilderComponent implements OnInit {
     { key: 'realism' as const, label: 'Realism' },
     { key: 'magic_level' as const, label: 'Magic Level' }
   ];
+
+  readonly helpText: Record<string, string> = {
+    // Basics
+    name: 'A unique name for your universe. This will be displayed in your universe list and when selecting a universe for campaigns.',
+    description: 'A brief overview of your universe\'s setting, themes, and unique characteristics. This helps the AI understand the world and maintain consistency during gameplay.',
+
+    // Tone sliders
+    darkness: 'Controls the overall mood and content intensity.\n\n0 (Light): Uplifting themes, minimal violence, happy endings common.\n\n50 (Balanced): Mix of light and dark elements, moderate stakes.\n\n100 (Dark): Grim themes, high stakes, morally complex situations, mature content.',
+    humor: 'Sets how much comedic relief appears in narratives.\n\n0 (Serious): Dramatic tone, realistic dialogue, minimal jokes.\n\n50 (Balanced): Occasional wit and levity mixed with serious moments.\n\n100 (Comedic): Frequent humor, absurd situations, witty banter throughout.',
+    realism: 'Determines how grounded or fantastical the world feels.\n\n0 (Cinematic): Rule of cool prevails, dramatic license, heroes perform impossible feats.\n\n50 (Balanced): Generally realistic with moments of dramatic flair.\n\n100 (Gritty): Realistic consequences, limited resources matter, injuries are serious.',
+    magic_level: 'Controls magic\'s prevalence and power in your world.\n\n0 (Low Magic): Magic is rare and mysterious, few practitioners exist.\n\n50 (Standard Fantasy): Magic is known but not commonplace, follows SRD rules.\n\n100 (High Magic): Magic is everywhere, powerful spells are common, magical solutions abound.',
+
+    // Rules
+    permadeath: 'When ENABLED: Character death is permanent. If your character dies, they cannot be resurrected by any means. Creates high-stakes gameplay with meaningful consequences.\n\nWhen DISABLED: Standard resurrection rules apply. Characters can be brought back through spells like Revivify or Raise Dead.',
+    critical_fumbles: 'When ENABLED: Rolling a natural 1 on attack rolls causes additional negative effects beyond simply missing—dropped weapons, friendly fire, or embarrassing mishaps.\n\nWhen DISABLED: Natural 1s are automatic misses with no additional penalties (standard SRD rules).',
+    encumbrance: 'When ENABLED: Carrying capacity matters. Exceeding weight limits reduces speed and imposes disadvantage. You\'ll need to track what you carry.\n\nWhen DISABLED: Inventory is loosely tracked. Carry reasonable amounts without precise weight calculations.',
+
+    // Steps
+    cowrite: 'Chat with AI to collaboratively develop your universe\'s lore, factions, notable locations, and history. The AI will help you brainstorm and refine ideas while maintaining internal consistency.',
+    lore: 'Upload existing documents (stories, world guides, notes) to establish "Hard Canon"—facts the AI will never contradict. Useful for adapting existing settings or maintaining strict continuity with your written lore.'
+  };
 
   readonly step = signal<Step>('basics');
   readonly chatMessages = signal<{ role: 'user' | 'assistant'; content: string }[]>([]);

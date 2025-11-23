@@ -37,7 +37,10 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
         <!-- Race selection -->
         @if (step() === 'race') {
           <section class="step-content">
-            <h2>Choose a Race</h2>
+            <h2 class="label-with-help">
+              Choose a Race
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['race'] }}</span></span>
+            </h2>
             <div class="option-grid">
               @for (race of races(); track race.id) {
                 <button
@@ -72,7 +75,10 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
         <!-- Class selection -->
         @if (step() === 'class') {
           <section class="step-content">
-            <h2>Choose a Class</h2>
+            <h2 class="label-with-help">
+              Choose a Class
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['class'] }}</span></span>
+            </h2>
             <div class="option-grid">
               @for (cls of classes(); track cls.id) {
                 <button
@@ -92,7 +98,10 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
         <!-- Background selection -->
         @if (step() === 'background') {
           <section class="step-content">
-            <h2>Choose a Background</h2>
+            <h2 class="label-with-help">
+              Choose a Background
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['background'] }}</span></span>
+            </h2>
             <div class="option-grid">
               @for (bg of backgrounds(); track bg.id) {
                 <button
@@ -111,12 +120,18 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
         <!-- Ability scores -->
         @if (step() === 'abilities') {
           <section class="step-content">
-            <h2>Ability Scores</h2>
+            <h2 class="label-with-help">
+              Ability Scores
+              <span class="help-trigger">?<span class="tooltip">{{ helpText['abilities'] }}</span></span>
+            </h2>
             <p class="step-desc">Assign your ability scores. You have {{ pointsRemaining() }} points remaining.</p>
             <div class="ability-grid">
               @for (ability of abilityNames; track ability) {
                 <div class="ability-row">
-                  <label class="ability-label">{{ ability | titlecase }}</label>
+                  <label class="ability-label label-with-help">
+                    {{ ability | titlecase }}
+                    <span class="help-trigger">?<span class="tooltip">{{ helpText[ability] }}</span></span>
+                  </label>
                   <button class="ability-btn" (click)="decreaseAbility(ability)" [disabled]="character.abilities![ability] <= 8">-</button>
                   <span class="ability-value">{{ character.abilities![ability] }}</span>
                   <button class="ability-btn" (click)="increaseAbility(ability)" [disabled]="pointsRemaining() <= 0 || character.abilities![ability] >= 15">+</button>
@@ -133,11 +148,17 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
             <h2>Character Details</h2>
             <div class="form-grid">
               <div class="form-group">
-                <label for="name">Character Name</label>
+                <label for="name" class="label-with-help">
+                  Character Name
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['name'] }}</span></span>
+                </label>
                 <input id="name" [(ngModel)]="character.name" class="form-input" required />
               </div>
               <div class="form-group">
-                <label for="alignment">Alignment</label>
+                <label for="alignment" class="label-with-help">
+                  Alignment
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['alignment'] }}</span></span>
+                </label>
                 <select id="alignment" [(ngModel)]="character.alignment" class="form-input">
                   @for (align of alignments; track align) {
                     <option [value]="align">{{ align }}</option>
@@ -145,7 +166,10 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
                 </select>
               </div>
               <div class="form-group form-group--full">
-                <label for="backstory">Backstory</label>
+                <label for="backstory" class="label-with-help">
+                  Backstory
+                  <span class="help-trigger">?<span class="tooltip">{{ helpText['backstory'] }}</span></span>
+                </label>
                 <textarea id="backstory" [(ngModel)]="character.backstory" class="form-input" rows="4"></textarea>
               </div>
             </div>
@@ -242,6 +266,59 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
     .btn { padding: var(--wk-space-sm) var(--wk-space-lg); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: none; color: var(--wk-text-primary); cursor: pointer; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn--primary { background: var(--wk-primary); border-color: var(--wk-primary); }
+
+    /* Tooltip styles */
+    .help-trigger {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-border);
+      color: var(--wk-text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: help;
+      vertical-align: middle;
+    }
+    .help-trigger:hover { border-color: var(--wk-primary); color: var(--wk-primary); }
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      transform: translateY(-4px);
+      width: 280px;
+      padding: var(--wk-space-sm) var(--wk-space-md);
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-border);
+      border-radius: var(--wk-radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      color: var(--wk-text-primary);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      line-height: 1.5;
+      white-space: pre-line;
+      text-align: left;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+      pointer-events: none;
+    }
+    .help-trigger:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 8px;
+      border: 6px solid transparent;
+      border-bottom-color: var(--wk-border);
+    }
+    .label-with-help { display: flex; align-items: center; }
   `]
 })
 export class CharacterBuilderComponent implements OnInit {
@@ -258,6 +335,22 @@ export class CharacterBuilderComponent implements OnInit {
   };
   readonly abilityNames: (keyof AbilityScores)[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
   readonly alignments = ['Lawful Good', 'Neutral Good', 'Chaotic Good', 'Lawful Neutral', 'True Neutral', 'Chaotic Neutral', 'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'];
+
+  readonly helpText: Record<string, string> = {
+    race: 'Your character\'s species determines innate abilities, physical traits, and cultural background. Each race provides ability score bonuses and unique racial traits.',
+    class: 'Your class defines your character\'s combat style, abilities, and role in the party. It determines hit points, proficiencies, and special features gained as you level up.',
+    background: 'Your background represents your character\'s life before adventuring. It provides skill proficiencies, equipment, and roleplaying hooks that shape your story.',
+    abilities: 'Ability scores define your character\'s core capabilities. Use the point-buy system: you have 27 points to spend. Scores 8-13 cost 1 point each, 14 costs 7 points, 15 costs 9 points.',
+    name: 'Your character\'s name. This can be a fantasy name fitting your race, or anything that suits your character concept.',
+    alignment: 'Alignment describes your character\'s moral and ethical outlook.\n\nLawful/Chaotic: Respect for order vs. personal freedom.\nGood/Evil: Altruism vs. self-interest.\nNeutral: Balance or indifference on either axis.',
+    backstory: 'Your character\'s history before the adventure begins. Include formative events, relationships, motivations, and goals. The AI will reference this during gameplay.',
+    strength: 'Physical power. Affects melee attacks, carrying capacity, and Athletics checks. Important for: Fighter, Paladin, Barbarian.',
+    dexterity: 'Agility and reflexes. Affects AC, ranged attacks, initiative, and Acrobatics/Stealth. Important for: Rogue, Ranger, Monk.',
+    constitution: 'Endurance and vitality. Affects hit points and Constitution saving throws. Important for all classes, especially frontline fighters.',
+    intelligence: 'Reasoning and memory. Affects Arcana, History, Investigation. Important for: Wizard, Artificer.',
+    wisdom: 'Perception and insight. Affects Perception, Insight, Survival, and spellcasting. Important for: Cleric, Druid, Ranger.',
+    charisma: 'Force of personality. Affects Persuasion, Deception, Intimidation, and spellcasting. Important for: Bard, Sorcerer, Warlock, Paladin.'
+  };
 
   readonly step = signal<Step>('race');
   readonly races = signal<SrdRace[]>([]);

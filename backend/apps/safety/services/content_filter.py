@@ -6,7 +6,6 @@ Filters content based on campaign rating profiles (Epic 13).
 
 import re
 from dataclasses import dataclass
-from typing import Optional
 
 from apps.safety.models import RatingProfile
 
