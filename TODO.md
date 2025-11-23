@@ -82,7 +82,7 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 2.1.1 | UniverseHomebrew tables | `NOT_STARTED` | `NOT_STARTED` |
+| 2.1.1 | UniverseHomebrew tables | `DONE` | `DONE` |
 | 2.1.2 | Homebrew CRUD API | `NOT_STARTED` | `NOT_STARTED` |
 | 2.1.3 | Catalog merge logic | `NOT_STARTED` | `NOT_STARTED` |
 
@@ -394,7 +394,7 @@
 |------|-------|------|-------------|-------------|
 | 0 | 3 | 3 | 0 | 0 |
 | 1 | 8 | 8 | 0 | 0 |
-| 2 | 5 | 2 | 0 | 3 |
+| 2 | 5 | 3 | 0 | 2 |
 | 3 | 4 | 0 | 0 | 4 |
 | 4 | 5 | 0 | 0 | 5 |
 | 5 | 8 | 0 | 0 | 8 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **13** | **0** | **79** |
+| **TOTAL** | **92** | **14** | **0** | **78** |
