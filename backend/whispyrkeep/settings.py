@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # WhispyrKeep apps
     "apps.accounts",
     "apps.llm_config",
+    "apps.srd",
     "apps.characters",
     "apps.universes",
     "apps.campaigns",

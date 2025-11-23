@@ -1,0 +1,1141 @@
+[
+  {
+    "model": "srd.abilityscore",
+    "pk": 1,
+    "fields": {
+      "abbreviation": "STR",
+      "name": "Strength",
+      "description": "Strength measures bodily power, athletic training, and the extent to which you can exert raw physical force."
+    }
+  },
+  {
+    "model": "srd.abilityscore",
+    "pk": 2,
+    "fields": {
+      "abbreviation": "DEX",
+      "name": "Dexterity",
+      "description": "Dexterity measures agility, reflexes, and balance."
+    }
+  },
+  {
+    "model": "srd.abilityscore",
+    "pk": 3,
+    "fields": {
+      "abbreviation": "CON",
+      "name": "Constitution",
+      "description": "Constitution measures health, stamina, and vital force."
+    }
+  },
+  {
+    "model": "srd.abilityscore",
+    "pk": 4,
+    "fields": {
+      "abbreviation": "INT",
+      "name": "Intelligence",
+      "description": "Intelligence measures mental acuity, accuracy of recall, and the ability to reason."
+    }
+  },
+  {
+    "model": "srd.abilityscore",
+    "pk": 5,
+    "fields": {
+      "abbreviation": "WIS",
+      "name": "Wisdom",
+      "description": "Wisdom reflects how attuned you are to the world around you and represents perceptiveness and intuition."
+    }
+  },
+  {
+    "model": "srd.abilityscore",
+    "pk": 6,
+    "fields": {
+      "abbreviation": "CHA",
+      "name": "Charisma",
+      "description": "Charisma measures your ability to interact effectively with others."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 1,
+    "fields": {
+      "name": "Acrobatics",
+      "ability_score": 2,
+      "description": "Your Dexterity (Acrobatics) check covers your attempt to stay on your feet in a tricky situation."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 2,
+    "fields": {
+      "name": "Animal Handling",
+      "ability_score": 5,
+      "description": "When there is any question whether you can calm down a domesticated animal, keep a mount from getting spooked, or intuit an animal's intentions, the DM might call for a Wisdom (Animal Handling) check."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 3,
+    "fields": {
+      "name": "Arcana",
+      "ability_score": 4,
+      "description": "Your Intelligence (Arcana) check measures your ability to recall lore about spells, magic items, eldritch symbols, magical traditions, the planes of existence, and the inhabitants of those planes."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 4,
+    "fields": {
+      "name": "Athletics",
+      "ability_score": 1,
+      "description": "Your Strength (Athletics) check covers difficult situations you encounter while climbing, jumping, or swimming."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 5,
+    "fields": {
+      "name": "Deception",
+      "ability_score": 6,
+      "description": "Your Charisma (Deception) check determines whether you can convincingly hide the truth."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 6,
+    "fields": {
+      "name": "History",
+      "ability_score": 4,
+      "description": "Your Intelligence (History) check measures your ability to recall lore about historical events, legendary people, ancient kingdoms, past disputes, recent wars, and lost civilizations."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 7,
+    "fields": {
+      "name": "Insight",
+      "ability_score": 5,
+      "description": "Your Wisdom (Insight) check decides whether you can determine the true intentions of a creature."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 8,
+    "fields": {
+      "name": "Intimidation",
+      "ability_score": 6,
+      "description": "When you attempt to influence someone through overt threats, hostile actions, and physical violence, the DM might ask you to make a Charisma (Intimidation) check."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 9,
+    "fields": {
+      "name": "Investigation",
+      "ability_score": 4,
+      "description": "When you look around for clues and make deductions based on those clues, you make an Intelligence (Investigation) check."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 10,
+    "fields": {
+      "name": "Medicine",
+      "ability_score": 5,
+      "description": "A Wisdom (Medicine) check lets you try to stabilize a dying companion or diagnose an illness."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 11,
+    "fields": {
+      "name": "Nature",
+      "ability_score": 4,
+      "description": "Your Intelligence (Nature) check measures your ability to recall lore about terrain, plants and animals, the weather, and natural cycles."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 12,
+    "fields": {
+      "name": "Perception",
+      "ability_score": 5,
+      "description": "Your Wisdom (Perception) check lets you spot, hear, or otherwise detect the presence of something."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 13,
+    "fields": {
+      "name": "Performance",
+      "ability_score": 6,
+      "description": "Your Charisma (Performance) check determines how well you can delight an audience with music, dance, acting, storytelling, or some other form of entertainment."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 14,
+    "fields": {
+      "name": "Persuasion",
+      "ability_score": 6,
+      "description": "When you attempt to influence someone or a group of people with tact, social graces, or good nature, the DM might ask you to make a Charisma (Persuasion) check."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 15,
+    "fields": {
+      "name": "Religion",
+      "ability_score": 4,
+      "description": "Your Intelligence (Religion) check measures your ability to recall lore about deities, rites and prayers, religious hierarchies, holy symbols, and the practices of secret cults."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 16,
+    "fields": {
+      "name": "Sleight of Hand",
+      "ability_score": 2,
+      "description": "Whenever you attempt an act of legerdemain or manual trickery, such as planting something on someone else or concealing an object on your person, make a Dexterity (Sleight of Hand) check."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 17,
+    "fields": {
+      "name": "Stealth",
+      "ability_score": 2,
+      "description": "Make a Dexterity (Stealth) check when you attempt to conceal yourself from enemies, slink past guards, slip away without being noticed, or sneak up on someone without being seen or heard."
+    }
+  },
+  {
+    "model": "srd.skill",
+    "pk": 18,
+    "fields": {
+      "name": "Survival",
+      "ability_score": 5,
+      "description": "The DM might ask you to make a Wisdom (Survival) check to follow tracks, hunt wild game, guide your group through frozen wastelands, identify signs that owlbears live nearby, predict the weather, or avoid quicksand and other natural hazards."
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 1,
+    "fields": {
+      "name": "Blinded",
+      "description": "A blinded creature can't see and automatically fails any ability check that requires sight. Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage.",
+      "effects": ["auto_fail_sight_checks", "attacks_against_have_advantage", "attacks_have_disadvantage"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 2,
+    "fields": {
+      "name": "Charmed",
+      "description": "A charmed creature can't attack the charmer or target the charmer with harmful abilities or magical effects. The charmer has advantage on any ability check to interact socially with the creature.",
+      "effects": ["cannot_attack_charmer", "charmer_has_social_advantage"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 3,
+    "fields": {
+      "name": "Deafened",
+      "description": "A deafened creature can't hear and automatically fails any ability check that requires hearing.",
+      "effects": ["auto_fail_hearing_checks"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 4,
+    "fields": {
+      "name": "Frightened",
+      "description": "A frightened creature has disadvantage on ability checks and attack rolls while the source of its fear is within line of sight. The creature can't willingly move closer to the source of its fear.",
+      "effects": ["disadvantage_while_source_visible", "cannot_approach_source"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 5,
+    "fields": {
+      "name": "Grappled",
+      "description": "A grappled creature's speed becomes 0, and it can't benefit from any bonus to its speed. The condition ends if the grappler is incapacitated or if an effect removes the grappled creature from the reach of the grappler.",
+      "effects": ["speed_zero", "no_speed_bonus"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 6,
+    "fields": {
+      "name": "Incapacitated",
+      "description": "An incapacitated creature can't take actions or reactions.",
+      "effects": ["no_actions", "no_reactions"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 7,
+    "fields": {
+      "name": "Invisible",
+      "description": "An invisible creature is impossible to see without the aid of magic or a special sense. For the purpose of hiding, the creature is heavily obscured. The creature's location can be detected by any noise it makes or any tracks it leaves. Attack rolls against the creature have disadvantage, and the creature's attack rolls have advantage.",
+      "effects": ["heavily_obscured", "attacks_against_have_disadvantage", "attacks_have_advantage"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 8,
+    "fields": {
+      "name": "Paralyzed",
+      "description": "A paralyzed creature is incapacitated and can't move or speak. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have advantage. Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature.",
+      "effects": ["incapacitated", "no_movement", "no_speech", "auto_fail_str_dex_saves", "attacks_against_have_advantage", "melee_hits_are_crits"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 9,
+    "fields": {
+      "name": "Petrified",
+      "description": "A petrified creature is transformed, along with any nonmagical object it is wearing or carrying, into a solid inanimate substance (usually stone). Its weight increases by a factor of ten, and it ceases aging. The creature is incapacitated, can't move or speak, and is unaware of its surroundings. Attack rolls against the creature have advantage. The creature automatically fails Strength and Dexterity saving throws. The creature has resistance to all damage. The creature is immune to poison and disease.",
+      "effects": ["incapacitated", "no_movement", "no_speech", "unaware", "attacks_against_have_advantage", "auto_fail_str_dex_saves", "resistance_all_damage", "immune_poison", "immune_disease"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 10,
+    "fields": {
+      "name": "Poisoned",
+      "description": "A poisoned creature has disadvantage on attack rolls and ability checks.",
+      "effects": ["disadvantage_attacks", "disadvantage_ability_checks"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 11,
+    "fields": {
+      "name": "Prone",
+      "description": "A prone creature's only movement option is to crawl, unless it stands up and thereby ends the condition. The creature has disadvantage on attack rolls. An attack roll against the creature has advantage if the attacker is within 5 feet of the creature. Otherwise, the attack roll has disadvantage.",
+      "effects": ["crawl_only", "disadvantage_attacks", "melee_attacks_against_have_advantage", "ranged_attacks_against_have_disadvantage"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 12,
+    "fields": {
+      "name": "Restrained",
+      "description": "A restrained creature's speed becomes 0, and it can't benefit from any bonus to its speed. Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage. The creature has disadvantage on Dexterity saving throws.",
+      "effects": ["speed_zero", "no_speed_bonus", "attacks_against_have_advantage", "attacks_have_disadvantage", "disadvantage_dex_saves"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 13,
+    "fields": {
+      "name": "Stunned",
+      "description": "A stunned creature is incapacitated, can't move, and can speak only falteringly. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have advantage.",
+      "effects": ["incapacitated", "no_movement", "limited_speech", "auto_fail_str_dex_saves", "attacks_against_have_advantage"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 14,
+    "fields": {
+      "name": "Unconscious",
+      "description": "An unconscious creature is incapacitated, can't move or speak, and is unaware of its surroundings. The creature drops whatever it's holding and falls prone. The creature automatically fails Strength and Dexterity saving throws. Attack rolls against the creature have advantage. Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature.",
+      "effects": ["incapacitated", "no_movement", "no_speech", "unaware", "drops_items", "prone", "auto_fail_str_dex_saves", "attacks_against_have_advantage", "melee_hits_are_crits"]
+    }
+  },
+  {
+    "model": "srd.condition",
+    "pk": 15,
+    "fields": {
+      "name": "Exhaustion",
+      "description": "Some special abilities and environmental hazards, such as starvation and the long-term effects of freezing or scorching temperatures, can lead to exhaustion. Exhaustion is measured in six levels.",
+      "effects": ["level_1_disadvantage_ability_checks", "level_2_speed_halved", "level_3_disadvantage_attacks_saves", "level_4_hp_max_halved", "level_5_speed_zero", "level_6_death"]
+    }
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 1,
+    "fields": {"name": "Acid", "description": "The corrosive spray of a black dragon's breath and the dissolving enzymes secreted by a black pudding deal acid damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 2,
+    "fields": {"name": "Bludgeoning", "description": "Blunt force attacks deal bludgeoning damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 3,
+    "fields": {"name": "Cold", "description": "The infernal chill radiating from an ice devil's spear and the frigid blast of a white dragon's breath deal cold damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 4,
+    "fields": {"name": "Fire", "description": "Red dragons breathe fire, and many spells conjure flames to deal fire damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 5,
+    "fields": {"name": "Force", "description": "Force is pure magical energy focused into a damaging form. Most effects that deal force damage are spells, including magic missile and spiritual weapon."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 6,
+    "fields": {"name": "Lightning", "description": "A lightning bolt spell and a blue dragon's breath deal lightning damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 7,
+    "fields": {"name": "Necrotic", "description": "Necrotic damage, dealt by certain undead and spells such as chill touch, withers matter and even the soul."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 8,
+    "fields": {"name": "Piercing", "description": "Puncturing and impaling attacks deal piercing damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 9,
+    "fields": {"name": "Poison", "description": "Venomous stings and the toxic gas of a green dragon's breath deal poison damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 10,
+    "fields": {"name": "Psychic", "description": "Mental abilities such as a mind flayer's psionic blast deal psychic damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 11,
+    "fields": {"name": "Radiant", "description": "Radiant damage, dealt by a cleric's flame strike spell or an angel's smiting weapon, sears the flesh like fire and overloads the spirit with power."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 12,
+    "fields": {"name": "Slashing", "description": "Swords, axes, and monsters' claws deal slashing damage."}
+  },
+  {
+    "model": "srd.damagetype",
+    "pk": 13,
+    "fields": {"name": "Thunder", "description": "A concussive burst of sound, such as the effect of the thunderwave spell, deals thunder damage."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 1,
+    "fields": {"name": "Abjuration", "description": "Spells that protect, block, or banish."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 2,
+    "fields": {"name": "Conjuration", "description": "Spells that transport objects and creatures or create objects and creatures out of nothing."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 3,
+    "fields": {"name": "Divination", "description": "Spells that reveal information."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 4,
+    "fields": {"name": "Enchantment", "description": "Spells that affect the minds of others."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 5,
+    "fields": {"name": "Evocation", "description": "Spells that manipulate energy or tap an unseen source of power to produce a desired end."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 6,
+    "fields": {"name": "Illusion", "description": "Spells that deceive the senses or minds of others."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 7,
+    "fields": {"name": "Necromancy", "description": "Spells that manipulate the energies of life and death."}
+  },
+  {
+    "model": "srd.spellschool",
+    "pk": 8,
+    "fields": {"name": "Transmutation", "description": "Spells that change the properties of a creature, object, or environment."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 1,
+    "fields": {"name": "Aberration", "description": "Aberrations are utterly alien beings. Many of them have innate magical abilities drawn from the creature's alien mind rather than the mystical forces of the world."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 2,
+    "fields": {"name": "Beast", "description": "Beasts are nonhumanoid creatures that are a natural part of the fantasy ecology."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 3,
+    "fields": {"name": "Celestial", "description": "Celestials are creatures native to the Upper Planes. Many of them are the servants of deities."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 4,
+    "fields": {"name": "Construct", "description": "Constructs are made, not born. Some are programmed by their creators to follow a simple set of instructions, while others are imbued with sentience and capable of independent thought."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 5,
+    "fields": {"name": "Dragon", "description": "Dragons are large reptilian creatures of ancient origin and tremendous power."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 6,
+    "fields": {"name": "Elemental", "description": "Elementals are creatures native to the elemental planes."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 7,
+    "fields": {"name": "Fey", "description": "Fey are magical creatures closely tied to the forces of nature."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 8,
+    "fields": {"name": "Fiend", "description": "Fiends are creatures of wickedness that are native to the Lower Planes."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 9,
+    "fields": {"name": "Giant", "description": "Giants tower over humans and their kind. They are humanlike in shape, though some have multiple heads or deformities."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 10,
+    "fields": {"name": "Humanoid", "description": "Humanoids are the main peoples of a fantasy gaming world."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 11,
+    "fields": {"name": "Monstrosity", "description": "Monstrosities are monsters in the strictest sense—frightening creatures that are not ordinary, not truly natural, and almost never benign."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 12,
+    "fields": {"name": "Ooze", "description": "Oozes are gelatinous creatures that rarely have a fixed shape."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 13,
+    "fields": {"name": "Plant", "description": "Plants in this context are vegetable creatures, not ordinary flora."}
+  },
+  {
+    "model": "srd.monstertype",
+    "pk": 14,
+    "fields": {"name": "Undead", "description": "Undead are once-living creatures brought to a horrifying state of undeath through necromancy or some unholy curse."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 1,
+    "fields": {"name": "Weapon", "description": "Items used to deal damage in combat."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 2,
+    "fields": {"name": "Armor", "description": "Items that provide protection in combat."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 3,
+    "fields": {"name": "Adventuring Gear", "description": "Various tools and equipment for adventuring."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 4,
+    "fields": {"name": "Tool", "description": "Tools grant proficiency bonuses for specific tasks."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 5,
+    "fields": {"name": "Mount", "description": "Animals and vehicles for transportation."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 6,
+    "fields": {"name": "Potion", "description": "Magical liquids that produce effects when consumed."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 7,
+    "fields": {"name": "Ring", "description": "Magical rings worn on fingers."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 8,
+    "fields": {"name": "Rod", "description": "Magical rods wielded in hand."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 9,
+    "fields": {"name": "Scroll", "description": "Magical scrolls containing spells."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 10,
+    "fields": {"name": "Staff", "description": "Magical staves wielded in hand."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 11,
+    "fields": {"name": "Wand", "description": "Magical wands wielded in hand."}
+  },
+  {
+    "model": "srd.itemcategory",
+    "pk": 12,
+    "fields": {"name": "Wondrous Item", "description": "Miscellaneous magical items."}
+  },
+  {
+    "model": "srd.species",
+    "pk": 1,
+    "fields": {
+      "name": "Human",
+      "description": "Humans are the most adaptable and ambitious people among the common races. Whatever drives them, humans are the innovators, the achievers, and the pioneers of the worlds.",
+      "size": "medium",
+      "speed": 30,
+      "ability_bonuses": {"str": 1, "dex": 1, "con": 1, "int": 1, "wis": 1, "cha": 1},
+      "traits": [{"name": "Extra Language", "description": "You can speak, read, and write one extra language of your choice."}],
+      "languages": ["Common", "One extra language"],
+      "darkvision": 0
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 2,
+    "fields": {
+      "name": "Elf",
+      "description": "Elves are a magical people of otherworldly grace, living in the world but not entirely part of it.",
+      "size": "medium",
+      "speed": 30,
+      "ability_bonuses": {"dex": 2},
+      "traits": [
+        {"name": "Darkvision", "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light."},
+        {"name": "Keen Senses", "description": "You have proficiency in the Perception skill."},
+        {"name": "Fey Ancestry", "description": "You have advantage on saving throws against being charmed, and magic can't put you to sleep."},
+        {"name": "Trance", "description": "Elves don't need to sleep. Instead, they meditate deeply for 4 hours a day."}
+      ],
+      "languages": ["Common", "Elvish"],
+      "darkvision": 60
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 3,
+    "fields": {
+      "name": "Dwarf",
+      "description": "Bold and hardy, dwarves are known as skilled warriors, miners, and workers of stone and metal.",
+      "size": "medium",
+      "speed": 25,
+      "ability_bonuses": {"con": 2},
+      "traits": [
+        {"name": "Darkvision", "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light."},
+        {"name": "Dwarven Resilience", "description": "You have advantage on saving throws against poison, and you have resistance against poison damage."},
+        {"name": "Dwarven Combat Training", "description": "You have proficiency with the battleaxe, handaxe, light hammer, and warhammer."},
+        {"name": "Tool Proficiency", "description": "You gain proficiency with the artisan's tools of your choice."},
+        {"name": "Stonecunning", "description": "Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient and add double your proficiency bonus."}
+      ],
+      "languages": ["Common", "Dwarvish"],
+      "darkvision": 60
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 4,
+    "fields": {
+      "name": "Halfling",
+      "description": "The diminutive halflings survive in a world full of larger creatures by avoiding notice or, barring that, avoiding offense.",
+      "size": "small",
+      "speed": 25,
+      "ability_bonuses": {"dex": 2},
+      "traits": [
+        {"name": "Lucky", "description": "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll."},
+        {"name": "Brave", "description": "You have advantage on saving throws against being frightened."},
+        {"name": "Halfling Nimbleness", "description": "You can move through the space of any creature that is of a size larger than yours."}
+      ],
+      "languages": ["Common", "Halfling"],
+      "darkvision": 0
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 5,
+    "fields": {
+      "name": "Dragonborn",
+      "description": "Born of dragons, as their name proclaims, the dragonborn walk proudly through a world that greets them with fearful incomprehension.",
+      "size": "medium",
+      "speed": 30,
+      "ability_bonuses": {"str": 2, "cha": 1},
+      "traits": [
+        {"name": "Draconic Ancestry", "description": "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table."},
+        {"name": "Breath Weapon", "description": "You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type."},
+        {"name": "Damage Resistance", "description": "You have resistance to the damage type associated with your draconic ancestry."}
+      ],
+      "languages": ["Common", "Draconic"],
+      "darkvision": 0
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 6,
+    "fields": {
+      "name": "Gnome",
+      "description": "A gnome's energy and enthusiasm for living shines through every inch of his or her tiny body.",
+      "size": "small",
+      "speed": 25,
+      "ability_bonuses": {"int": 2},
+      "traits": [
+        {"name": "Darkvision", "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light."},
+        {"name": "Gnome Cunning", "description": "You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic."}
+      ],
+      "languages": ["Common", "Gnomish"],
+      "darkvision": 60
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 7,
+    "fields": {
+      "name": "Half-Elf",
+      "description": "Half-elves combine what some say are the best qualities of their elf and human parents.",
+      "size": "medium",
+      "speed": 30,
+      "ability_bonuses": {"cha": 2},
+      "traits": [
+        {"name": "Darkvision", "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light."},
+        {"name": "Fey Ancestry", "description": "You have advantage on saving throws against being charmed, and magic can't put you to sleep."},
+        {"name": "Skill Versatility", "description": "You gain proficiency in two skills of your choice."}
+      ],
+      "languages": ["Common", "Elvish", "One extra language"],
+      "darkvision": 60
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 8,
+    "fields": {
+      "name": "Half-Orc",
+      "description": "Half-orcs' grayish pigmentation, sloping foreheads, jutting jaws, prominent teeth, and towering builds make their orcish heritage plain for all to see.",
+      "size": "medium",
+      "speed": 30,
+      "ability_bonuses": {"str": 2, "con": 1},
+      "traits": [
+        {"name": "Darkvision", "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light."},
+        {"name": "Menacing", "description": "You gain proficiency in the Intimidation skill."},
+        {"name": "Relentless Endurance", "description": "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. You can't use this feature again until you finish a long rest."},
+        {"name": "Savage Attacks", "description": "When you score a critical hit with a melee weapon attack, you can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit."}
+      ],
+      "languages": ["Common", "Orc"],
+      "darkvision": 60
+    }
+  },
+  {
+    "model": "srd.species",
+    "pk": 9,
+    "fields": {
+      "name": "Tiefling",
+      "description": "Tieflings are derived from human bloodlines, and in the broadest possible sense, they still look human.",
+      "size": "medium",
+      "speed": 30,
+      "ability_bonuses": {"int": 1, "cha": 2},
+      "traits": [
+        {"name": "Darkvision", "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light."},
+        {"name": "Hellish Resistance", "description": "You have resistance to fire damage."},
+        {"name": "Infernal Legacy", "description": "You know the thaumaturgy cantrip. When you reach 3rd level, you can cast the hellish rebuke spell once. When you reach 5th level, you can also cast the darkness spell once."}
+      ],
+      "languages": ["Common", "Infernal"],
+      "darkvision": 60
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 1,
+    "fields": {
+      "name": "Barbarian",
+      "description": "A fierce warrior who can enter a battle rage.",
+      "hit_die": 12,
+      "primary_ability": 1,
+      "armor_proficiencies": ["Light armor", "Medium armor", "Shields"],
+      "weapon_proficiencies": ["Simple weapons", "Martial weapons"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["Animal Handling", "Athletics", "Intimidation", "Nature", "Perception", "Survival"]},
+      "starting_equipment": [],
+      "spellcasting_ability": null,
+      "features": [
+        {"level": 1, "name": "Rage", "description": "In battle, you fight with primal ferocity."},
+        {"level": 1, "name": "Unarmored Defense", "description": "While not wearing armor, your AC equals 10 + DEX modifier + CON modifier."},
+        {"level": 2, "name": "Reckless Attack", "description": "You can throw aside all concern for defense to attack with fierce desperation."},
+        {"level": 2, "name": "Danger Sense", "description": "You have advantage on DEX saving throws against effects you can see."},
+        {"level": 5, "name": "Extra Attack", "description": "You can attack twice when you take the Attack action."},
+        {"level": 5, "name": "Fast Movement", "description": "Your speed increases by 10 feet while not wearing heavy armor."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 2,
+    "fields": {
+      "name": "Bard",
+      "description": "An inspiring magician whose power echoes the music of creation.",
+      "hit_die": 8,
+      "primary_ability": 6,
+      "armor_proficiencies": ["Light armor"],
+      "weapon_proficiencies": ["Simple weapons", "Hand crossbows", "Longswords", "Rapiers", "Shortswords"],
+      "tool_proficiencies": ["Three musical instruments of your choice"],
+      "skill_choices": {"count": 3, "from": ["Acrobatics", "Animal Handling", "Arcana", "Athletics", "Deception", "History", "Insight", "Intimidation", "Investigation", "Medicine", "Nature", "Perception", "Performance", "Persuasion", "Religion", "Sleight of Hand", "Stealth", "Survival"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 6,
+      "features": [
+        {"level": 1, "name": "Spellcasting", "description": "You have learned to untangle and reshape the fabric of reality in harmony with your wishes and music."},
+        {"level": 1, "name": "Bardic Inspiration", "description": "You can inspire others through stirring words or music."},
+        {"level": 2, "name": "Jack of All Trades", "description": "You can add half your proficiency bonus to any ability check you make that doesn't already include your proficiency bonus."},
+        {"level": 2, "name": "Song of Rest", "description": "You can use soothing music or oration to help revitalize your wounded allies during a short rest."},
+        {"level": 5, "name": "Font of Inspiration", "description": "You regain all of your expended uses of Bardic Inspiration when you finish a short or long rest."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 3,
+    "fields": {
+      "name": "Cleric",
+      "description": "A priestly champion who wields divine magic in service of a higher power.",
+      "hit_die": 8,
+      "primary_ability": 5,
+      "armor_proficiencies": ["Light armor", "Medium armor", "Shields"],
+      "weapon_proficiencies": ["Simple weapons"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["History", "Insight", "Medicine", "Persuasion", "Religion"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 5,
+      "features": [
+        {"level": 1, "name": "Spellcasting", "description": "As a conduit for divine power, you can cast cleric spells."},
+        {"level": 1, "name": "Divine Domain", "description": "Choose one domain related to your deity."},
+        {"level": 2, "name": "Channel Divinity", "description": "You gain the ability to channel divine energy directly from your deity."},
+        {"level": 2, "name": "Channel Divinity: Turn Undead", "description": "As an action, you present your holy symbol and speak a prayer censuring the undead."},
+        {"level": 5, "name": "Destroy Undead", "description": "When an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 4,
+    "fields": {
+      "name": "Druid",
+      "description": "A priest of the Old Faith, wielding the powers of nature and adopting animal forms.",
+      "hit_die": 8,
+      "primary_ability": 5,
+      "armor_proficiencies": ["Light armor", "Medium armor", "Shields"],
+      "weapon_proficiencies": ["Clubs", "Daggers", "Darts", "Javelins", "Maces", "Quarterstaffs", "Scimitars", "Sickles", "Slings", "Spears"],
+      "tool_proficiencies": ["Herbalism kit"],
+      "skill_choices": {"count": 2, "from": ["Arcana", "Animal Handling", "Insight", "Medicine", "Nature", "Perception", "Religion", "Survival"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 5,
+      "features": [
+        {"level": 1, "name": "Druidic", "description": "You know Druidic, the secret language of druids."},
+        {"level": 1, "name": "Spellcasting", "description": "Drawing on the divine essence of nature itself, you can cast spells to shape that essence to your will."},
+        {"level": 2, "name": "Wild Shape", "description": "You can use your action to magically assume the shape of a beast that you have seen before."},
+        {"level": 2, "name": "Druid Circle", "description": "You choose to identify with a circle of druids."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 5,
+    "fields": {
+      "name": "Fighter",
+      "description": "A master of martial combat, skilled with a variety of weapons and armor.",
+      "hit_die": 10,
+      "primary_ability": 1,
+      "armor_proficiencies": ["All armor", "Shields"],
+      "weapon_proficiencies": ["Simple weapons", "Martial weapons"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["Acrobatics", "Animal Handling", "Athletics", "History", "Insight", "Intimidation", "Perception", "Survival"]},
+      "starting_equipment": [],
+      "spellcasting_ability": null,
+      "features": [
+        {"level": 1, "name": "Fighting Style", "description": "You adopt a particular style of fighting as your specialty."},
+        {"level": 1, "name": "Second Wind", "description": "You have a limited well of stamina that you can draw on to protect yourself from harm."},
+        {"level": 2, "name": "Action Surge", "description": "You can push yourself beyond your normal limits for a moment."},
+        {"level": 3, "name": "Martial Archetype", "description": "You choose an archetype that you strive to emulate in your combat styles and techniques."},
+        {"level": 5, "name": "Extra Attack", "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 6,
+    "fields": {
+      "name": "Monk",
+      "description": "A master of martial arts, harnessing the power of the body in pursuit of physical and spiritual perfection.",
+      "hit_die": 8,
+      "primary_ability": 2,
+      "armor_proficiencies": [],
+      "weapon_proficiencies": ["Simple weapons", "Shortswords"],
+      "tool_proficiencies": ["One artisan's tools or one musical instrument"],
+      "skill_choices": {"count": 2, "from": ["Acrobatics", "Athletics", "History", "Insight", "Religion", "Stealth"]},
+      "starting_equipment": [],
+      "spellcasting_ability": null,
+      "features": [
+        {"level": 1, "name": "Unarmored Defense", "description": "While not wearing armor and not using a shield, your AC equals 10 + DEX modifier + WIS modifier."},
+        {"level": 1, "name": "Martial Arts", "description": "Your practice of martial arts gives you mastery of combat styles that use unarmed strikes and monk weapons."},
+        {"level": 2, "name": "Ki", "description": "Your training allows you to harness the mystic energy of ki."},
+        {"level": 2, "name": "Unarmored Movement", "description": "Your speed increases by 10 feet while you are not wearing armor or wielding a shield."},
+        {"level": 3, "name": "Monastic Tradition", "description": "You commit yourself to a monastic tradition."},
+        {"level": 5, "name": "Extra Attack", "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."},
+        {"level": 5, "name": "Stunning Strike", "description": "You can interfere with the flow of ki in an opponent's body."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 7,
+    "fields": {
+      "name": "Paladin",
+      "description": "A holy warrior bound to a sacred oath.",
+      "hit_die": 10,
+      "primary_ability": 1,
+      "armor_proficiencies": ["All armor", "Shields"],
+      "weapon_proficiencies": ["Simple weapons", "Martial weapons"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["Athletics", "Insight", "Intimidation", "Medicine", "Persuasion", "Religion"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 6,
+      "features": [
+        {"level": 1, "name": "Divine Sense", "description": "The presence of strong evil registers on your senses like a noxious odor."},
+        {"level": 1, "name": "Lay on Hands", "description": "Your blessed touch can heal wounds."},
+        {"level": 2, "name": "Fighting Style", "description": "You adopt a particular style of fighting as your specialty."},
+        {"level": 2, "name": "Spellcasting", "description": "You have learned to draw on divine magic through meditation and prayer to cast spells."},
+        {"level": 2, "name": "Divine Smite", "description": "When you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage."},
+        {"level": 3, "name": "Sacred Oath", "description": "You swear the oath that binds you as a paladin forever."},
+        {"level": 5, "name": "Extra Attack", "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 8,
+    "fields": {
+      "name": "Ranger",
+      "description": "A warrior who combats threats on the edges of civilization.",
+      "hit_die": 10,
+      "primary_ability": 2,
+      "armor_proficiencies": ["Light armor", "Medium armor", "Shields"],
+      "weapon_proficiencies": ["Simple weapons", "Martial weapons"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 3, "from": ["Animal Handling", "Athletics", "Insight", "Investigation", "Nature", "Perception", "Stealth", "Survival"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 5,
+      "features": [
+        {"level": 1, "name": "Favored Enemy", "description": "You have significant experience studying, tracking, hunting, and even talking to a certain type of enemy."},
+        {"level": 1, "name": "Natural Explorer", "description": "You are particularly familiar with one type of natural environment."},
+        {"level": 2, "name": "Fighting Style", "description": "You adopt a particular style of fighting as your specialty."},
+        {"level": 2, "name": "Spellcasting", "description": "You have learned to use the magical essence of nature to cast spells."},
+        {"level": 3, "name": "Ranger Archetype", "description": "You choose an archetype that you strive to emulate."},
+        {"level": 5, "name": "Extra Attack", "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 9,
+    "fields": {
+      "name": "Rogue",
+      "description": "A scoundrel who uses stealth and trickery to overcome obstacles and enemies.",
+      "hit_die": 8,
+      "primary_ability": 2,
+      "armor_proficiencies": ["Light armor"],
+      "weapon_proficiencies": ["Simple weapons", "Hand crossbows", "Longswords", "Rapiers", "Shortswords"],
+      "tool_proficiencies": ["Thieves' tools"],
+      "skill_choices": {"count": 4, "from": ["Acrobatics", "Athletics", "Deception", "Insight", "Intimidation", "Investigation", "Perception", "Performance", "Persuasion", "Sleight of Hand", "Stealth"]},
+      "starting_equipment": [],
+      "spellcasting_ability": null,
+      "features": [
+        {"level": 1, "name": "Expertise", "description": "Choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies."},
+        {"level": 1, "name": "Sneak Attack", "description": "You know how to strike subtly and exploit a foe's distraction."},
+        {"level": 1, "name": "Thieves' Cant", "description": "During your rogue training you learned thieves' cant, a secret mix of dialect, jargon, and code."},
+        {"level": 2, "name": "Cunning Action", "description": "You can take a bonus action on each of your turns in combat."},
+        {"level": 3, "name": "Roguish Archetype", "description": "You choose an archetype that you emulate in the exercise of your rogue abilities."},
+        {"level": 5, "name": "Uncanny Dodge", "description": "When an attacker that you can see hits you with an attack, you can use your reaction to halve the attack's damage against you."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 10,
+    "fields": {
+      "name": "Sorcerer",
+      "description": "A spellcaster who draws on inherent magic from a gift or bloodline.",
+      "hit_die": 6,
+      "primary_ability": 6,
+      "armor_proficiencies": [],
+      "weapon_proficiencies": ["Daggers", "Darts", "Slings", "Quarterstaffs", "Light crossbows"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["Arcana", "Deception", "Insight", "Intimidation", "Persuasion", "Religion"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 6,
+      "features": [
+        {"level": 1, "name": "Spellcasting", "description": "An event in your past, or in the life of a parent or ancestor, left an indelible mark on you, infusing you with arcane magic."},
+        {"level": 1, "name": "Sorcerous Origin", "description": "Choose a sorcerous origin, which describes the source of your innate magical power."},
+        {"level": 2, "name": "Font of Magic", "description": "You tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points."},
+        {"level": 3, "name": "Metamagic", "description": "You gain the ability to twist your spells to suit your needs."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 11,
+    "fields": {
+      "name": "Warlock",
+      "description": "A wielder of magic that is derived from a bargain with an extraplanar entity.",
+      "hit_die": 8,
+      "primary_ability": 6,
+      "armor_proficiencies": ["Light armor"],
+      "weapon_proficiencies": ["Simple weapons"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["Arcana", "Deception", "History", "Intimidation", "Investigation", "Nature", "Religion"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 6,
+      "features": [
+        {"level": 1, "name": "Otherworldly Patron", "description": "You have struck a bargain with an otherworldly being of your choice."},
+        {"level": 1, "name": "Pact Magic", "description": "Your arcane research and the magic bestowed on you by your patron have given you facility with spells."},
+        {"level": 2, "name": "Eldritch Invocations", "description": "In your study of occult lore, you have unearthed eldritch invocations, fragments of forbidden knowledge that imbue you with an abiding magical ability."},
+        {"level": 3, "name": "Pact Boon", "description": "Your otherworldly patron bestows a gift upon you for your loyal service."}
+      ]
+    }
+  },
+  {
+    "model": "srd.characterclass",
+    "pk": 12,
+    "fields": {
+      "name": "Wizard",
+      "description": "A scholarly magic-user capable of manipulating the structures of reality.",
+      "hit_die": 6,
+      "primary_ability": 4,
+      "armor_proficiencies": [],
+      "weapon_proficiencies": ["Daggers", "Darts", "Slings", "Quarterstaffs", "Light crossbows"],
+      "tool_proficiencies": [],
+      "skill_choices": {"count": 2, "from": ["Arcana", "History", "Insight", "Investigation", "Medicine", "Religion"]},
+      "starting_equipment": [],
+      "spellcasting_ability": 4,
+      "features": [
+        {"level": 1, "name": "Spellcasting", "description": "As a student of arcane magic, you have a spellbook containing spells that show the first glimmerings of your true power."},
+        {"level": 1, "name": "Arcane Recovery", "description": "You have learned to regain some of your magical energy by studying your spellbook."},
+        {"level": 2, "name": "Arcane Tradition", "description": "You choose an arcane tradition, shaping your practice of magic."}
+      ]
+    }
+  },
+  {
+    "model": "srd.background",
+    "pk": 1,
+    "fields": {
+      "name": "Acolyte",
+      "description": "You have spent your life in the service of a temple to a specific god or pantheon of gods.",
+      "tool_proficiencies": [],
+      "languages": ["Two of your choice"],
+      "equipment": ["A holy symbol", "A prayer book or prayer wheel", "5 sticks of incense", "Vestments", "A set of common clothes", "15 gp"],
+      "feature_name": "Shelter of the Faithful",
+      "feature_description": "As an acolyte, you command the respect of those who share your faith, and you can perform the religious ceremonies of your deity.",
+      "suggested_characteristics": {
+        "personality_traits": ["I idolize a particular hero of my faith, and constantly refer to that person's deeds and example.", "I can find common ground between the fiercest enemies, empathizing with them and always working toward peace."],
+        "ideals": ["Tradition. The ancient traditions of worship and sacrifice must be preserved and upheld.", "Charity. I always try to help those in need, no matter what the personal cost."],
+        "bonds": ["I would die to recover an ancient relic of my faith that was lost long ago.", "I will someday get revenge on the corrupt temple hierarchy who branded me a heretic."],
+        "flaws": ["I judge others harshly, and myself even more severely.", "I put too much trust in those who wield power within my temple's hierarchy."]
+      }
+    }
+  },
+  {
+    "model": "srd.background",
+    "pk": 2,
+    "fields": {
+      "name": "Criminal",
+      "description": "You are an experienced criminal with a history of breaking the law.",
+      "tool_proficiencies": ["One type of gaming set", "Thieves' tools"],
+      "languages": [],
+      "equipment": ["A crowbar", "A set of dark common clothes including a hood", "15 gp"],
+      "feature_name": "Criminal Contact",
+      "feature_description": "You have a reliable and trustworthy contact who acts as your liaison to a network of other criminals.",
+      "suggested_characteristics": {
+        "personality_traits": ["I always have a plan for what to do when things go wrong.", "I am always calm, no matter what the situation. I never raise my voice or let my emotions control me."],
+        "ideals": ["Honor. I don't steal from others in the trade.", "Freedom. Chains are meant to be broken, as are those who would forge them."],
+        "bonds": ["I'm trying to pay off an old debt I owe to a generous benefactor.", "Someone I loved died because of a mistake I made. That will never happen again."],
+        "flaws": ["When I see something valuable, I can't think about anything but how to steal it.", "When faced with a choice between money and my friends, I usually choose the money."]
+      }
+    }
+  },
+  {
+    "model": "srd.background",
+    "pk": 3,
+    "fields": {
+      "name": "Folk Hero",
+      "description": "You come from a humble social rank, but you are destined for so much more.",
+      "tool_proficiencies": ["One type of artisan's tools", "Vehicles (land)"],
+      "languages": [],
+      "equipment": ["A set of artisan's tools (one of your choice)", "A shovel", "An iron pot", "A set of common clothes", "10 gp"],
+      "feature_name": "Rustic Hospitality",
+      "feature_description": "Since you come from the ranks of the common folk, you fit in among them with ease.",
+      "suggested_characteristics": {
+        "personality_traits": ["I judge people by their actions, not their words.", "If someone is in trouble, I'm always ready to lend help."],
+        "ideals": ["Respect. People deserve to be treated with dignity and respect.", "Fairness. No one should get preferential treatment before the law."],
+        "bonds": ["I have a family, but I have no idea where they are. One day, I hope to see them again.", "I worked the land, I love the land, and I will protect the land."],
+        "flaws": ["The tyrant who rules my land will stop at nothing to see me killed.", "I'm convinced of the significance of my destiny, and blind to my shortcomings and the risk of failure."]
+      }
+    }
+  },
+  {
+    "model": "srd.background",
+    "pk": 4,
+    "fields": {
+      "name": "Noble",
+      "description": "You understand wealth, power, and privilege.",
+      "tool_proficiencies": ["One type of gaming set"],
+      "languages": ["One of your choice"],
+      "equipment": ["A set of fine clothes", "A signet ring", "A scroll of pedigree", "25 gp"],
+      "feature_name": "Position of Privilege",
+      "feature_description": "Thanks to your noble birth, people are inclined to think the best of you.",
+      "suggested_characteristics": {
+        "personality_traits": ["My eloquent flattery makes everyone I talk to feel like the most wonderful and important person in the world.", "The common folk love me for my kindness and generosity."],
+        "ideals": ["Respect. Respect is due to me because of my position, but all people regardless of station deserve to be treated with dignity.", "Responsibility. It is my duty to respect the authority of those above me, just as those below me must respect mine."],
+        "bonds": ["I will face any challenge to win the approval of my family.", "My house's alliance with another noble family must be sustained at all costs."],
+        "flaws": ["I secretly believe that everyone is beneath me.", "I hide a truly scandalous secret that could ruin my family forever."]
+      }
+    }
+  },
+  {
+    "model": "srd.background",
+    "pk": 5,
+    "fields": {
+      "name": "Sage",
+      "description": "You spent years learning the lore of the multiverse.",
+      "tool_proficiencies": [],
+      "languages": ["Two of your choice"],
+      "equipment": ["A bottle of black ink", "A quill", "A small knife", "A letter from a dead colleague posing a question you have not yet been able to answer", "A set of common clothes", "10 gp"],
+      "feature_name": "Researcher",
+      "feature_description": "When you attempt to learn or recall a piece of lore, if you do not know that information, you often know where and from whom you can obtain it.",
+      "suggested_characteristics": {
+        "personality_traits": ["I use polysyllabic words that convey the impression of great erudition.", "I've read every book in the world's greatest libraries—or I like to boast that I have."],
+        "ideals": ["Knowledge. The path to power and self-improvement is through knowledge.", "Beauty. What is beautiful points us beyond itself toward what is true."],
+        "bonds": ["It is my duty to protect my students.", "I have an ancient text that holds terrible secrets that must not fall into the wrong hands."],
+        "flaws": ["I am easily distracted by the promise of information.", "Most people scream and run when they see a demon. I stop and take notes on its anatomy."]
+      }
+    }
+  },
+  {
+    "model": "srd.background",
+    "pk": 6,
+    "fields": {
+      "name": "Soldier",
+      "description": "War has been your life for as long as you care to remember.",
+      "tool_proficiencies": ["One type of gaming set", "Vehicles (land)"],
+      "languages": [],
+      "equipment": ["An insignia of rank", "A trophy taken from a fallen enemy", "A set of bone dice or deck of cards", "A set of common clothes", "10 gp"],
+      "feature_name": "Military Rank",
+      "feature_description": "You have a military rank from your career as a soldier. Soldiers loyal to your former military organization still recognize your authority and influence.",
+      "suggested_characteristics": {
+        "personality_traits": ["I'm always polite and respectful.", "I've lost too many friends, and I'm slow to make new ones."],
+        "ideals": ["Greater Good. Our lot is to lay down our lives in defense of others.", "Nation. My city, nation, or people are all that matter."],
+        "bonds": ["I would still lay down my life for the people I served with.", "Someone saved my life on the battlefield. To this day, I will never leave a friend behind."],
+        "flaws": ["The monstrous enemy we faced in battle still leaves me quivering with fear.", "I have little respect for anyone who is not a proven warrior."]
+      }
+    }
+  }
+]
