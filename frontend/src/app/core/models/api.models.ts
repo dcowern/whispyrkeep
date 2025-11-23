@@ -30,6 +30,7 @@ export interface UserSettings {
   id?: string;
   user?: string;
   ui_mode?: 'dark' | 'light';
+  endpoint_has_api_key?: boolean;
   low_stim_mode?: boolean;
   concise_recap?: boolean;
   decision_menu_mode?: boolean;
@@ -77,6 +78,7 @@ export interface LlmValidationRequest extends LlmModelListRequest {
 export interface LlmValidationResponse extends LlmModelListResponse {
   success: boolean;
   message: string;
+  has_api_key?: boolean;
 }
 
 export interface LoginRequest {

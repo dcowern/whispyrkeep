@@ -300,15 +300,31 @@ type HelpCopy = {
                     <span class="tooltip">{{ helpText.api_key }}</span>
                   </span>
                 </label>
-                <input
-                  id="endpoint-api-key"
-                  type="password"
-                  class="input"
-                  placeholder="sk-..."
-                  [ngModel]="endpointApiKey()"
-                  (ngModelChange)="onApiKeyChange($event)"
-                />
-                <p class="hint">Required for OpenAI, Anthropic, Meta, Mistral, and Google. Optional for custom gateways.</p>
+                <div class="input-with-action">
+                  <input
+                    id="endpoint-api-key"
+                    type="password"
+                    class="input"
+                    placeholder="{{ hasEndpointApiKey() && apiKeyLocked() ? 'API key on file' : 'sk-...' }}"
+                    aria-label="API key"
+                    [disabled]="hasEndpointApiKey() && apiKeyLocked()"
+                    [ngModel]="endpointApiKey()"
+                    (ngModelChange)="onApiKeyChange($event)"
+                  />
+                  @if (hasEndpointApiKey() && apiKeyLocked()) {
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-compact"
+                      aria-label="Enter new key"
+                      (click)="unlockStoredApiKey()"
+                    >
+                      Enter new key
+                    </button>
+                  }
+                </div>
+                <p class="hint">
+                  Stored securely on the server. Required for OpenAI, Anthropic, Meta, Mistral, and Google. Optional for custom gateways.
+                </p>
               </div>
 
               <div class="field">
@@ -319,7 +335,13 @@ type HelpCopy = {
                     <span class="tooltip">{{ helpText.provider }}</span>
                   </span>
                 </label>
-                <select id="endpoint-provider" class="select" [ngModel]="endpointProvider()" (ngModelChange)="onEndpointProviderChange($any($event))">
+                <select
+                  id="endpoint-provider"
+                  class="select"
+                  aria-label="Provider"
+                  [ngModel]="endpointProvider()"
+                  (ngModelChange)="onEndpointProviderChange($any($event))"
+                >
                   @for (provider of providerOptions; track provider.value) {
                     <option [value]="provider.value">{{ provider.label }}</option>
                   }
@@ -356,6 +378,7 @@ type HelpCopy = {
                   id="endpoint-base"
                   type="text"
                   class="input"
+                  aria-label="Base URL"
                   [disabled]="endpointProvider() !== 'custom'"
                   [ngModel]="endpointBaseUrl()"
                   (ngModelChange)="onEndpointBaseChange($event)"
@@ -371,6 +394,7 @@ type HelpCopy = {
                       type="radio"
                       name="model-mode"
                       value="api"
+                      aria-label="API-provided models"
                       [checked]="endpointModelMode() === 'api'"
                       (change)="onModelModeChange('api')"
                     />
@@ -385,6 +409,7 @@ type HelpCopy = {
                       type="radio"
                       name="model-mode"
                       value="custom"
+                      aria-label="Custom model name"
                       [checked]="endpointModelMode() === 'custom'"
                       (change)="onModelModeChange('custom')"
                     />
@@ -437,7 +462,12 @@ type HelpCopy = {
 
                 <div class="field field--toggle-row">
                   <label class="toggle label-with-help">
-                    <input type="checkbox" [checked]="endpointMaxTokensEnabled()" (change)="onMaxTokensToggle($any($event.target).checked)" />
+                    <input
+                      type="checkbox"
+                      aria-label="Send max_tokens"
+                      [checked]="endpointMaxTokensEnabled()"
+                      (change)="onMaxTokensToggle($any($event.target).checked)"
+                    />
                     <span>Send max_tokens</span>
                     <span class="help-trigger">
                       <lucide-icon [img]="HelpCircleIcon" />
@@ -457,7 +487,12 @@ type HelpCopy = {
 
                 <div class="field field--toggle-row">
                   <label class="toggle label-with-help">
-                    <input type="checkbox" [checked]="endpointTemperatureEnabled()" (change)="onTemperatureToggle($any($event.target).checked)" />
+                    <input
+                      type="checkbox"
+                      aria-label="Send temperature"
+                      [checked]="endpointTemperatureEnabled()"
+                      (change)="onTemperatureToggle($any($event.target).checked)"
+                    />
                     <span>Send temperature</span>
                     <span class="help-trigger">
                       <lucide-icon [img]="HelpCircleIcon" />
@@ -701,6 +736,17 @@ type HelpCopy = {
       display: flex;
       flex-direction: column;
       gap: var(--wk-space-2);
+    }
+
+    .input-with-action {
+      display: flex;
+      align-items: center;
+      gap: var(--wk-space-2);
+    }
+
+    .btn-compact {
+      padding: var(--wk-space-2) var(--wk-space-3);
+      min-height: auto;
     }
 
     .form-label {
@@ -1003,6 +1049,8 @@ export class SettingsPanelComponent implements OnInit {
   readonly endpointManualModel = signal<string>('');
   readonly endpointStatus = signal<string | null>(null);
   readonly endpointError = signal<string | null>(null);
+  readonly hasEndpointApiKey = signal(false);
+  readonly apiKeyLocked = signal(false);
   readonly isFetchingModels = signal(false);
   readonly isTestingEndpoint = signal(false);
 
@@ -1126,6 +1174,10 @@ export class SettingsPanelComponent implements OnInit {
     this.lineSpacing.set(nd.line_spacing ?? (settings as any).line_spacing ?? 'standard');
     this.contentRating.set(safety.content_rating ?? (settings as any).content_rating ?? 'PG13');
     this.uiMode.set((settings as any).ui_mode ?? 'dark');
+    const hasKey = Boolean((settings as any).endpoint_has_api_key);
+    this.hasEndpointApiKey.set(hasKey);
+    this.apiKeyLocked.set(hasKey);
+    this.endpointApiKey.set('');
     this.applyEndpointPreference((settings as any).endpoint_pref as EndpointPreference | string | undefined);
   }
 
@@ -1180,10 +1232,13 @@ export class SettingsPanelComponent implements OnInit {
     this.endpointMaxTokens.set(null);
     this.endpointTemperatureEnabled.set(false);
     this.endpointTemperature.set(null);
+    this.hasEndpointApiKey.set(false);
+    this.apiKeyLocked.set(false);
+    this.endpointApiKey.set('');
     this.endpointStatus.set(null);
     this.endpointError.set(null);
 
-    if (this.endpointModelMode() === 'api' && (this.endpointApiKey().trim() || !this.requiresApiKey())) {
+    if (this.endpointModelMode() === 'api' && (this.endpointApiKey().trim() || this.isUsingStoredApiKey() || !this.requiresApiKey())) {
       this.loadModels();
     } else if (this.requiresApiKey()) {
       this.endpointStatus.set('Enter an API key to load provider models.');
@@ -1250,7 +1305,7 @@ export class SettingsPanelComponent implements OnInit {
     this.endpointError.set(null);
 
     if (mode === 'api' && this.endpointModels().length === 0) {
-      if (this.endpointApiKey().trim() || !this.requiresApiKey()) {
+      if (this.hasApiKeyAvailable()) {
         this.loadModels();
       } else if (this.requiresApiKey()) {
         this.endpointStatus.set('Enter an API key to load provider models.');
@@ -1265,8 +1320,7 @@ export class SettingsPanelComponent implements OnInit {
       return;
     }
 
-    const apiKey = this.endpointApiKey().trim();
-    if (this.requiresApiKey() && !apiKey) {
+    if (this.requiresApiKey() && !this.hasApiKeyAvailable()) {
       this.endpointStatus.set('Enter an API key to load provider models.');
       return;
     }
@@ -1276,7 +1330,6 @@ export class SettingsPanelComponent implements OnInit {
     this.isFetchingModels.set(true);
 
     const payload = this.buildEndpointPayload();
-    payload.api_key = apiKey || undefined;
     payload.base_url = baseUrl;
 
     this.llmEndpointService.listModels(payload).subscribe({
@@ -1303,8 +1356,8 @@ export class SettingsPanelComponent implements OnInit {
   saveEndpointPreference(): void {
     const payload = this.buildEndpointPayload(true);
 
-    if (this.requiresApiKey() && !this.endpointApiKey().trim()) {
-      this.endpointError.set('API key is required for this provider.');
+    if (this.requiresApiKey() && !this.hasApiKeyAvailable()) {
+      this.endpointError.set('API key is required for this provider. Unlock to enter a key.');
       return;
     }
 
@@ -1321,7 +1374,7 @@ export class SettingsPanelComponent implements OnInit {
     }
 
     this.isTestingEndpoint.set(true);
-    payload.api_key = this.endpointApiKey().trim();
+    payload.api_key = this.getEffectiveApiKey();
     payload.model = chosenModel;
     if (this.endpointMaxTokensEnabled() && this.endpointMaxTokens()) {
       payload.max_tokens = this.endpointMaxTokens() ?? undefined;
@@ -1347,11 +1400,15 @@ export class SettingsPanelComponent implements OnInit {
           temperature: this.endpointTemperatureEnabled() ? this.endpointTemperature() ?? undefined : undefined,
         };
 
-        this.endpointStatus.set(response.message || 'Endpoint verified and saved.');
+        const statusMessage = response.message || 'Endpoint verified and settings saved.';
+        this.endpointStatus.set(statusMessage);
         this.updateSetting('endpoint_pref', preference, () => {
           this.endpointModels.set(models);
           this.endpointModel.set(chosenModel);
-          this.endpointStatus.set(response.message || 'Endpoint verified and saved.');
+          this.hasEndpointApiKey.set(response.has_api_key ?? (this.hasEndpointApiKey() || !!this.endpointApiKey().trim()));
+          this.apiKeyLocked.set(this.hasEndpointApiKey());
+          this.endpointApiKey.set('');
+          this.endpointStatus.set(statusMessage);
         });
       },
       error: err => {
@@ -1365,11 +1422,12 @@ export class SettingsPanelComponent implements OnInit {
   private buildEndpointPayload(): LlmModelListRequest;
   private buildEndpointPayload(includeModel: true): LlmValidationRequest;
   private buildEndpointPayload(includeModel = false): LlmModelListRequest | LlmValidationRequest {
+    const apiKey = this.getEffectiveApiKey();
     const payload: LlmModelListRequest | LlmValidationRequest = {
       provider: this.endpointProvider(),
       base_url: this.endpointBaseUrl().trim(),
       compatibility: this.endpointCompatibility(),
-      api_key: this.endpointApiKey().trim() || undefined
+      api_key: apiKey
     };
 
     if (includeModel) {
@@ -1393,6 +1451,32 @@ export class SettingsPanelComponent implements OnInit {
 
   requiresApiKey(): boolean {
     return !this.isCustomProvider();
+  }
+
+  private isUsingStoredApiKey(): boolean {
+    return this.hasEndpointApiKey() && this.apiKeyLocked();
+  }
+
+  private hasApiKeyAvailable(): boolean {
+    return !!this.endpointApiKey().trim() || this.isUsingStoredApiKey() || !this.requiresApiKey();
+  }
+
+  private getEffectiveApiKey(): string | undefined {
+    const raw = this.endpointApiKey().trim();
+    if (raw) {
+      return raw;
+    }
+    if (this.isUsingStoredApiKey()) {
+      return undefined; // rely on server-side stored key
+    }
+    return undefined;
+  }
+
+  unlockStoredApiKey(): void {
+    this.apiKeyLocked.set(false);
+    this.endpointApiKey.set('');
+    this.endpointStatus.set(null);
+    this.endpointError.set(null);
   }
 
   refreshModels(): void {

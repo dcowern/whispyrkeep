@@ -38,7 +38,11 @@ class LlmEndpointConfig(models.Model):
             ("openai", "OpenAI"),
             ("azure-openai", "Azure OpenAI"),
             ("anthropic", "Anthropic"),
-            ("local", "Local/Custom"),
+            ("meta", "Meta (Llama)"),
+            ("mistral", "Mistral"),
+            ("google", "Google"),
+            ("custom", "Custom/Local"),
+            ("local", "Local/Legacy"),
         ],
     )
     base_url = models.URLField(blank=True)

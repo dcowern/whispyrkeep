@@ -278,3 +278,53 @@ class TestLlmEndpointDiscoveryViews:
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_validate_uses_stored_api_key_and_returns_flag(self, authenticated_client, user, monkeypatch):
+        """Validation should reuse stored keys and never expose them."""
+
+        monkeypatch.setattr(
+            "apps.llm_config.views.validate_endpoint",
+            lambda **kwargs: {
+                "models": ["gpt-4o"],
+                "resolved_base_url": "https://api.openai.com/v1",
+                "compatibility": "openai",
+            },
+        )
+        LlmEndpointConfig.objects.create(
+            user=user,
+            provider_name="openai",
+            api_key_encrypted=encrypt_api_key("sk-saved-key"),
+            default_model="gpt-4o",
+        )
+
+        url = reverse("llm_config_validate")
+        response = authenticated_client.post(
+            url,
+            {
+                "provider": "openai",
+                "model": "gpt-4o",
+            },
+            format="json",
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["has_api_key"] is True
+        assert response.data["message"] == "Endpoint verified and settings saved."
+        assert "api_key" not in response.data
+
+    def test_validate_requires_api_key_when_missing(self, authenticated_client):
+        """Validation should reject providers that require a key when none exists."""
+
+        url = reverse("llm_config_validate")
+        response = authenticated_client.post(
+            url,
+            {
+                "provider": "openai",
+                "model": "gpt-4o",
+            },
+            format="json",
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["success"] is False
+        assert "API key is required" in response.data["message"]

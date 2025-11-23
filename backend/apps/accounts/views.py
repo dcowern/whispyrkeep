@@ -96,10 +96,20 @@ class UserSettingsView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    def _settings_payload(self, user):
+        """Return settings JSON with derived flags (non-persistent)."""
+        payload = dict(user.settings_json)
+        from apps.llm_config.models import LlmEndpointConfig
+
+        payload["endpoint_has_api_key"] = LlmEndpointConfig.objects.filter(
+            user=user, api_key_encrypted__isnull=False
+        ).exists()
+        return payload
+
     def retrieve(self, request, *args, **kwargs):
         """Return just the settings_json field."""
         user = self.get_object()
-        return Response(user.settings_json, status=status.HTTP_200_OK)
+        return Response(self._settings_payload(user), status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         """Update settings with merge behavior for partial updates."""
@@ -123,7 +133,7 @@ class UserSettingsView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.instance.settings_json, status=status.HTTP_200_OK)
+        return Response(self._settings_payload(serializer.instance), status=status.HTTP_200_OK)
 
 
 class LoginView(TokenObtainPairView):

@@ -9,6 +9,9 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
+from apps.llm_config.encryption import encrypt_api_key
+from apps.llm_config.models import LlmEndpointConfig
+
 User = get_user_model()
 
 
@@ -262,6 +265,23 @@ class TestUserSettingsView:
 
         assert response.status_code == status.HTTP_200_OK
         assert isinstance(response.data, dict)
+
+    def test_get_settings_includes_endpoint_key_flag(self, authenticated_client, user, settings):
+        """Ensure settings payload includes endpoint_has_api_key derived flag without exposing key."""
+        settings.KMS_SECRET = "test-kms-secret-key"
+        LlmEndpointConfig.objects.create(
+            user=user,
+            provider_name="openai",
+            api_key_encrypted=encrypt_api_key("sk-secret"),
+            default_model="gpt-4o",
+        )
+
+        url = reverse("user_settings")
+        response = authenticated_client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get("endpoint_has_api_key") is True
+        assert "api_key" not in response.data
 
     def test_get_settings_unauthenticated(self, api_client):
         """Test settings requires authentication."""
