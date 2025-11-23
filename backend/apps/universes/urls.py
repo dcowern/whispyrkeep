@@ -77,4 +77,6 @@ urlpatterns = [
     path("<uuid:pk>/lore/stats/", views.LoreStatsView.as_view(), name="lore_stats"),
     # Placeholder views for future epics
     path("<uuid:pk>/timeline/", views.TimelineView.as_view(), name="universe_timeline"),
+    # Export endpoint (Epic 11)
+    path("<uuid:pk>/export/", views.UniverseExportView.as_view(), name="universe_export"),
 ]

@@ -644,3 +644,55 @@ class TimelineView(APIView):
             {"detail": "Timeline - to be implemented in Epic 6"},
             status=status.HTTP_501_NOT_IMPLEMENTED,
         )
+
+
+class UniverseExportView(APIView):
+    """
+    POST /api/universes/{id}/export - Export universe.
+
+    Exports universe data to JSON or Markdown format.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Create an export job for the universe."""
+        from apps.exports.serializers import ExportRequestSerializer
+        from apps.exports.services.export_service import ExportService
+        from apps.exports.tasks import render_export
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = ExportRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        export_format = serializer.validated_data["format"]
+
+        # Create export job
+        service = ExportService()
+        job = service.create_universe_export_job(universe, export_format)
+
+        # For small exports, run synchronously
+        # For larger exports, queue async task
+        result = service.execute_export(job)
+
+        if result.success:
+            return Response({
+                "job_id": str(job.id),
+                "status": job.status,
+                "message": "Export completed successfully",
+                "download_url": f"/api/exports/{job.id}/?download=true",
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                "job_id": str(job.id),
+                "status": job.status,
+                "errors": result.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)

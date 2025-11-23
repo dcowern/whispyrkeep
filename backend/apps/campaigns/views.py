@@ -324,3 +324,55 @@ class RewindView(APIView):
             "current_turn_index": turns[0]["turn_index"] if turns else 0,
             "turns": turns,
         })
+
+
+class CampaignExportView(APIView):
+    """
+    POST /api/campaigns/{id}/export - Export campaign.
+
+    Exports campaign data to JSON or Markdown format.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Create an export job for the campaign."""
+        from apps.exports.serializers import ExportRequestSerializer
+        from apps.exports.services.export_service import ExportService
+
+        try:
+            campaign = Campaign.objects.select_related(
+                "universe", "character_sheet"
+            ).get(id=pk, user=request.user)
+        except Campaign.DoesNotExist:
+            return Response(
+                {"error": "Campaign not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = ExportRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        export_format = serializer.validated_data["format"]
+
+        # Create export job
+        service = ExportService()
+        job = service.create_campaign_export_job(campaign, export_format)
+
+        # Execute export
+        result = service.execute_export(job)
+
+        if result.success:
+            return Response({
+                "job_id": str(job.id),
+                "status": job.status,
+                "message": "Export completed successfully",
+                "download_url": f"/api/exports/{job.id}/?download=true",
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                "job_id": str(job.id),
+                "status": job.status,
+                "errors": result.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)

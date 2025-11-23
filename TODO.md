@@ -264,9 +264,9 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 11.0.1 | Export job model | `NOT_STARTED` | `NOT_STARTED` |
-| 11.0.2 | Universe export | `NOT_STARTED` | `NOT_STARTED` |
-| 11.0.3 | Campaign export | `NOT_STARTED` | `NOT_STARTED` |
+| 11.0.1 | Export job model | `DONE` | `DONE` |
+| 11.0.2 | Universe export | `DONE` | `DONE` |
+| 11.0.3 | Campaign export | `DONE` | `DONE` |
 
 ---
 
@@ -403,8 +403,8 @@
 | 8 | 10 | 10 | 0 | 0 |
 | 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 2 | 0 | 0 |
-| 11 | 3 | 0 | 0 | 3 |
+| 11 | 3 | 3 | 0 | 0 |
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **58** | **0** | **34** |
+| **TOTAL** | **92** | **61** | **0** | **31** |
