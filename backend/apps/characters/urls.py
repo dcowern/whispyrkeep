@@ -1,8 +1,14 @@
-from django.urls import path
+"""
+Character API URL configuration.
 
-from apps.characters import views
+Uses DRF routers to generate CRUD endpoints for CharacterSheet.
+"""
 
-urlpatterns = [
-    path("", views.CharacterListCreateView.as_view(), name="character_list"),
-    path("<uuid:pk>/", views.CharacterDetailView.as_view(), name="character_detail"),
-]
+from rest_framework.routers import DefaultRouter
+
+from . import views
+
+router = DefaultRouter()
+router.register(r"", views.CharacterSheetViewSet, basename="character")
+
+urlpatterns = router.urls
