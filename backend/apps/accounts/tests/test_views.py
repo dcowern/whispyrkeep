@@ -248,3 +248,91 @@ class TestUserProfileView:
         # Email should not have changed
         user.refresh_from_db()
         assert user.email == original_email
+
+
+@pytest.mark.django_db
+class TestUserSettingsView:
+    """Tests for GET/PUT/PATCH /api/auth/settings/."""
+
+    def test_get_settings(self, authenticated_client, user):
+        """Test getting user settings."""
+        url = reverse("user_settings")
+
+        response = authenticated_client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.data, dict)
+
+    def test_get_settings_unauthenticated(self, api_client):
+        """Test settings requires authentication."""
+        url = reverse("user_settings")
+
+        response = api_client.get(url)
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_update_settings_put(self, authenticated_client, user):
+        """Test full settings replacement with PUT."""
+        url = reverse("user_settings")
+        data = {
+            "ui_mode": "light",
+            "nd_options": {"low_stim_mode": True},
+            "safety_defaults": {"content_rating": "PG"},
+        }
+
+        response = authenticated_client.put(url, data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["ui_mode"] == "light"
+        assert response.data["nd_options"]["low_stim_mode"] is True
+        assert response.data["safety_defaults"]["content_rating"] == "PG"
+
+    def test_update_settings_patch_merge(self, authenticated_client, user):
+        """Test partial settings update with merge behavior."""
+        url = reverse("user_settings")
+
+        # First set some initial settings
+        user.settings_json = {
+            "ui_mode": "dark",
+            "nd_options": {"low_stim_mode": False, "font_size": 14},
+        }
+        user.save()
+
+        # Patch with partial update
+        data = {"nd_options": {"low_stim_mode": True}}
+
+        response = authenticated_client.patch(url, data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        # Original ui_mode should be preserved
+        assert response.data["ui_mode"] == "dark"
+        # nd_options should be merged
+        assert response.data["nd_options"]["low_stim_mode"] is True
+        assert response.data["nd_options"]["font_size"] == 14
+
+    def test_update_settings_invalid_ui_mode(self, authenticated_client):
+        """Test validation rejects invalid ui_mode."""
+        url = reverse("user_settings")
+        data = {"ui_mode": "invalid"}
+
+        response = authenticated_client.put(url, data, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_settings_invalid_content_rating(self, authenticated_client):
+        """Test validation rejects invalid content_rating."""
+        url = reverse("user_settings")
+        data = {"safety_defaults": {"content_rating": "XXX"}}
+
+        response = authenticated_client.put(url, data, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_settings_invalid_nd_option(self, authenticated_client):
+        """Test validation rejects unknown nd_options."""
+        url = reverse("user_settings")
+        data = {"nd_options": {"unknown_option": True}}
+
+        response = authenticated_client.put(url, data, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -57,15 +57,15 @@
 |--------|-------------|--------|-------|
 | 1.1.1 | User model & profile | `DONE` | `DONE` |
 | 1.1.2 | Auth endpoints | `DONE` | `DONE` |
-| 1.1.3 | User settings endpoints | `NOT_STARTED` | `NOT_STARTED` |
+| 1.1.3 | User settings endpoints | `DONE` | `DONE` |
 
 ### FEAT 1.2 — LLM Endpoint Config
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 1.2.1 | LlmEndpointConfig model | `NOT_STARTED` | `NOT_STARTED` |
-| 1.2.2 | LLM config API | `NOT_STARTED` | `NOT_STARTED` |
-| 1.2.3 | Encryption utilities | `NOT_STARTED` | `NOT_STARTED` |
+| 1.2.1 | LlmEndpointConfig model | `DONE` | `DONE` |
+| 1.2.2 | LLM config API | `DONE` | `DONE` |
+| 1.2.3 | Encryption utilities | `DONE` | `DONE` |
 
 ---
 
@@ -393,7 +393,7 @@
 | Epic | Total | Done | In Progress | Not Started |
 |------|-------|------|-------------|-------------|
 | 0 | 3 | 3 | 0 | 0 |
-| 1 | 8 | 4 | 0 | 4 |
+| 1 | 8 | 8 | 0 | 0 |
 | 2 | 5 | 0 | 0 | 5 |
 | 3 | 4 | 0 | 0 | 4 |
 | 4 | 5 | 0 | 0 | 5 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **7** | **0** | **85** |
+| **TOTAL** | **92** | **11** | **0** | **81** |

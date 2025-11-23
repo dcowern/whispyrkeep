@@ -21,6 +21,7 @@ from apps.accounts.models import User
 from apps.accounts.serializers import (
     UserProfileSerializer,
     UserRegistrationSerializer,
+    UserSettingsSerializer,
 )
 
 
@@ -76,6 +77,53 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserSettingsView(generics.RetrieveUpdateAPIView):
+    """
+    GET/PUT/PATCH /api/auth/settings - User settings management.
+
+    Dedicated endpoint for managing user settings (ui_mode, nd_options,
+    safety_defaults, endpoint_prefs) without exposing other profile fields.
+
+    GET returns current settings_json.
+    PUT/PATCH updates settings with validation.
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSettingsSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def retrieve(self, request, *args, **kwargs):
+        """Return just the settings_json field."""
+        user = self.get_object()
+        return Response(user.settings_json, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        """Update settings with merge behavior for partial updates."""
+        partial = kwargs.pop("partial", False)
+        user = self.get_object()
+
+        if partial:
+            # Merge new settings with existing
+            new_settings = user.settings_json.copy()
+            for key, value in request.data.get("settings_json", request.data).items():
+                if isinstance(value, dict) and isinstance(new_settings.get(key), dict):
+                    # Deep merge for nested dicts
+                    new_settings[key] = {**new_settings[key], **value}
+                else:
+                    new_settings[key] = value
+            data = {"settings_json": new_settings}
+        else:
+            data = {"settings_json": request.data.get("settings_json", request.data)}
+
+        serializer = self.get_serializer(user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.instance.settings_json, status=status.HTTP_200_OK)
 
 
 class LoginView(TokenObtainPairView):
