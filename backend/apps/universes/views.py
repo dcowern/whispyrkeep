@@ -345,33 +345,295 @@ class HomebrewSubclassViewSet(HomebrewBaseViewSet):
 
 
 class WorldgenView(APIView):
-    """POST /api/universes/{id}/worldgen - LLM co-write."""
+    """
+    POST /api/universes/worldgen/ - Create universe with LLM worldgen.
 
-    def post(self, request, pk):
+    Creates a new universe with AI-generated homebrew content.
+    Requires the user to have an active LLM configuration for full functionality.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+        Create a universe with worldgen.
+
+        Request body:
+        {
+            "name": "Universe Name",
+            "description": "Optional description",
+            "grimdark_cozy": 0.5,
+            "comedy_serious": 0.5,
+            "low_high_magic": 0.5,
+            "sandbox_railroad": 0.5,
+            "combat_roleplay": 0.5,
+            "themes": ["adventure", "mystery"],
+            "rules_strictness": "standard",
+            "homebrew_amount": "moderate",
+            "generate_species": true,
+            "generate_spells": true,
+            "max_species": 3,
+            "max_spells": 5,
+            ...
+        }
+
+        Returns:
+        - 201: Universe created with generated content
+        - 400: Validation errors
+        """
+        from .services.worldgen import WorldgenRequest, WorldgenService
+
+        # Extract request data
+        data = request.data
+        try:
+            worldgen_request = WorldgenRequest(
+                name=data.get("name", ""),
+                description=data.get("description", ""),
+                grimdark_cozy=float(data.get("grimdark_cozy", 0.5)),
+                comedy_serious=float(data.get("comedy_serious", 0.5)),
+                low_high_magic=float(data.get("low_high_magic", 0.5)),
+                sandbox_railroad=float(data.get("sandbox_railroad", 0.5)),
+                combat_roleplay=float(data.get("combat_roleplay", 0.5)),
+                themes=data.get("themes", []),
+                rules_strictness=data.get("rules_strictness", "standard"),
+                homebrew_amount=data.get("homebrew_amount", "moderate"),
+                generate_species=data.get("generate_species", True),
+                generate_classes=data.get("generate_classes", False),
+                generate_backgrounds=data.get("generate_backgrounds", True),
+                generate_spells=data.get("generate_spells", True),
+                generate_items=data.get("generate_items", True),
+                generate_monsters=data.get("generate_monsters", True),
+                generate_feats=data.get("generate_feats", True),
+                max_species=int(data.get("max_species", 3)),
+                max_classes=int(data.get("max_classes", 0)),
+                max_backgrounds=int(data.get("max_backgrounds", 2)),
+                max_spells=int(data.get("max_spells", 5)),
+                max_items=int(data.get("max_items", 5)),
+                max_monsters=int(data.get("max_monsters", 5)),
+                max_feats=int(data.get("max_feats", 3)),
+                seed=data.get("seed"),
+            )
+        except (ValueError, TypeError) as e:
+            return Response(
+                {"errors": [f"Invalid request data: {str(e)}"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Run worldgen
+        service = WorldgenService(request.user)
+        result = service.generate(worldgen_request)
+
+        if not result.success:
+            return Response(
+                {"errors": result.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Return created universe info
         return Response(
-            {"detail": "Worldgen - to be implemented in Epic 4"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
+            {
+                "universe_id": result.universe_id,
+                "created_content": result.created_content,
+                "warnings": result.warnings,
+            },
+            status=status.HTTP_201_CREATED,
         )
+
+
+class WorldgenPreviewView(APIView):
+    """
+    POST /api/universes/worldgen/preview/ - Preview worldgen without creating.
+
+    Returns what would be generated based on the parameters.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Preview worldgen parameters."""
+        from .services.worldgen import WorldgenRequest, WorldgenService
+
+        data = request.data
+        try:
+            worldgen_request = WorldgenRequest(
+                name=data.get("name", "Preview Universe"),
+                description=data.get("description", ""),
+                grimdark_cozy=float(data.get("grimdark_cozy", 0.5)),
+                comedy_serious=float(data.get("comedy_serious", 0.5)),
+                low_high_magic=float(data.get("low_high_magic", 0.5)),
+                sandbox_railroad=float(data.get("sandbox_railroad", 0.5)),
+                combat_roleplay=float(data.get("combat_roleplay", 0.5)),
+                themes=data.get("themes", []),
+                rules_strictness=data.get("rules_strictness", "standard"),
+                homebrew_amount=data.get("homebrew_amount", "moderate"),
+                generate_species=data.get("generate_species", True),
+                generate_classes=data.get("generate_classes", False),
+                generate_backgrounds=data.get("generate_backgrounds", True),
+                generate_spells=data.get("generate_spells", True),
+                generate_items=data.get("generate_items", True),
+                generate_monsters=data.get("generate_monsters", True),
+                generate_feats=data.get("generate_feats", True),
+                max_species=int(data.get("max_species", 3)),
+                max_classes=int(data.get("max_classes", 0)),
+                max_backgrounds=int(data.get("max_backgrounds", 2)),
+                max_spells=int(data.get("max_spells", 5)),
+                max_items=int(data.get("max_items", 5)),
+                max_monsters=int(data.get("max_monsters", 5)),
+                max_feats=int(data.get("max_feats", 3)),
+            )
+        except (ValueError, TypeError) as e:
+            return Response(
+                {"errors": [f"Invalid request data: {str(e)}"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        service = WorldgenService(request.user)
+        preview = service.preview(worldgen_request)
+
+        return Response(preview, status=status.HTTP_200_OK)
 
 
 class LoreUploadView(APIView):
-    """POST /api/universes/{id}/lore/upload."""
+    """
+    POST /api/universes/{id}/lore/upload.
+
+    Upload a hard canon document to a universe.
+    """
+
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        return Response(
-            {"detail": "Lore upload - to be implemented in Epic 5"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
+        """Upload a new hard canon document."""
+        from apps.lore.serializers import (
+            HardCanonDocUploadSerializer,
+            LoreIngestionResultSerializer,
         )
+        from apps.lore.services.lore_service import LoreService
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = HardCanonDocUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Use lore service to ingest
+        service = LoreService()
+        result = service.ingest_hard_canon(
+            universe=universe,
+            title=serializer.validated_data["title"],
+            raw_text=serializer.validated_data["raw_text"],
+            source_type=serializer.validated_data["source_type"],
+            tags=serializer.validated_data.get("tags", []),
+            never_compact=serializer.validated_data["never_compact"],
+        )
+
+        result_serializer = LoreIngestionResultSerializer(result)
+
+        if result.success:
+            return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(result_serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoreListView(APIView):
-    """GET /api/universes/{id}/lore."""
+    """
+    GET /api/universes/{id}/lore.
+
+    List hard canon documents for a universe.
+    """
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
-        return Response(
-            {"detail": "Lore list - to be implemented in Epic 5"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
+        """List hard canon documents for a universe."""
+        from apps.lore.serializers import HardCanonDocListSerializer
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        docs = UniverseHardCanonDoc.objects.filter(universe=universe).order_by("-created_at")
+        serializer = HardCanonDocListSerializer(docs, many=True)
+
+        return Response(serializer.data)
+
+
+class LoreQueryView(APIView):
+    """
+    POST /api/universes/{id}/lore/query.
+
+    Query lore for a universe using semantic search.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Query universe lore."""
+        from apps.lore.serializers import LoreContextSerializer, LoreQuerySerializer
+        from apps.lore.services.lore_service import LoreService
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = LoreQuerySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = LoreService()
+        context = service.get_lore_context(
+            universe=universe,
+            query=serializer.validated_data["query"],
+            max_chunks=serializer.validated_data["max_chunks"],
+            include_soft_lore=serializer.validated_data["include_soft_lore"],
+            prioritize_hard_canon=serializer.validated_data["prioritize_hard_canon"],
         )
+
+        result_serializer = LoreContextSerializer(context)
+        return Response(result_serializer.data)
+
+
+class LoreStatsView(APIView):
+    """
+    GET /api/universes/{id}/lore/stats.
+
+    Get lore statistics for a universe.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        """Get lore statistics."""
+        from apps.lore.serializers import LoreStatsSerializer
+        from apps.lore.services.lore_service import LoreService
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        service = LoreService()
+        stats = service.get_universe_lore_stats(universe)
+
+        serializer = LoreStatsSerializer(stats)
+        return Response(serializer.data)
 
 
 class TimelineView(APIView):

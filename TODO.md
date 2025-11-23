@@ -1,7 +1,7 @@
 # WhispyrKeep Development TODO
 
 **Last Updated**: 2025-11-23
-**Current Epic**: 2 - SRD Rules + Homebrew Catalog
+**Current Epic**: 9 - Mechanics Engine
 
 ## Status Legend
 
@@ -94,15 +94,15 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 3.0.1 | CharacterSheet model | `NOT_STARTED` | `NOT_STARTED` |
-| 3.0.2 | Character validation service | `NOT_STARTED` | `NOT_STARTED` |
+| 3.0.1 | CharacterSheet model | `DONE` | `DONE` |
+| 3.0.2 | Character validation service | `DONE` | `DONE` |
 
 ### FEAT 3.1 — Character APIs
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 3.1.1 | Character CRUD endpoints | `NOT_STARTED` | `NOT_STARTED` |
-| 3.1.2 | Leveling service | `NOT_STARTED` | `NOT_STARTED` |
+| 3.1.1 | Character CRUD endpoints | `DONE` | `DONE` |
+| 3.1.2 | Leveling service | `DONE` | `DONE` |
 
 ---
 
@@ -112,16 +112,16 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 4.0.1 | Universe model | `NOT_STARTED` | `NOT_STARTED` |
-| 4.0.2 | Universe CRUD API | `NOT_STARTED` | `NOT_STARTED` |
+| 4.0.1 | Universe model | `DONE` | `DONE` |
+| 4.0.2 | Universe CRUD API | `DONE` | `DONE` |
 
 ### FEAT 4.1 — Universe Builder LLM Co-write
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 4.1.1 | Worldgen orchestration endpoint | `NOT_STARTED` | `NOT_STARTED` |
-| 4.1.2 | Bulk catalog pre-generation task | `NOT_STARTED` | `NOT_STARTED` |
-| 4.1.3 | Tone & rules sliders persistence | `NOT_STARTED` | `NOT_STARTED` |
+| 4.1.1 | Worldgen orchestration endpoint | `DONE` | `DONE` |
+| 4.1.2 | Bulk catalog pre-generation task | `DONE` | `DONE` |
+| 4.1.3 | Tone & rules sliders persistence | `DONE` | `DONE` |
 
 ---
 
@@ -131,29 +131,29 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.0.1 | Upload docs endpoint | `NOT_STARTED` | `NOT_STARTED` |
-| 5.0.2 | Hard canon chunking + embedding | `NOT_STARTED` | `NOT_STARTED` |
+| 5.0.1 | Upload docs endpoint | `DONE` | `DONE` |
+| 5.0.2 | Hard canon chunking + embedding | `DONE` | `DONE` |
 
 ### FEAT 5.1 — Soft Lore Ingestion
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.1.1 | Lore delta persistence | `NOT_STARTED` | `NOT_STARTED` |
-| 5.1.2 | Soft lore embedding task | `NOT_STARTED` | `NOT_STARTED` |
+| 5.1.1 | Lore delta persistence | `DONE` | `DONE` |
+| 5.1.2 | Soft lore embedding task | `DONE` | `DONE` |
 
 ### FEAT 5.2 — Lore Retrieval Service
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.2.1 | Chroma query wrapper | `NOT_STARTED` | `NOT_STARTED` |
-| 5.2.2 | Lore injection assembler | `NOT_STARTED` | `NOT_STARTED` |
+| 5.2.1 | Chroma query wrapper | `DONE` | `DONE` |
+| 5.2.2 | Lore injection assembler | `DONE` | `DONE` |
 
 ### FEAT 5.3 — Compaction
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.3.1 | Soft lore compaction job | `NOT_STARTED` | `NOT_STARTED` |
-| 5.3.2 | Hard canon compaction escape hatch | `NOT_STARTED` | `NOT_STARTED` |
+| 5.3.1 | Soft lore compaction job | `DONE` | `DONE` |
+| 5.3.2 | Hard canon compaction escape hatch | `DONE` | `DONE` |
 
 ---
 
@@ -181,15 +181,15 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 7.0.1 | Campaign model | `NOT_STARTED` | `NOT_STARTED` |
-| 7.0.2 | Campaign CRUD API | `NOT_STARTED` | `NOT_STARTED` |
+| 7.0.1 | Campaign model | `DONE` | `DONE` |
+| 7.0.2 | Campaign CRUD API | `DONE` | `DONE` |
 
 ### FEAT 7.1 — Canonical State & Snapshots
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 7.1.1 | CanonicalCampaignState snapshot table | `NOT_STARTED` | `NOT_STARTED` |
-| 7.1.2 | State replay engine | `NOT_STARTED` | `NOT_STARTED` |
+| 7.1.1 | CanonicalCampaignState snapshot table | `DONE` | `DONE` |
+| 7.1.2 | State replay engine | `DONE` | `DONE` |
 
 ---
 
@@ -395,11 +395,11 @@
 | 0 | 3 | 3 | 0 | 0 |
 | 1 | 8 | 8 | 0 | 0 |
 | 2 | 5 | 5 | 0 | 0 |
-| 3 | 4 | 0 | 0 | 4 |
-| 4 | 5 | 0 | 0 | 5 |
-| 5 | 8 | 0 | 0 | 8 |
+| 3 | 4 | 4 | 0 | 0 |
+| 4 | 5 | 5 | 0 | 0 |
+| 5 | 8 | 8 | 0 | 0 |
 | 6 | 4 | 0 | 0 | 4 |
-| 7 | 4 | 0 | 0 | 4 |
+| 7 | 4 | 4 | 0 | 0 |
 | 8 | 10 | 0 | 0 | 10 |
 | 9 | 5 | 0 | 0 | 5 |
 | 10 | 2 | 0 | 0 | 2 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **16** | **0** | **76** |
+| **TOTAL** | **92** | **37** | **0** | **55** |
