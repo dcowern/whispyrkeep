@@ -6,6 +6,7 @@ Tests the User model with UUID, settings_json, and custom fields.
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 
 User = get_user_model()
 
@@ -64,7 +65,7 @@ class TestUserModel:
             password="testpass123",
         )
 
-        with pytest.raises(Exception):  # IntegrityError
+        with pytest.raises(IntegrityError):
             User.objects.create_user(
                 username="user2",
                 email="unique@example.com",

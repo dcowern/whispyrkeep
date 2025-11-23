@@ -5,6 +5,7 @@ LLM-powered single-player RPG with SRD 5.2 mechanics.
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
@@ -140,8 +141,6 @@ REST_FRAMEWORK = {
 }
 
 # Simple JWT Settings
-from datetime import timedelta
-
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),

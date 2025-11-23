@@ -84,7 +84,6 @@ class UserSettingsSerializer(serializers.ModelSerializer):
 
     def validate_settings_json(self, value):
         """Validate settings structure."""
-        allowed_keys = {"ui_mode", "nd_options", "safety_defaults", "endpoint_prefs"}
         if not isinstance(value, dict):
             raise serializers.ValidationError("Settings must be a JSON object.")
 
