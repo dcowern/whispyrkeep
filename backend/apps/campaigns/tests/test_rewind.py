@@ -295,17 +295,14 @@ class TestRewindServiceLoreIntegration:
         # Verify lore exists before rewind
         assert LoreChunk.objects.filter(universe=campaign.universe).count() == 5
 
-        # Mock only ChromaDB operations
-        with patch.object(RewindService, "_get_lore_service") as mock_get_lore:
-            # Use real lore service but mock ChromaDB
-            from apps.lore.services.lore_service import LoreService
-            lore_svc = LoreService()
-            lore_svc.chroma = MagicMock()
-            mock_get_lore.return_value = lore_svc
+        # Use real lore service but mock ChromaDB operations
+        from apps.lore.services.lore_service import LoreService
+        lore_svc = LoreService()
+        lore_svc.chroma = MagicMock()
 
-            service = RewindService()
-            service.lore_service = lore_svc
-            result = service.rewind_to_turn(campaign, target_turn_index=2)
+        service = RewindService()
+        service.lore_service = lore_svc
+        result = service.rewind_to_turn(campaign, target_turn_index=2)
 
         assert result.success
         # Lore for turns 3, 4, 5 should be deleted

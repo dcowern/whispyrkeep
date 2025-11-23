@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .checks import Ability, CharacterStats
-from .dice import AdvantageState, DiceExpression, DiceRoller, RollResult
+from .dice import AdvantageState, DiceRoller, RollResult
 
 
 class AttackType(str, Enum):
@@ -303,10 +303,7 @@ class CombatResolver:
 
         base_damage = damage_roll.total
         damage_type = weapon.damage_type
-        if isinstance(damage_type, DamageType):
-            damage_type_str = damage_type.value
-        else:
-            damage_type_str = damage_type
+        damage_type_str = damage_type.value if isinstance(damage_type, DamageType) else damage_type
 
         # Apply resistance/immunity/vulnerability
         final_damage = base_damage
@@ -368,8 +365,6 @@ class CombatResolver:
             hit = True
         else:
             hit = attack_roll.total >= target_ac
-
-        ability_str = ability.value if isinstance(ability, Ability) else ability
 
         return AttackResult(
             hit=hit,

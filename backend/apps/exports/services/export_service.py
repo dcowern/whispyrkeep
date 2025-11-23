@@ -12,7 +12,6 @@ Epic 11 implementation.
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any
 
 from django.utils import timezone
@@ -543,8 +542,8 @@ class CampaignExporter:
             lines.append("### Ability Scores")
             lines.append("")
             scores = character.ability_scores_json
-            lines.append(f"| STR | DEX | CON | INT | WIS | CHA |")
-            lines.append(f"|-----|-----|-----|-----|-----|-----|")
+            lines.append("| STR | DEX | CON | INT | WIS | CHA |")
+            lines.append("|-----|-----|-----|-----|-----|-----|")
             lines.append(
                 f"| {scores.get('str', '-')} | {scores.get('dex', '-')} | "
                 f"{scores.get('con', '-')} | {scores.get('int', '-')} | "

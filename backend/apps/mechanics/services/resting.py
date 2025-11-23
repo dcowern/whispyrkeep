@@ -218,7 +218,7 @@ class RestingService:
 
         # Regain half hit dice (minimum 1)
         total_hit_dice_recovered = 0
-        for die_type, die_data in resources.hit_dice.items():
+        for _die_type, die_data in resources.hit_dice.items():
             max_dice = die_data.get("max", 0)
             spent = die_data.get("spent", 0)
 
@@ -289,7 +289,6 @@ class RestingService:
                 continue
 
             # Roll the hit die
-            die_size = int(die_key[1:])
             roll_result = self.dice.roll(f"1{die_key}")
             roll_value = roll_result.rolls[0].result
 

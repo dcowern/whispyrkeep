@@ -659,7 +659,6 @@ class UniverseExportView(APIView):
         """Create an export job for the universe."""
         from apps.exports.serializers import ExportRequestSerializer
         from apps.exports.services.export_service import ExportService
-        from apps.exports.tasks import render_export
 
         try:
             universe = Universe.objects.get(id=pk, user=request.user)

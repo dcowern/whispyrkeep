@@ -6,16 +6,15 @@ Ticket: 9.0.4
 Based on SYSTEM_DESIGN.md section 7.3 and CLAUDE.md testing requirements.
 """
 
-import pytest
 
 from apps.mechanics.services.conditions import (
+    CONDITION_EFFECTS,
+    EXHAUSTION_LEVELS,
     AppliedCondition,
     Condition,
     ConditionEffect,
     ConditionManager,
     ConditionState,
-    CONDITION_EFFECTS,
-    EXHAUSTION_LEVELS,
     apply_condition,
     get_condition_effects,
     remove_condition,

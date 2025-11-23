@@ -109,9 +109,7 @@ class CharacterStats:
                 skill_profs.add(normalized)
 
         # Handle save proficiencies
-        save_profs = set(
-            s.lower() for s in data.get("save_proficiencies", [])
-        )
+        save_profs = {s.lower() for s in data.get("save_proficiencies", [])}
 
         return cls(
             strength=abilities.get("str", abilities.get("strength", 10)),

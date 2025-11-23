@@ -10,7 +10,6 @@ Based on SYSTEM_DESIGN.md section 7.3 Deterministic Functions.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable
 
 from .dice import AdvantageState
 

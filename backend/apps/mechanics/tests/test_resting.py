@@ -6,7 +6,6 @@ Ticket: 9.1.1
 Based on SYSTEM_DESIGN.md section 7.3 and 11.4.
 """
 
-import pytest
 
 from apps.mechanics.services.conditions import (
     AppliedCondition,
@@ -193,7 +192,7 @@ class TestRestingService:
             constitution_modifier=5,
         )
 
-        result = service.short_rest(resources, hit_dice_to_spend=["d8"])
+        service.short_rest(resources, hit_dice_to_spend=["d8"])
 
         # Should only heal up to max HP
         assert resources.current_hp <= resources.max_hp

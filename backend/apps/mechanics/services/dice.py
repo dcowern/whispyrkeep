@@ -245,10 +245,7 @@ class DiceRoller:
         Returns:
             RollResult with total and individual rolls
         """
-        if isinstance(expression, str):
-            expr = DiceExpression.parse(expression)
-        else:
-            expr = expression
+        expr = DiceExpression.parse(expression) if isinstance(expression, str) else expression
 
         rolls: list[DieRoll] = []
         for _ in range(expr.num_dice):
@@ -281,10 +278,7 @@ class DiceRoller:
         Returns:
             RollResult with damage total
         """
-        if isinstance(expression, str):
-            expr = DiceExpression.parse(expression)
-        else:
-            expr = expression
+        expr = DiceExpression.parse(expression) if isinstance(expression, str) else expression
 
         num_dice = expr.num_dice * 2 if critical else expr.num_dice
 
@@ -321,10 +315,7 @@ class DiceRoller:
         Returns:
             RollResult with rerolled dice
         """
-        if isinstance(expression, str):
-            expr = DiceExpression.parse(expression)
-        else:
-            expr = expression
+        expr = DiceExpression.parse(expression) if isinstance(expression, str) else expression
 
         rolls: list[DieRoll] = []
         discarded: list[DieRoll] = []

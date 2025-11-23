@@ -6,7 +6,6 @@ Ticket: 9.0.2
 Based on SYSTEM_DESIGN.md section 7.3 and CLAUDE.md testing requirements.
 """
 
-import pytest
 
 from apps.mechanics.services.checks import (
     Ability,

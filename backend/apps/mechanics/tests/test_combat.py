@@ -6,17 +6,16 @@ Ticket: 9.0.3
 Based on SYSTEM_DESIGN.md section 7.3 and CLAUDE.md testing requirements.
 """
 
-import pytest
 
 from apps.mechanics.services.checks import CharacterStats
 from apps.mechanics.services.combat import (
+    WEAPONS,
     AttackResult,
     AttackType,
     CombatResolver,
     DamageType,
     TargetStats,
     WeaponProfile,
-    WEAPONS,
     resolve_attack,
 )
 from apps.mechanics.services.dice import AdvantageState, DiceRoller
