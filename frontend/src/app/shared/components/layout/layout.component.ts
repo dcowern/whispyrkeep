@@ -82,6 +82,8 @@ import {
     .layout {
       display: flex;
       min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .sidebar {
@@ -93,7 +95,12 @@ import {
       display: flex;
       flex-direction: column;
       padding: var(--wk-space-4);
-      position: relative;
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+      height: 100vh;
+      flex-shrink: 0;
+      overflow: hidden;
 
       /* Subtle gradient overlay */
       &::before {
@@ -156,6 +163,7 @@ import {
       display: flex;
       flex-direction: column;
       gap: var(--wk-space-1);
+      overflow-y: auto;
     }
 
     .sidebar__link {
@@ -265,6 +273,7 @@ import {
     .main-content {
       flex: 1;
       overflow-y: auto;
+      height: 100vh;
       position: relative;
     }
   `]
