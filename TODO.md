@@ -1,7 +1,7 @@
 # WhispyrKeep Development TODO
 
 **Last Updated**: 2025-11-23
-**Current Epic**: 7 - Campaigns
+**Current Epic**: 9 - Mechanics Engine
 
 ## Status Legend
 
@@ -181,15 +181,15 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 7.0.1 | Campaign model | `NOT_STARTED` | `NOT_STARTED` |
-| 7.0.2 | Campaign CRUD API | `NOT_STARTED` | `NOT_STARTED` |
+| 7.0.1 | Campaign model | `DONE` | `DONE` |
+| 7.0.2 | Campaign CRUD API | `DONE` | `DONE` |
 
 ### FEAT 7.1 — Canonical State & Snapshots
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 7.1.1 | CanonicalCampaignState snapshot table | `NOT_STARTED` | `NOT_STARTED` |
-| 7.1.2 | State replay engine | `NOT_STARTED` | `NOT_STARTED` |
+| 7.1.1 | CanonicalCampaignState snapshot table | `DONE` | `DONE` |
+| 7.1.2 | State replay engine | `DONE` | `DONE` |
 
 ---
 
@@ -399,7 +399,7 @@
 | 4 | 5 | 5 | 0 | 0 |
 | 5 | 8 | 8 | 0 | 0 |
 | 6 | 4 | 0 | 0 | 4 |
-| 7 | 4 | 0 | 0 | 4 |
+| 7 | 4 | 4 | 0 | 0 |
 | 8 | 10 | 0 | 0 | 10 |
 | 9 | 5 | 0 | 0 | 5 |
 | 10 | 2 | 0 | 0 | 2 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **33** | **0** | **59** |
+| **TOTAL** | **92** | **37** | **0** | **55** |
