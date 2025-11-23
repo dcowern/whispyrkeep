@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "apps.lore",
     "apps.timeline",
     "apps.exports",
+    "apps.safety",
 ]
 
 MIDDLEWARE = [

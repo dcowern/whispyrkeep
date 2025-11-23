@@ -363,8 +363,8 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 13.0.1 | Rating profiles | `NOT_STARTED` | `NOT_STARTED` |
-| 13.0.2 | Output filter | `NOT_STARTED` | `NOT_STARTED` |
+| 13.0.1 | Rating profiles | `DONE` | `DONE` |
+| 13.0.2 | Output filter | `DONE` | `DONE` |
 
 ---
 
@@ -405,6 +405,6 @@
 | 10 | 2 | 2 | 0 | 0 |
 | 11 | 3 | 3 | 0 | 0 |
 | 12 | 23 | 23 | 0 | 0 |
-| 13 | 2 | 0 | 0 | 2 |
+| 13 | 2 | 2 | 0 | 0 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **84** | **0** | **8** |
+| **TOTAL** | **92** | **86** | **0** | **6** |
