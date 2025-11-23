@@ -211,14 +211,16 @@ class TestCampaignListAPI:
         """Test list returns empty for new user."""
         response = authenticated_client.get("/api/campaigns/")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == []
+        assert response.data["count"] == 0
+        assert response.data["results"] == []
 
     def test_list_campaigns(self, authenticated_client, campaign):
         """Test list returns user's campaigns."""
         response = authenticated_client.get("/api/campaigns/")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
-        assert response.data[0]["title"] == "Test Campaign"
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["title"] == "Test Campaign"
 
     def test_list_excludes_other_users(
         self, authenticated_client, campaign, other_user, universe, character
@@ -242,8 +244,9 @@ class TestCampaignListAPI:
         )
 
         response = authenticated_client.get("/api/campaigns/")
-        assert len(response.data) == 1
-        assert response.data[0]["title"] == "Test Campaign"
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["title"] == "Test Campaign"
 
 
 @pytest.mark.django_db
