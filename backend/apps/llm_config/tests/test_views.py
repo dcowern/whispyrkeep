@@ -3,7 +3,6 @@ Tests for LLM Configuration API views.
 """
 
 import pytest
-from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -11,8 +10,13 @@ from apps.llm_config.encryption import encrypt_api_key
 from apps.llm_config.models import LlmEndpointConfig
 
 
+@pytest.fixture(autouse=True)
+def kms_secret_setting(settings):
+    """Set KMS_SECRET for all tests in this module."""
+    settings.KMS_SECRET = "test-kms-secret-key"
+
+
 @pytest.mark.django_db
-@override_settings(KMS_SECRET="test-kms-secret-key")
 class TestLlmConfigListCreateView:
     """Tests for GET/POST /api/llm/config/."""
 
@@ -94,7 +98,6 @@ class TestLlmConfigListCreateView:
 
 
 @pytest.mark.django_db
-@override_settings(KMS_SECRET="test-kms-secret-key")
 class TestLlmConfigDetailView:
     """Tests for GET/PUT/PATCH/DELETE /api/llm/config/{id}/."""
 

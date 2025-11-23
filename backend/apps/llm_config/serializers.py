@@ -6,7 +6,7 @@ Handles encryption/decryption of API keys during serialization.
 
 from rest_framework import serializers
 
-from apps.llm_config.encryption import decrypt_api_key, encrypt_api_key
+from apps.llm_config.encryption import encrypt_api_key
 from apps.llm_config.models import LlmEndpointConfig
 
 

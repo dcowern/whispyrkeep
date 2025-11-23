@@ -77,7 +77,9 @@ class TestEncryption:
             encrypted = encrypt_api_key("test-key")
 
         # Try to decrypt with different key (current setting)
-        with pytest.raises(Exception):  # Will raise InvalidTag
+        from cryptography.exceptions import InvalidTag
+
+        with pytest.raises(InvalidTag):
             decrypt_api_key(encrypted)
 
     @override_settings(KMS_SECRET="test-kms-secret-key")

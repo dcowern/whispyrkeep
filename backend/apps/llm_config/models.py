@@ -53,6 +53,7 @@ class LlmEndpointConfig(models.Model):
     class Meta:
         verbose_name = "LLM Endpoint Config"
         verbose_name_plural = "LLM Endpoint Configs"
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.provider_name} - {self.default_model}"
