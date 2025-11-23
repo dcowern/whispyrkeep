@@ -94,7 +94,7 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 3.0.1 | CharacterSheet model | `NOT_STARTED` | `NOT_STARTED` |
+| 3.0.1 | CharacterSheet model | `DONE` | `DONE` |
 | 3.0.2 | Character validation service | `NOT_STARTED` | `NOT_STARTED` |
 
 ### FEAT 3.1 — Character APIs
@@ -395,7 +395,7 @@
 | 0 | 3 | 3 | 0 | 0 |
 | 1 | 8 | 8 | 0 | 0 |
 | 2 | 5 | 5 | 0 | 0 |
-| 3 | 4 | 0 | 0 | 4 |
+| 3 | 4 | 1 | 0 | 3 |
 | 4 | 5 | 0 | 0 | 5 |
 | 5 | 8 | 0 | 0 | 8 |
 | 6 | 4 | 0 | 0 | 4 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **16** | **0** | **76** |
+| **TOTAL** | **92** | **17** | **0** | **75** |
