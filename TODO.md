@@ -1,7 +1,7 @@
 # WhispyrKeep Development TODO
 
 **Last Updated**: 2025-11-23
-**Current Epic**: 5 - Lore System + ChromaDB
+**Current Epic**: 7 - Campaigns
 
 ## Status Legend
 
@@ -131,29 +131,29 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.0.1 | Upload docs endpoint | `NOT_STARTED` | `NOT_STARTED` |
-| 5.0.2 | Hard canon chunking + embedding | `NOT_STARTED` | `NOT_STARTED` |
+| 5.0.1 | Upload docs endpoint | `DONE` | `DONE` |
+| 5.0.2 | Hard canon chunking + embedding | `DONE` | `DONE` |
 
 ### FEAT 5.1 — Soft Lore Ingestion
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.1.1 | Lore delta persistence | `NOT_STARTED` | `NOT_STARTED` |
-| 5.1.2 | Soft lore embedding task | `NOT_STARTED` | `NOT_STARTED` |
+| 5.1.1 | Lore delta persistence | `DONE` | `DONE` |
+| 5.1.2 | Soft lore embedding task | `DONE` | `DONE` |
 
 ### FEAT 5.2 — Lore Retrieval Service
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.2.1 | Chroma query wrapper | `NOT_STARTED` | `NOT_STARTED` |
-| 5.2.2 | Lore injection assembler | `NOT_STARTED` | `NOT_STARTED` |
+| 5.2.1 | Chroma query wrapper | `DONE` | `DONE` |
+| 5.2.2 | Lore injection assembler | `DONE` | `DONE` |
 
 ### FEAT 5.3 — Compaction
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 5.3.1 | Soft lore compaction job | `NOT_STARTED` | `NOT_STARTED` |
-| 5.3.2 | Hard canon compaction escape hatch | `NOT_STARTED` | `NOT_STARTED` |
+| 5.3.1 | Soft lore compaction job | `DONE` | `DONE` |
+| 5.3.2 | Hard canon compaction escape hatch | `DONE` | `DONE` |
 
 ---
 
@@ -397,7 +397,7 @@
 | 2 | 5 | 5 | 0 | 0 |
 | 3 | 4 | 4 | 0 | 0 |
 | 4 | 5 | 5 | 0 | 0 |
-| 5 | 8 | 0 | 0 | 8 |
+| 5 | 8 | 8 | 0 | 0 |
 | 6 | 4 | 0 | 0 | 4 |
 | 7 | 4 | 0 | 0 | 4 |
 | 8 | 10 | 0 | 0 | 10 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **25** | **0** | **67** |
+| **TOTAL** | **92** | **33** | **0** | **59** |

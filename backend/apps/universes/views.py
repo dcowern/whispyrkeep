@@ -494,23 +494,146 @@ class WorldgenPreviewView(APIView):
 
 
 class LoreUploadView(APIView):
-    """POST /api/universes/{id}/lore/upload."""
+    """
+    POST /api/universes/{id}/lore/upload.
+
+    Upload a hard canon document to a universe.
+    """
+
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        return Response(
-            {"detail": "Lore upload - to be implemented in Epic 5"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
+        """Upload a new hard canon document."""
+        from apps.lore.serializers import (
+            HardCanonDocUploadSerializer,
+            LoreIngestionResultSerializer,
         )
+        from apps.lore.services.lore_service import LoreService
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = HardCanonDocUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Use lore service to ingest
+        service = LoreService()
+        result = service.ingest_hard_canon(
+            universe=universe,
+            title=serializer.validated_data["title"],
+            raw_text=serializer.validated_data["raw_text"],
+            source_type=serializer.validated_data["source_type"],
+            tags=serializer.validated_data.get("tags", []),
+            never_compact=serializer.validated_data["never_compact"],
+        )
+
+        result_serializer = LoreIngestionResultSerializer(result)
+
+        if result.success:
+            return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(result_serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoreListView(APIView):
-    """GET /api/universes/{id}/lore."""
+    """
+    GET /api/universes/{id}/lore.
+
+    List hard canon documents for a universe.
+    """
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
-        return Response(
-            {"detail": "Lore list - to be implemented in Epic 5"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
+        """List hard canon documents for a universe."""
+        from apps.lore.serializers import HardCanonDocListSerializer
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        docs = UniverseHardCanonDoc.objects.filter(universe=universe).order_by("-created_at")
+        serializer = HardCanonDocListSerializer(docs, many=True)
+
+        return Response(serializer.data)
+
+
+class LoreQueryView(APIView):
+    """
+    POST /api/universes/{id}/lore/query.
+
+    Query lore for a universe using semantic search.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Query universe lore."""
+        from apps.lore.serializers import LoreContextSerializer, LoreQuerySerializer
+        from apps.lore.services.lore_service import LoreService
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = LoreQuerySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = LoreService()
+        context = service.get_lore_context(
+            universe=universe,
+            query=serializer.validated_data["query"],
+            max_chunks=serializer.validated_data["max_chunks"],
+            include_soft_lore=serializer.validated_data["include_soft_lore"],
+            prioritize_hard_canon=serializer.validated_data["prioritize_hard_canon"],
         )
+
+        result_serializer = LoreContextSerializer(context)
+        return Response(result_serializer.data)
+
+
+class LoreStatsView(APIView):
+    """
+    GET /api/universes/{id}/lore/stats.
+
+    Get lore statistics for a universe.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        """Get lore statistics."""
+        from apps.lore.serializers import LoreStatsSerializer
+        from apps.lore.services.lore_service import LoreService
+
+        try:
+            universe = Universe.objects.get(id=pk, user=request.user)
+        except Universe.DoesNotExist:
+            return Response(
+                {"error": "Universe not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        service = LoreService()
+        stats = service.get_universe_lore_stats(universe)
+
+        serializer = LoreStatsSerializer(stats)
+        return Response(serializer.data)
 
 
 class TimelineView(APIView):

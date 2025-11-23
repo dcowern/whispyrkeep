@@ -70,8 +70,11 @@ urlpatterns = [
     # Worldgen endpoints
     path("worldgen/", views.WorldgenView.as_view(), name="universe_worldgen"),
     path("worldgen/preview/", views.WorldgenPreviewView.as_view(), name="universe_worldgen_preview"),
-    # Placeholder views for future epics
+    # Lore endpoints (Epic 5)
     path("<uuid:pk>/lore/upload/", views.LoreUploadView.as_view(), name="lore_upload"),
     path("<uuid:pk>/lore/", views.LoreListView.as_view(), name="lore_list"),
+    path("<uuid:pk>/lore/query/", views.LoreQueryView.as_view(), name="lore_query"),
+    path("<uuid:pk>/lore/stats/", views.LoreStatsView.as_view(), name="lore_stats"),
+    # Placeholder views for future epics
     path("<uuid:pk>/timeline/", views.TimelineView.as_view(), name="universe_timeline"),
 ]
