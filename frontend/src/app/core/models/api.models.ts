@@ -27,14 +27,19 @@ export interface User {
 }
 
 export interface UserSettings {
-  id: string;
-  user: string;
-  low_stim_mode: boolean;
-  concise_recap: boolean;
-  font_size: 'small' | 'medium' | 'large';
-  content_rating: 'G' | 'PG' | 'PG13' | 'R';
-  created_at: string;
-  updated_at: string;
+  id?: string;
+  user?: string;
+  ui_mode?: 'dark' | 'light';
+  low_stim_mode?: boolean;
+  concise_recap?: boolean;
+  decision_menu_mode?: boolean;
+  dyslexia_font?: boolean;
+  font_size?: 'small' | 'medium' | 'large';
+  line_spacing?: 'standard' | 'roomy' | 'relaxed';
+  content_rating?: 'G' | 'PG' | 'PG13' | 'R' | 'NC17';
+  endpoint_pref?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface LoginRequest {

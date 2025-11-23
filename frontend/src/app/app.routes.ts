@@ -48,6 +48,10 @@ export const routes: Routes = [
       {
         path: 'exports',
         loadChildren: () => import('./features/exports/exports.routes').then(m => m.exportsRoutes)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./shared/components/settings-panel/settings-panel.component').then(m => m.SettingsPanelComponent)
       }
     ]
   },

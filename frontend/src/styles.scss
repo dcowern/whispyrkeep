@@ -217,6 +217,31 @@ body {
   min-height: 100vh;
 }
 
+/* Guard against duplicate help icons rendering */
+.help-trigger lucide-icon + lucide-icon,
+.help-trigger svg + svg {
+  display: none;
+}
+
+/* Normalize help icon sizing */
+.help-trigger lucide-icon,
+.help-trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Center the icon within the trigger */
+.help-trigger lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.help-trigger svg {
+  display: block;
+}
+
 /* ============================================
    Typography Base
    ============================================ */
