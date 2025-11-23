@@ -49,7 +49,7 @@
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
 | 1.0.1 | Create Django project | `DONE` | N/A |
-| 1.0.2 | Postgres connection + migrations | `NOT_STARTED` | N/A |
+| 1.0.2 | Postgres connection + migrations | `DONE` | N/A |
 
 ### FEAT 1.1 — Auth & User Settings
 
@@ -393,7 +393,7 @@
 | Epic | Total | Done | In Progress | Not Started |
 |------|-------|------|-------------|-------------|
 | 0 | 3 | 3 | 0 | 0 |
-| 1 | 8 | 1 | 0 | 7 |
+| 1 | 8 | 2 | 0 | 6 |
 | 2 | 5 | 0 | 0 | 5 |
 | 3 | 4 | 0 | 0 | 4 |
 | 4 | 5 | 0 | 0 | 5 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **4** | **0** | **88** |
+| **TOTAL** | **92** | **5** | **0** | **87** |
