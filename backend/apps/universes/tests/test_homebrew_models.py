@@ -624,9 +624,10 @@ class TestCascadeDelete:
         assert species_count == 1
         assert spell_count == 1
 
+        universe_id = universe.id
         universe.delete()
 
-        species_count = HomebrewSpecies.objects.filter(universe=universe).count()
-        spell_count = HomebrewSpell.objects.filter(universe=universe).count()
+        species_count = HomebrewSpecies.objects.filter(universe_id=universe_id).count()
+        spell_count = HomebrewSpell.objects.filter(universe_id=universe_id).count()
         assert species_count == 0
         assert spell_count == 0

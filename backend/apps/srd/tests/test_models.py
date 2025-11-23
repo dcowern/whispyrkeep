@@ -49,7 +49,7 @@ class TestAbilityScore:
         """Test that name must be unique."""
         AbilityScore.objects.create(abbreviation="CON", name="Constitution")
         with pytest.raises(IntegrityError):
-            AbilityScore.objects.create(abbreviation="CON2", name="Constitution")
+            AbilityScore.objects.create(abbreviation="CN2", name="Constitution")
 
 
 @pytest.mark.django_db

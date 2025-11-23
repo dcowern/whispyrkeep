@@ -102,7 +102,7 @@ class HomebrewBaseSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "universe", "created_at", "updated_at"]
 
     def validate(self, attrs):
         """Validate homebrew content."""
