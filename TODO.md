@@ -1,7 +1,7 @@
 # WhispyrKeep Development TODO
 
 **Last Updated**: 2025-11-23
-**Current Epic**: 9 - Mechanics Engine
+**Current Epic**: 12 - Frontend App (Angular)
 
 ## Status Legend
 
@@ -253,8 +253,8 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 10.0.1 | Rewind endpoint | `NOT_STARTED` | `NOT_STARTED` |
-| 10.0.2 | Lore invalidation | `NOT_STARTED` | `NOT_STARTED` |
+| 10.0.1 | Rewind endpoint | `DONE` | `DONE` |
+| 10.0.2 | Lore invalidation | `DONE` | `DONE` |
 
 ---
 
@@ -264,9 +264,9 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 11.0.1 | Export job model | `NOT_STARTED` | `NOT_STARTED` |
-| 11.0.2 | Universe export | `NOT_STARTED` | `NOT_STARTED` |
-| 11.0.3 | Campaign export | `NOT_STARTED` | `NOT_STARTED` |
+| 11.0.1 | Export job model | `DONE` | `DONE` |
+| 11.0.2 | Universe export | `DONE` | `DONE` |
+| 11.0.3 | Campaign export | `DONE` | `DONE` |
 
 ---
 
@@ -402,9 +402,9 @@
 | 7 | 4 | 4 | 0 | 0 |
 | 8 | 10 | 10 | 0 | 0 |
 | 9 | 5 | 5 | 0 | 0 |
-| 10 | 2 | 0 | 0 | 2 |
-| 11 | 3 | 0 | 0 | 3 |
+| 10 | 2 | 2 | 0 | 0 |
+| 11 | 3 | 3 | 0 | 0 |
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **56** | **0** | **36** |
+| **TOTAL** | **92** | **61** | **0** | **31** |

@@ -15,8 +15,10 @@ from apps.campaigns.serializers import (
     CampaignDetailSerializer,
     CampaignListSerializer,
     CampaignUpdateSerializer,
+    RewindRequestSerializer,
     TurnEventSummarySerializer,
 )
+from apps.campaigns.services.rewind_service import RewindService
 from apps.campaigns.services.state_service import StateService
 
 
@@ -223,9 +225,154 @@ class RewindView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    def get_campaign(self, request, pk):
+        """Get campaign owned by user."""
+        try:
+            return Campaign.objects.select_related(
+                "universe", "character_sheet"
+            ).get(id=pk, user=request.user)
+        except Campaign.DoesNotExist:
+            return None
+
     def post(self, request, pk):
-        """Rewind campaign to a previous turn - to be implemented in Epic 10."""
-        return Response(
-            {"detail": "Rewind - to be implemented in Epic 10"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
-        )
+        """
+        Rewind campaign to a previous turn.
+
+        This operation is destructive - all turns after the target
+        turn are permanently deleted, along with their associated lore.
+
+        Request body:
+            turn_index (int): The turn to rewind to (inclusive).
+                              Use 0 to reset to initial state.
+
+        Returns:
+            RewindResponseSerializer data with operation details.
+        """
+        campaign = self.get_campaign(request, pk)
+        if not campaign:
+            return Response(
+                {"error": "Campaign not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Validate request
+        serializer = RewindRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        target_turn_index = serializer.validated_data["turn_index"]
+
+        # Perform rewind
+        rewind_service = RewindService()
+        result = rewind_service.rewind_to_turn(campaign, target_turn_index)
+
+        if not result.success:
+            return Response(
+                {
+                    "success": False,
+                    "target_turn_index": result.target_turn_index,
+                    "turns_deleted": 0,
+                    "snapshots_deleted": 0,
+                    "lore_chunks_invalidated": 0,
+                    "errors": result.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Build response
+        response_data = {
+            "success": True,
+            "target_turn_index": result.target_turn_index,
+            "turns_deleted": result.turns_deleted,
+            "snapshots_deleted": result.snapshots_deleted,
+            "lore_chunks_invalidated": result.lore_chunks_invalidated,
+        }
+
+        # Include current state if available
+        if result.new_state:
+            response_data["current_state"] = result.new_state.to_dict()
+
+        if result.errors:
+            response_data["errors"] = result.errors
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    def get(self, request, pk):
+        """
+        Get list of turns available for rewind.
+
+        Query params:
+            limit (int): Max turns to return (default 50)
+
+        Returns:
+            List of turn summaries for the rewind UI.
+        """
+        campaign = self.get_campaign(request, pk)
+        if not campaign:
+            return Response(
+                {"error": "Campaign not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        limit = int(request.query_params.get("limit", 50))
+
+        rewind_service = RewindService()
+        turns = rewind_service.get_rewindable_turns(campaign, limit=limit)
+
+        return Response({
+            "campaign_id": str(campaign.id),
+            "current_turn_index": turns[0]["turn_index"] if turns else 0,
+            "turns": turns,
+        })
+
+
+class CampaignExportView(APIView):
+    """
+    POST /api/campaigns/{id}/export - Export campaign.
+
+    Exports campaign data to JSON or Markdown format.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Create an export job for the campaign."""
+        from apps.exports.serializers import ExportRequestSerializer
+        from apps.exports.services.export_service import ExportService
+
+        try:
+            campaign = Campaign.objects.select_related(
+                "universe", "character_sheet"
+            ).get(id=pk, user=request.user)
+        except Campaign.DoesNotExist:
+            return Response(
+                {"error": "Campaign not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = ExportRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        export_format = serializer.validated_data["format"]
+
+        # Create export job
+        service = ExportService()
+        job = service.create_campaign_export_job(campaign, export_format)
+
+        # Execute export
+        result = service.execute_export(job)
+
+        if result.success:
+            return Response({
+                "job_id": str(job.id),
+                "status": job.status,
+                "message": "Export completed successfully",
+                "download_url": f"/api/exports/{job.id}/?download=true",
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                "job_id": str(job.id),
+                "status": job.status,
+                "errors": result.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)

@@ -207,3 +207,27 @@ class CampaignStateResponseSerializer(serializers.Serializer):
     character_state = serializers.DictField()
     universe_time = serializers.DictField()
     is_snapshot = serializers.BooleanField()
+
+
+class RewindRequestSerializer(serializers.Serializer):
+    """Serializer for campaign rewind request."""
+
+    turn_index = serializers.IntegerField(
+        min_value=0,
+        help_text="The turn index to rewind to (inclusive). Use 0 to reset to initial state.",
+    )
+
+
+class RewindResponseSerializer(serializers.Serializer):
+    """Serializer for campaign rewind response."""
+
+    success = serializers.BooleanField()
+    target_turn_index = serializers.IntegerField()
+    turns_deleted = serializers.IntegerField()
+    snapshots_deleted = serializers.IntegerField()
+    lore_chunks_invalidated = serializers.IntegerField()
+    current_state = serializers.DictField(required=False)
+    errors = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+    )
