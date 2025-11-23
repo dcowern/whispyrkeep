@@ -1,0 +1,49 @@
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--wk-space-xl);
+}
+
+.auth-card {
+  background-color: var(--wk-surface);
+  border-radius: var(--wk-radius-lg);
+  padding: var(--wk-space-xl);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--wk-shadow-lg);
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--wk-text-primary);
+    margin: 0 0 var(--wk-space-xs);
+  }
+
+  &__subtitle {
+    color: var(--wk-text-secondary);
+    margin: 0 0 var(--wk-space-lg);
+  }
+
+  &__placeholder {
+    color: var(--wk-text-muted);
+    padding: var(--wk-space-xl) 0;
+    text-align: center;
+  }
+
+  &__link {
+    color: var(--wk-text-secondary);
+    text-align: center;
+    margin-top: var(--wk-space-lg);
+
+    a {
+      color: var(--wk-primary);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

@@ -276,7 +276,7 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.0.1 | Angular 18 project | `NOT_STARTED` | N/A |
+| 12.0.1 | Angular 18 project | `DONE` | N/A |
 | 12.0.2 | API client layer | `NOT_STARTED` | `NOT_STARTED` |
 
 ### FEAT 12.1 — Auth UI
@@ -404,7 +404,7 @@
 | 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 2 | 0 | 0 |
 | 11 | 3 | 3 | 0 | 0 |
-| 12 | 23 | 0 | 0 | 23 |
+| 12 | 23 | 1 | 0 | 22 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **61** | **0** | **31** |
+| **TOTAL** | **92** | **62** | **0** | **30** |
