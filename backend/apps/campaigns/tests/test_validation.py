@@ -4,7 +4,6 @@ Tests for the validation service.
 Ticket: 8.3.1
 """
 
-import pytest
 
 from apps.campaigns.services.validation import (
     LLMOutputValidator,

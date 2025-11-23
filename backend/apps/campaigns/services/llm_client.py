@@ -14,9 +14,10 @@ Based on SYSTEM_DESIGN.md section 8 LLM Orchestration.
 
 import logging
 import time
+from collections.abc import Generator
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Generator
+from typing import Any
 
 import httpx
 
@@ -363,7 +364,7 @@ class LLMClient:
                     logger.warning(f"Timeout, retrying in {delay:.1f}s")
                     time.sleep(delay)
                 else:
-                    raise LLMError("Request timeout after all retries")
+                    raise LLMError("Request timeout after all retries") from None
 
             except httpx.RequestError as e:
                 last_error = LLMError(f"Request error: {e}", retryable=True)
@@ -372,7 +373,7 @@ class LLMClient:
                     logger.warning(f"Request error, retrying in {delay:.1f}s: {e}")
                     time.sleep(delay)
                 else:
-                    raise LLMError(f"Request failed after all retries: {e}")
+                    raise LLMError(f"Request failed after all retries: {e}") from e
 
         # Should not reach here, but just in case
         if last_error:

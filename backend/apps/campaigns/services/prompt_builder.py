@@ -13,13 +13,11 @@ Based on SYSTEM_DESIGN.md section 8.1 Prompt Layers.
 """
 
 from dataclasses import dataclass, field
-from typing import Any
 
 from apps.campaigns.models import Campaign, TurnEvent
 from apps.lore.services.chroma_client import ChromaClientService, LoreQueryResult
-from apps.timeline.services import CalendarConfig, CalendarService, UniverseTime
+from apps.timeline.services import CalendarService, UniverseTime
 from apps.universes.models import Universe
-
 
 # System prompt template - static core instructions
 SYSTEM_PROMPT_TEMPLATE = """You are a skilled and creative Dungeon Master for a single-player tabletop RPG using SRD 5.2 rules.
@@ -204,7 +202,7 @@ class UniversePrompt:
         if self.current_time:
             calendar_service = CalendarService()
             formatted = calendar_service.format_time(self.current_time)
-            parts.append(f"### Current Universe Time")
+            parts.append("### Current Universe Time")
             parts.append(formatted)
             parts.append("")
 

@@ -18,9 +18,8 @@ import logging
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
 
-from apps.campaigns.models import Campaign, CanonicalCampaignState, TurnEvent
+from apps.campaigns.models import Campaign, TurnEvent
 from apps.lore.services.chroma_client import ChromaClientService
 from apps.timeline.services import CalendarService, TimeDelta, UniverseTime
 
@@ -197,10 +196,7 @@ class MechanicsExecutor:
 
         roll2 = random.randint(1, 20)
 
-        if advantage == "advantage":
-            result = max(roll1, roll2)
-        else:  # disadvantage
-            result = min(roll1, roll2)
+        result = max(roll1, roll2) if advantage == "advantage" else min(roll1, roll2)
 
         return result, {"rolls": [roll1, roll2], "used": result}
 
@@ -266,10 +262,7 @@ class MechanicsExecutor:
             skill = roll_spec.get("skill")
             skills = character_state.get("skills", {})
 
-            if skill and skill in skills:
-                modifier = ability_mod + prof_bonus
-            else:
-                modifier = ability_mod
+            modifier = ability_mod + prof_bonus if skill and skill in skills else ability_mod
 
             # Roll
             roll_value, details = self._roll_d20(advantage)

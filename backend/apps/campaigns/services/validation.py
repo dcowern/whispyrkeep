@@ -207,9 +207,8 @@ class RollValidator:
             )
 
         dc = roll.get("dc")
-        if dc is not None:
-            if not isinstance(dc, int) or dc < 1 or dc > 40:
-                result.add_error(f"Invalid DC: {dc}. Must be integer 1-40")
+        if dc is not None and (not isinstance(dc, int) or dc < 1 or dc > 40):
+            result.add_error(f"Invalid DC: {dc}. Must be integer 1-40")
 
         return result
 
@@ -258,12 +257,11 @@ class RollValidator:
                 "Damage roll has neither 'dice' expression nor 'attack_ref'"
             )
 
-        if dice:
-            # Validate dice expression (e.g., "2d6+3")
-            if not re.match(r"^\d+d\d+(\+\d+)?$", str(dice)):
-                result.add_error(
-                    f"Invalid dice expression: {dice}. Expected format like '2d6' or '2d6+3'"
-                )
+        # Validate dice expression (e.g., "2d6+3")
+        if dice and not re.match(r"^\d+d\d+(\+\d+)?$", str(dice)):
+            result.add_error(
+                f"Invalid dice expression: {dice}. Expected format like '2d6' or '2d6+3'"
+            )
 
         return result
 
@@ -422,9 +420,10 @@ class PatchValidator:
         result = ValidationResult(valid=True)
 
         # HP validation
-        if "/hp/current" in path or "/hp/temp" in path:
-            if not isinstance(value, int) or value < 0:
-                result.add_error(f"HP value must be non-negative integer: {value}")
+        if ("/hp/current" in path or "/hp/temp" in path) and (
+            not isinstance(value, int) or value < 0
+        ):
+            result.add_error(f"HP value must be non-negative integer: {value}")
 
         # Conditions validation
         if path.endswith("/conditions"):

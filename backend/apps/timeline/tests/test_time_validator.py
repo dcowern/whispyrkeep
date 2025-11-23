@@ -4,7 +4,6 @@ Tests for the monotonic time validator.
 Ticket: 6.0.2
 """
 
-import pytest
 
 from apps.timeline.services.calendar import TimeDelta, UniverseTime
 from apps.timeline.services.time_validator import TimeValidationResult, TimeValidator

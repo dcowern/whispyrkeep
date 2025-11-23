@@ -42,15 +42,15 @@ def rebuild_universe_timeline_task(
     """
     from django.db import transaction
 
-    from apps.universes.models import Universe, UniverseHardCanonDoc
-    from apps.campaigns.models import Campaign, TurnEvent
+    from apps.campaigns.models import Campaign
     from apps.timeline.services import (
+        CalendarConfig,
         TimeAnchor,
         TimeResolver,
         UniverseTime,
-        CalendarConfig,
     )
     from apps.timeline.services.time_resolver import TimeAnchorType
+    from apps.universes.models import Universe, UniverseHardCanonDoc
 
     try:
         universe = Universe.objects.get(id=universe_id)
@@ -187,14 +187,14 @@ def validate_universe_timeline_task(
     Returns:
         Dict with validation results
     """
-    from apps.universes.models import Universe
     from apps.campaigns.models import Campaign
     from apps.timeline.services import (
-        TimeValidator,
-        TimeResolver,
-        UniverseTime,
         CalendarConfig,
+        TimeResolver,
+        TimeValidator,
+        UniverseTime,
     )
+    from apps.universes.models import Universe
 
     try:
         universe = Universe.objects.get(id=universe_id)

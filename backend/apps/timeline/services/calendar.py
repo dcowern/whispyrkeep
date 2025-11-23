@@ -11,7 +11,7 @@ Ticket: 6.0.1
 Based on SYSTEM_DESIGN.md section 11.1 Calendar.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Self
 
 

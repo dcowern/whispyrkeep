@@ -11,7 +11,7 @@ Based on SYSTEM_DESIGN.md section 11.2 Monotonic Rule.
 from dataclasses import dataclass, field
 from typing import Self
 
-from .calendar import CalendarConfig, UniverseTime, TimeDelta, DEFAULT_CALENDAR_CONFIG
+from .calendar import DEFAULT_CALENDAR_CONFIG, CalendarConfig, TimeDelta, UniverseTime
 
 
 @dataclass

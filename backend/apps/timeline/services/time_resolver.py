@@ -15,7 +15,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Self
 
-from .calendar import CalendarConfig, UniverseTime, TimeDelta, CalendarService, DEFAULT_CALENDAR_CONFIG
+from .calendar import (
+    DEFAULT_CALENDAR_CONFIG,
+    CalendarConfig,
+    CalendarService,
+    TimeDelta,
+    UniverseTime,
+)
 
 
 class TimeAnchorType(str, Enum):

@@ -7,11 +7,9 @@ Ticket: 6.0.1
 import pytest
 
 from apps.timeline.services.calendar import (
+    DEFAULT_CALENDAR_CONFIG,
     CalendarConfig,
     CalendarService,
-    DEFAULT_CALENDAR_CONFIG,
-    DEFAULT_MONTHS,
-    MonthConfig,
     TimeDelta,
     UniverseTime,
 )

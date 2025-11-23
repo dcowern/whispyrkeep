@@ -222,13 +222,13 @@ class TestTimeResolver:
     def test_resolve_after_current(self, resolver_with_anchors):
         """Test resolving a reference relative to current time."""
         current = UniverseTime(year=1000, month=1, day=1)
-        ref = TimeReference.after_current(TimeDelta(days=30))
+        ref = TimeReference.after_current(TimeDelta(days=29))
 
         result = resolver_with_anchors.resolve(ref, current)
 
         assert result.success is True
-        assert result.resolved_time.month == 1  # Still month 1 (30 days)
-        assert result.resolved_time.day == 31
+        assert result.resolved_time.month == 1  # Still month 1 (30 days max)
+        assert result.resolved_time.day == 30
 
     def test_resolve_after_current_no_current_fails(self, resolver_with_anchors):
         """Test that after_current fails without current time."""

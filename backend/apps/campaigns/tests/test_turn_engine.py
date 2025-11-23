@@ -4,7 +4,6 @@ Tests for the turn engine.
 Tickets: 8.2.1, 8.2.2, 8.2.3
 """
 
-import pytest
 
 from apps.campaigns.services.turn_engine import (
     LLMResponseParser,
