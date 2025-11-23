@@ -83,6 +83,7 @@ class UniverseHardCanonDoc(models.Model):
     class Meta:
         verbose_name = "Hard Canon Document"
         verbose_name_plural = "Hard Canon Documents"
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.title} ({self.universe.name})"
