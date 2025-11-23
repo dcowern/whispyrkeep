@@ -276,84 +276,84 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.0.1 | Angular 18 project | `NOT_STARTED` | N/A |
-| 12.0.2 | API client layer | `NOT_STARTED` | `NOT_STARTED` |
+| 12.0.1 | Angular 18 project | `DONE` | N/A |
+| 12.0.2 | API client layer | `DONE` | `DONE` |
 
 ### FEAT 12.1 — Auth UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.1.1 | Login/register screens | `NOT_STARTED` | `NOT_STARTED` |
+| 12.1.1 | Login/register screens | `DONE` | `DONE` |
 
 ### FEAT 12.2 — Home / Library
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.2.1 | Dashboard | `NOT_STARTED` | `NOT_STARTED` |
+| 12.2.1 | Dashboard | `DONE` | `DONE` |
 
 ### FEAT 12.3 — Character Builder UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.3.1 | SRD picker UI | `NOT_STARTED` | `NOT_STARTED` |
-| 12.3.2 | Homebrew editor | `NOT_STARTED` | `NOT_STARTED` |
+| 12.3.1 | SRD picker UI | `DONE` | `DONE` |
+| 12.3.2 | Homebrew editor | `DONE` | `DONE` |
 
 ### FEAT 12.4 — Universe Builder UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.4.1 | Wizard flow | `NOT_STARTED` | `NOT_STARTED` |
-| 12.4.2 | Co-write chat mode | `NOT_STARTED` | `NOT_STARTED` |
-| 12.4.3 | Lore upload UI | `NOT_STARTED` | `NOT_STARTED` |
+| 12.4.1 | Wizard flow | `DONE` | `DONE` |
+| 12.4.2 | Co-write chat mode | `DONE` | `DONE` |
+| 12.4.3 | Lore upload UI | `DONE` | `DONE` |
 
 ### FEAT 12.5 — Campaign Setup UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.5.1 | Setup screen | `NOT_STARTED` | `NOT_STARTED` |
+| 12.5.1 | Setup screen | `DONE` | `DONE` |
 
 ### FEAT 12.6 — Play Screen
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.6.1 | Chat stream | `NOT_STARTED` | `NOT_STARTED` |
-| 12.6.2 | Decision menu mode | `NOT_STARTED` | `NOT_STARTED` |
-| 12.6.3 | Sidebar | `NOT_STARTED` | `NOT_STARTED` |
-| 12.6.4 | Dice log panel | `NOT_STARTED` | `NOT_STARTED` |
+| 12.6.1 | Chat stream | `DONE` | `DONE` |
+| 12.6.2 | Decision menu mode | `DONE` | `DONE` |
+| 12.6.3 | Sidebar | `DONE` | `DONE` |
+| 12.6.4 | Dice log panel | `DONE` | `DONE` |
 
 ### FEAT 12.7 — Accessibility & ND Features
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.7.1 | Low-stim toggle | `NOT_STARTED` | `NOT_STARTED` |
-| 12.7.2 | Concise recap toggle | `NOT_STARTED` | `NOT_STARTED` |
-| 12.7.3 | Readability controls | `NOT_STARTED` | `NOT_STARTED` |
+| 12.7.1 | Low-stim toggle | `DONE` | `DONE` |
+| 12.7.2 | Concise recap toggle | `DONE` | `DONE` |
+| 12.7.3 | Readability controls | `DONE` | `DONE` |
 
 ### FEAT 12.8 — Rewind UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.8.1 | Timeline slider/turn picker | `NOT_STARTED` | `NOT_STARTED` |
-| 12.8.2 | Rewind confirmation modal | `NOT_STARTED` | `NOT_STARTED` |
+| 12.8.1 | Timeline slider/turn picker | `DONE` | `DONE` |
+| 12.8.2 | Rewind confirmation modal | `DONE` | `DONE` |
 
 ### FEAT 12.9 — Lore Browser UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.9.1 | Canon vs rumor tabs | `NOT_STARTED` | `NOT_STARTED` |
-| 12.9.2 | Lore search | `NOT_STARTED` | `NOT_STARTED` |
+| 12.9.1 | Canon vs rumor tabs | `DONE` | `DONE` |
+| 12.9.2 | Lore search | `DONE` | `DONE` |
 
 ### FEAT 12.10 — Timeline Viewer UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.10.1 | Era + event visual | `NOT_STARTED` | `NOT_STARTED` |
+| 12.10.1 | Era + event visual | `DONE` | `DONE` |
 
 ### FEAT 12.11 — Export UI
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 12.11.1 | Export buttons | `NOT_STARTED` | `NOT_STARTED` |
+| 12.11.1 | Export buttons | `DONE` | `DONE` |
 
 ---
 
@@ -363,8 +363,8 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 13.0.1 | Rating profiles | `NOT_STARTED` | `NOT_STARTED` |
-| 13.0.2 | Output filter | `NOT_STARTED` | `NOT_STARTED` |
+| 13.0.1 | Rating profiles | `DONE` | `DONE` |
+| 13.0.2 | Output filter | `DONE` | `DONE` |
 
 ---
 
@@ -374,17 +374,17 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 14.0.1 | Mechanics unit tests | `NOT_STARTED` | N/A |
-| 14.0.2 | Turn-flow integration tests | `NOT_STARTED` | N/A |
-| 14.0.3 | Rewind tests | `NOT_STARTED` | N/A |
+| 14.0.1 | Mechanics unit tests | `DONE` | N/A |
+| 14.0.2 | Turn-flow integration tests | `DONE` | N/A |
+| 14.0.3 | Rewind tests | `DONE` | N/A |
 
 ### FEAT 14.1 — Documentation
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 14.1.1 | Prompt docs | `NOT_STARTED` | N/A |
-| 14.1.2 | OpenAPI spec | `NOT_STARTED` | N/A |
-| 14.1.3 | SRD licensing doc | `NOT_STARTED` | N/A |
+| 14.1.1 | Prompt docs | `DONE` | N/A |
+| 14.1.2 | OpenAPI spec | `DONE` | N/A |
+| 14.1.3 | SRD licensing doc | `DONE` | N/A |
 
 ---
 
@@ -404,7 +404,7 @@
 | 9 | 5 | 5 | 0 | 0 |
 | 10 | 2 | 2 | 0 | 0 |
 | 11 | 3 | 3 | 0 | 0 |
-| 12 | 23 | 0 | 0 | 23 |
-| 13 | 2 | 0 | 0 | 2 |
-| 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **61** | **0** | **31** |
+| 12 | 23 | 23 | 0 | 0 |
+| 13 | 2 | 2 | 0 | 0 |
+| 14 | 6 | 6 | 0 | 0 |
+| **TOTAL** | **92** | **92** | **0** | **0** |
