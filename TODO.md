@@ -374,17 +374,17 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 14.0.1 | Mechanics unit tests | `NOT_STARTED` | N/A |
-| 14.0.2 | Turn-flow integration tests | `NOT_STARTED` | N/A |
-| 14.0.3 | Rewind tests | `NOT_STARTED` | N/A |
+| 14.0.1 | Mechanics unit tests | `DONE` | N/A |
+| 14.0.2 | Turn-flow integration tests | `DONE` | N/A |
+| 14.0.3 | Rewind tests | `DONE` | N/A |
 
 ### FEAT 14.1 — Documentation
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 14.1.1 | Prompt docs | `NOT_STARTED` | N/A |
-| 14.1.2 | OpenAPI spec | `NOT_STARTED` | N/A |
-| 14.1.3 | SRD licensing doc | `NOT_STARTED` | N/A |
+| 14.1.1 | Prompt docs | `DONE` | N/A |
+| 14.1.2 | OpenAPI spec | `DONE` | N/A |
+| 14.1.3 | SRD licensing doc | `DONE` | N/A |
 
 ---
 
@@ -406,5 +406,5 @@
 | 11 | 3 | 3 | 0 | 0 |
 | 12 | 23 | 23 | 0 | 0 |
 | 13 | 2 | 2 | 0 | 0 |
-| 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **86** | **0** | **6** |
+| 14 | 6 | 6 | 0 | 0 |
+| **TOTAL** | **92** | **92** | **0** | **0** |
