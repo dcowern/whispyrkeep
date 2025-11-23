@@ -112,8 +112,8 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 4.0.1 | Universe model | `NOT_STARTED` | `NOT_STARTED` |
-| 4.0.2 | Universe CRUD API | `NOT_STARTED` | `NOT_STARTED` |
+| 4.0.1 | Universe model | `DONE` | `DONE` |
+| 4.0.2 | Universe CRUD API | `DONE` | `DONE` |
 
 ### FEAT 4.1 — Universe Builder LLM Co-write
 
@@ -396,7 +396,7 @@
 | 1 | 8 | 8 | 0 | 0 |
 | 2 | 5 | 5 | 0 | 0 |
 | 3 | 4 | 4 | 0 | 0 |
-| 4 | 5 | 0 | 0 | 5 |
+| 4 | 5 | 2 | 0 | 3 |
 | 5 | 8 | 0 | 0 | 8 |
 | 6 | 4 | 0 | 0 | 4 |
 | 7 | 4 | 0 | 0 | 4 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **20** | **0** | **72** |
+| **TOTAL** | **92** | **22** | **0** | **70** |
