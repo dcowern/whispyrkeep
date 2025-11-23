@@ -3,19 +3,26 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '@core/services';
+import { LucideAngularModule, UserPlus, Mail, User, Lock, KeyRound, AlertCircle, Loader2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule],
   template: `
     <main id="main-content" class="auth-page">
       <div class="auth-card">
-        <h1 class="auth-card__title">Register</h1>
-        <p class="auth-card__subtitle">Create your WhispyrKeep account</p>
+        <div class="auth-card__header">
+          <div class="auth-card__logo">
+            <lucide-icon [img]="UserPlusIcon" />
+          </div>
+          <h1 class="auth-card__title">Create Account</h1>
+          <p class="auth-card__subtitle">Begin your adventure in WhispyrKeep</p>
+        </div>
 
         @if (errorMessage()) {
           <div class="auth-card__error" role="alert">
+            <lucide-icon [img]="AlertCircleIcon" />
             {{ errorMessage() }}
           </div>
         }
@@ -23,75 +30,118 @@ import { AuthService } from '@core/services';
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
-            <input
-              type="email"
-              id="email"
-              formControlName="email"
-              class="form-input"
-              [class.form-input--error]="showError('email')"
-              autocomplete="email"
-            />
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <lucide-icon [img]="MailIcon" />
+              </span>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="form-input"
+                [class.form-input--error]="showError('email')"
+                placeholder="Enter your email"
+                autocomplete="email"
+              />
+            </div>
             @if (showError('email')) {
-              <span class="form-error">Please enter a valid email address</span>
+              <span class="form-error">
+                <lucide-icon [img]="AlertCircleIcon" />
+                Please enter a valid email address
+              </span>
             }
           </div>
 
           <div class="form-group">
             <label for="username" class="form-label">Username</label>
-            <input
-              type="text"
-              id="username"
-              formControlName="username"
-              class="form-input"
-              [class.form-input--error]="showError('username')"
-              autocomplete="username"
-            />
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <lucide-icon [img]="UserIcon" />
+              </span>
+              <input
+                type="text"
+                id="username"
+                formControlName="username"
+                class="form-input"
+                [class.form-input--error]="showError('username')"
+                placeholder="Choose a username"
+                autocomplete="username"
+              />
+            </div>
             @if (showError('username')) {
-              <span class="form-error">Username must be 3-30 characters</span>
+              <span class="form-error">
+                <lucide-icon [img]="AlertCircleIcon" />
+                Username must be 3-30 characters
+              </span>
             }
           </div>
 
           <div class="form-group">
             <label for="password" class="form-label">Password</label>
-            <input
-              type="password"
-              id="password"
-              formControlName="password"
-              class="form-input"
-              [class.form-input--error]="showError('password')"
-              autocomplete="new-password"
-            />
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <lucide-icon [img]="LockIcon" />
+              </span>
+              <input
+                type="password"
+                id="password"
+                formControlName="password"
+                class="form-input"
+                [class.form-input--error]="showError('password')"
+                placeholder="Create a password"
+                autocomplete="new-password"
+              />
+            </div>
             @if (showError('password')) {
-              <span class="form-error">Password must be at least 8 characters</span>
+              <span class="form-error">
+                <lucide-icon [img]="AlertCircleIcon" />
+                Password must be at least 8 characters
+              </span>
             }
           </div>
 
           <div class="form-group">
             <label for="password_confirm" class="form-label">Confirm Password</label>
-            <input
-              type="password"
-              id="password_confirm"
-              formControlName="password_confirm"
-              class="form-input"
-              [class.form-input--error]="showError('password_confirm')"
-              autocomplete="new-password"
-            />
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <lucide-icon [img]="KeyRoundIcon" />
+              </span>
+              <input
+                type="password"
+                id="password_confirm"
+                formControlName="password_confirm"
+                class="form-input"
+                [class.form-input--error]="showError('password_confirm')"
+                placeholder="Confirm your password"
+                autocomplete="new-password"
+              />
+            </div>
             @if (showError('password_confirm')) {
-              <span class="form-error">Passwords must match</span>
+              <span class="form-error">
+                <lucide-icon [img]="AlertCircleIcon" />
+                Passwords must match
+              </span>
             }
           </div>
 
           <button
             type="submit"
             class="btn btn--primary btn--full"
+            [class.btn--loading]="isLoading()"
             [disabled]="isLoading()"
           >
-            {{ isLoading() ? 'Creating account...' : 'Create Account' }}
+            @if (isLoading()) {
+              <lucide-icon [img]="Loader2Icon" class="animate-spin" />
+              Creating account...
+            } @else {
+              <lucide-icon [img]="UserPlusIcon" />
+              Create Account
+            }
           </button>
         </form>
 
         <p class="auth-card__link">
-          Already have an account? <a routerLink="/auth/login">Login</a>
+          Already have an account? <a routerLink="/auth/login">Sign in</a>
         </p>
       </div>
     </main>
@@ -102,6 +152,15 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  // Lucide icons
+  readonly UserPlusIcon = UserPlus;
+  readonly MailIcon = Mail;
+  readonly UserIcon = User;
+  readonly LockIcon = Lock;
+  readonly KeyRoundIcon = KeyRound;
+  readonly AlertCircleIcon = AlertCircle;
+  readonly Loader2Icon = Loader2;
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);

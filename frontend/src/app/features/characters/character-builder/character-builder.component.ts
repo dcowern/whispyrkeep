@@ -4,31 +4,59 @@ import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CharacterService, CatalogService } from '@core/services';
 import { SrdRace, SrdClass, SrdBackground, CharacterSheet, AbilityScores } from '@core/models';
+import {
+  LucideAngularModule,
+  ArrowLeft,
+  User,
+  Swords,
+  BookOpen,
+  Dices,
+  FileText,
+  CheckCircle2,
+  Plus,
+  Minus,
+  HelpCircle,
+  Sparkles,
+  Save,
+  Loader2,
+  ChevronRight,
+  ChevronLeft
+} from 'lucide-angular';
 
 type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review';
 
 @Component({
   selector: 'app-character-builder',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule],
   template: `
     <div class="builder">
       <header class="builder__header">
-        <a routerLink="/characters" class="back-link">Back to characters</a>
-        <h1>{{ id() ? 'Edit Character' : 'Create Character' }}</h1>
+        <a routerLink="/characters" class="back-link">
+          <lucide-icon [img]="ArrowLeftIcon" />
+          Back to characters
+        </a>
+        <h1>
+          <lucide-icon [img]="UserIcon" class="header-icon" />
+          {{ id() ? 'Edit Character' : 'Create Character' }}
+        </h1>
       </header>
 
       <!-- Step indicator -->
       <nav class="steps" aria-label="Character creation steps">
-        @for (s of steps; track s) {
+        @for (s of steps; track s; let i = $index) {
           <button
             class="step"
             [class.step--active]="step() === s"
-            [class.step--complete]="isStepComplete(s)"
+            [class.step--complete]="isStepComplete(s) && step() !== s"
             (click)="goToStep(s)"
             [disabled]="!canGoToStep(s)"
           >
-            {{ stepLabels[s] }}
+            <span class="step__number">{{ i + 1 }}</span>
+            <span class="step__label">{{ stepLabels[s] }}</span>
+            @if (isStepComplete(s) && step() !== s) {
+              <lucide-icon [img]="CheckIcon" class="step__check" />
+            }
           </button>
         }
       </nav>
@@ -36,11 +64,15 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
       <main class="builder__content">
         <!-- Race selection -->
         @if (step() === 'race') {
-          <section class="step-content">
-            <h2 class="label-with-help">
-              Choose a Race
-              <span class="help-trigger">?<span class="tooltip">{{ helpText['race'] }}</span></span>
-            </h2>
+          <section class="step-content animate-fade-in-up">
+            <div class="step-header">
+              <h2>Choose a Race</h2>
+              <button class="help-btn" (click)="showHelp('race')">
+                <lucide-icon [img]="HelpIcon" />
+              </button>
+            </div>
+            <p class="step-desc">Your race determines innate abilities and physical traits.</p>
+
             <div class="option-grid">
               @for (race of races(); track race.id) {
                 <button
@@ -48,7 +80,12 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
                   [class.option-card--selected]="character.race === race.name"
                   (click)="selectRace(race)"
                 >
-                  <h3 class="option-card__title">{{ race.name }}</h3>
+                  <div class="option-card__header">
+                    <h3 class="option-card__title">{{ race.name }}</h3>
+                    @if (character.race === race.name) {
+                      <lucide-icon [img]="CheckIcon" class="option-card__check" />
+                    }
+                  </div>
                   <p class="option-card__desc">{{ race.description | slice:0:100 }}...</p>
                   <div class="option-card__traits">
                     @for (trait of race.traits.slice(0, 2); track trait) {
@@ -58,15 +95,26 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
                 </button>
               }
             </div>
-            <!-- Homebrew toggle -->
+
             <button class="homebrew-btn" (click)="showHomebrew.set(!showHomebrew())">
-              {{ showHomebrew() ? 'Hide' : 'Add' }} Homebrew
+              <lucide-icon [img]="PlusIcon" />
+              {{ showHomebrew() ? 'Cancel' : 'Add Homebrew Race' }}
             </button>
+
             @if (showHomebrew()) {
-              <div class="homebrew-form">
-                <input [(ngModel)]="homebrewRace.name" placeholder="Race name" class="form-input" />
-                <textarea [(ngModel)]="homebrewRace.description" placeholder="Description" class="form-input"></textarea>
-                <button class="btn btn--primary" (click)="addHomebrewRace()">Add Custom Race</button>
+              <div class="homebrew-form animate-fade-in">
+                <div class="form-group">
+                  <label>Race Name</label>
+                  <input [(ngModel)]="homebrewRace.name" placeholder="Enter race name" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea [(ngModel)]="homebrewRace.description" placeholder="Describe this race..." class="form-input" rows="3"></textarea>
+                </div>
+                <button class="btn btn--primary" (click)="addHomebrewRace()">
+                  <lucide-icon [img]="PlusIcon" />
+                  Add Race
+                </button>
               </div>
             }
           </section>
@@ -74,11 +122,15 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
 
         <!-- Class selection -->
         @if (step() === 'class') {
-          <section class="step-content">
-            <h2 class="label-with-help">
-              Choose a Class
-              <span class="help-trigger">?<span class="tooltip">{{ helpText['class'] }}</span></span>
-            </h2>
+          <section class="step-content animate-fade-in-up">
+            <div class="step-header">
+              <h2>Choose a Class</h2>
+              <button class="help-btn" (click)="showHelp('class')">
+                <lucide-icon [img]="HelpIcon" />
+              </button>
+            </div>
+            <p class="step-desc">Your class defines combat style, abilities, and role.</p>
+
             <div class="option-grid">
               @for (cls of classes(); track cls.id) {
                 <button
@@ -86,9 +138,19 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
                   [class.option-card--selected]="character.class_name === cls.name"
                   (click)="selectClass(cls)"
                 >
-                  <h3 class="option-card__title">{{ cls.name }}</h3>
-                  <p class="option-card__desc">Hit Die: d{{ cls.hit_die }}</p>
-                  <p class="option-card__desc">Primary: {{ cls.primary_ability }}</p>
+                  <div class="option-card__header">
+                    <h3 class="option-card__title">{{ cls.name }}</h3>
+                    @if (character.class_name === cls.name) {
+                      <lucide-icon [img]="CheckIcon" class="option-card__check" />
+                    }
+                  </div>
+                  <div class="option-card__stats">
+                    <span class="stat">
+                      <lucide-icon [img]="DicesIcon" />
+                      d{{ cls.hit_die }}
+                    </span>
+                    <span class="stat">{{ cls.primary_ability }}</span>
+                  </div>
                 </button>
               }
             </div>
@@ -97,11 +159,15 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
 
         <!-- Background selection -->
         @if (step() === 'background') {
-          <section class="step-content">
-            <h2 class="label-with-help">
-              Choose a Background
-              <span class="help-trigger">?<span class="tooltip">{{ helpText['background'] }}</span></span>
-            </h2>
+          <section class="step-content animate-fade-in-up">
+            <div class="step-header">
+              <h2>Choose a Background</h2>
+              <button class="help-btn" (click)="showHelp('background')">
+                <lucide-icon [img]="HelpIcon" />
+              </button>
+            </div>
+            <p class="step-desc">Your background shapes your character's history.</p>
+
             <div class="option-grid">
               @for (bg of backgrounds(); track bg.id) {
                 <button
@@ -109,7 +175,12 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
                   [class.option-card--selected]="character.background === bg.name"
                   (click)="selectBackground(bg)"
                 >
-                  <h3 class="option-card__title">{{ bg.name }}</h3>
+                  <div class="option-card__header">
+                    <h3 class="option-card__title">{{ bg.name }}</h3>
+                    @if (character.background === bg.name) {
+                      <lucide-icon [img]="CheckIcon" class="option-card__check" />
+                    }
+                  </div>
                   <p class="option-card__desc">{{ bg.description | slice:0:80 }}...</p>
                 </button>
               }
@@ -119,23 +190,44 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
 
         <!-- Ability scores -->
         @if (step() === 'abilities') {
-          <section class="step-content">
-            <h2 class="label-with-help">
-              Ability Scores
-              <span class="help-trigger">?<span class="tooltip">{{ helpText['abilities'] }}</span></span>
-            </h2>
-            <p class="step-desc">Assign your ability scores. You have {{ pointsRemaining() }} points remaining.</p>
+          <section class="step-content animate-fade-in-up">
+            <div class="step-header">
+              <h2>Ability Scores</h2>
+              <button class="help-btn" (click)="showHelp('abilities')">
+                <lucide-icon [img]="HelpIcon" />
+              </button>
+            </div>
+            <p class="step-desc">
+              Assign your scores using point-buy.
+              <span class="points-badge" [class.points-badge--done]="pointsRemaining() === 0">
+                {{ pointsRemaining() }} points remaining
+              </span>
+            </p>
+
             <div class="ability-grid">
               @for (ability of abilityNames; track ability) {
-                <div class="ability-row">
-                  <label class="ability-label label-with-help">
-                    {{ ability | titlecase }}
-                    <span class="help-trigger">?<span class="tooltip">{{ helpText[ability] }}</span></span>
-                  </label>
-                  <button class="ability-btn" (click)="decreaseAbility(ability)" [disabled]="character.abilities![ability] <= 8">-</button>
-                  <span class="ability-value">{{ character.abilities![ability] }}</span>
-                  <button class="ability-btn" (click)="increaseAbility(ability)" [disabled]="pointsRemaining() <= 0 || character.abilities![ability] >= 15">+</button>
-                  <span class="ability-mod">{{ getModifier(character.abilities![ability]) }}</span>
+                <div class="ability-card">
+                  <div class="ability-card__header">
+                    <span class="ability-card__name">{{ ability | titlecase }}</span>
+                    <span class="ability-card__mod">{{ getModifier(character.abilities![ability]) }}</span>
+                  </div>
+                  <div class="ability-card__controls">
+                    <button
+                      class="ability-btn"
+                      (click)="decreaseAbility(ability)"
+                      [disabled]="character.abilities![ability] <= 8"
+                    >
+                      <lucide-icon [img]="MinusIcon" />
+                    </button>
+                    <span class="ability-card__value">{{ character.abilities![ability] }}</span>
+                    <button
+                      class="ability-btn"
+                      (click)="increaseAbility(ability)"
+                      [disabled]="pointsRemaining() <= 0 || character.abilities![ability] >= 15"
+                    >
+                      <lucide-icon [img]="PlusIcon" />
+                    </button>
+                  </div>
                 </div>
               }
             </div>
@@ -144,33 +236,36 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
 
         <!-- Character details -->
         @if (step() === 'details') {
-          <section class="step-content">
-            <h2>Character Details</h2>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="name" class="label-with-help">
-                  Character Name
-                  <span class="help-trigger">?<span class="tooltip">{{ helpText['name'] }}</span></span>
-                </label>
-                <input id="name" [(ngModel)]="character.name" class="form-input" required />
+          <section class="step-content animate-fade-in-up">
+            <div class="step-header">
+              <h2>Character Details</h2>
+            </div>
+            <p class="step-desc">Give your character a name and personality.</p>
+
+            <div class="details-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Character Name</label>
+                  <input id="name" [(ngModel)]="character.name" class="form-input" placeholder="Enter name" required />
+                </div>
+                <div class="form-group">
+                  <label for="alignment">Alignment</label>
+                  <select id="alignment" [(ngModel)]="character.alignment" class="form-input">
+                    @for (align of alignments; track align) {
+                      <option [value]="align">{{ align }}</option>
+                    }
+                  </select>
+                </div>
               </div>
               <div class="form-group">
-                <label for="alignment" class="label-with-help">
-                  Alignment
-                  <span class="help-trigger">?<span class="tooltip">{{ helpText['alignment'] }}</span></span>
-                </label>
-                <select id="alignment" [(ngModel)]="character.alignment" class="form-input">
-                  @for (align of alignments; track align) {
-                    <option [value]="align">{{ align }}</option>
-                  }
-                </select>
-              </div>
-              <div class="form-group form-group--full">
-                <label for="backstory" class="label-with-help">
-                  Backstory
-                  <span class="help-trigger">?<span class="tooltip">{{ helpText['backstory'] }}</span></span>
-                </label>
-                <textarea id="backstory" [(ngModel)]="character.backstory" class="form-input" rows="4"></textarea>
+                <label for="backstory">Backstory</label>
+                <textarea
+                  id="backstory"
+                  [(ngModel)]="character.backstory"
+                  class="form-input"
+                  rows="5"
+                  placeholder="Tell us about your character's history, motivations, and goals..."
+                ></textarea>
               </div>
             </div>
           </section>
@@ -178,153 +273,722 @@ type Step = 'race' | 'class' | 'background' | 'abilities' | 'details' | 'review'
 
         <!-- Review -->
         @if (step() === 'review') {
-          <section class="step-content">
-            <h2>Review Character</h2>
+          <section class="step-content animate-fade-in-up">
+            <div class="step-header">
+              <h2>
+                <lucide-icon [img]="SparklesIcon" />
+                Review Character
+              </h2>
+            </div>
+
             <div class="review-card">
-              <h3>{{ character.name || 'Unnamed Character' }}</h3>
-              <p>Level 1 {{ character.race }} {{ character.class_name }}</p>
-              <p>{{ character.background }} - {{ character.alignment }}</p>
-              <div class="review-stats">
+              <div class="review-card__header">
+                <div class="review-card__avatar">
+                  {{ (character.name || 'U').charAt(0).toUpperCase() }}
+                </div>
+                <div class="review-card__info">
+                  <h3>{{ character.name || 'Unnamed Character' }}</h3>
+                  <p>Level 1 {{ character.race }} {{ character.class_name }}</p>
+                  <span class="review-card__badge">{{ character.background }}</span>
+                  <span class="review-card__badge review-card__badge--secondary">{{ character.alignment }}</span>
+                </div>
+              </div>
+
+              <div class="review-card__stats">
                 @for (ability of abilityNames; track ability) {
                   <div class="review-stat">
                     <span class="review-stat__label">{{ ability | slice:0:3 | uppercase }}</span>
                     <span class="review-stat__value">{{ character.abilities![ability] }}</span>
+                    <span class="review-stat__mod">{{ getModifier(character.abilities![ability]) }}</span>
                   </div>
                 }
               </div>
+
+              @if (character.backstory) {
+                <div class="review-card__backstory">
+                  <h4>Backstory</h4>
+                  <p>{{ character.backstory }}</p>
+                </div>
+              }
             </div>
           </section>
         }
       </main>
 
       <footer class="builder__footer">
-        <button class="btn" (click)="prevStep()" [disabled]="step() === 'race'">Back</button>
+        <button class="btn" (click)="prevStep()" [disabled]="step() === 'race'">
+          <lucide-icon [img]="ChevronLeftIcon" />
+          Back
+        </button>
         @if (step() !== 'review') {
           <button class="btn btn--primary" (click)="nextStep()" [disabled]="!isStepComplete(step())">
             Continue
+            <lucide-icon [img]="ChevronRightIcon" />
           </button>
         } @else {
           <button class="btn btn--primary" (click)="saveCharacter()" [disabled]="isSaving()">
-            {{ isSaving() ? 'Saving...' : 'Create Character' }}
+            @if (isSaving()) {
+              <lucide-icon [img]="LoaderIcon" class="animate-spin" />
+              Creating...
+            } @else {
+              <lucide-icon [img]="SaveIcon" />
+              Create Character
+            }
           </button>
         }
       </footer>
     </div>
   `,
   styles: [`
-    .builder { display: flex; flex-direction: column; min-height: 100vh; }
-    .builder__header { padding: var(--wk-space-md) var(--wk-space-lg); border-bottom: 1px solid var(--wk-border); }
-    .builder__header h1 { margin: var(--wk-space-sm) 0 0; font-size: 1.5rem; }
-    .back-link { color: var(--wk-text-secondary); text-decoration: none; font-size: 0.875rem; }
-    .back-link:hover { color: var(--wk-text-primary); }
+    .builder {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      animation: fadeIn var(--wk-transition-smooth) forwards;
+    }
 
-    .steps { display: flex; gap: var(--wk-space-xs); padding: var(--wk-space-md); overflow-x: auto; border-bottom: 1px solid var(--wk-border); }
-    .step { padding: var(--wk-space-sm) var(--wk-space-md); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: none; color: var(--wk-text-secondary); cursor: pointer; white-space: nowrap; }
-    .step:disabled { opacity: 0.5; cursor: not-allowed; }
-    .step--active { border-color: var(--wk-primary); color: var(--wk-primary); }
-    .step--complete { border-color: var(--wk-success); color: var(--wk-success); }
+    .builder__header {
+      padding: var(--wk-space-4) var(--wk-space-6);
+      background: var(--wk-glass-bg);
+      backdrop-filter: blur(var(--wk-blur-md));
+      border-bottom: 1px solid var(--wk-glass-border);
 
-    .builder__content { flex: 1; padding: var(--wk-space-lg); overflow-y: auto; }
-    .step-content h2 { font-size: 1.25rem; margin: 0 0 var(--wk-space-md); }
-    .step-desc { color: var(--wk-text-secondary); margin-bottom: var(--wk-space-md); }
+      h1 {
+        display: flex;
+        align-items: center;
+        gap: var(--wk-space-3);
+        margin: var(--wk-space-2) 0 0;
+        font-size: var(--wk-text-xl);
+        font-weight: var(--wk-font-semibold);
+      }
 
-    .option-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--wk-space-md); }
-    .option-card { padding: var(--wk-space-md); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-lg); background: var(--wk-surface); text-align: left; cursor: pointer; }
-    .option-card:hover { border-color: var(--wk-primary); }
-    .option-card--selected { border-color: var(--wk-primary); background: rgba(99, 102, 241, 0.1); }
-    .option-card__title { font-size: 1rem; font-weight: 600; margin: 0 0 var(--wk-space-xs); color: var(--wk-text-primary); }
-    .option-card__desc { font-size: 0.75rem; color: var(--wk-text-secondary); margin: 0; }
-    .option-card__traits { display: flex; gap: var(--wk-space-xs); flex-wrap: wrap; margin-top: var(--wk-space-sm); }
-    .trait { font-size: 0.625rem; padding: 2px 6px; background: var(--wk-background); border-radius: var(--wk-radius-sm); color: var(--wk-text-muted); }
+      .header-icon {
+        width: 24px;
+        height: 24px;
+        color: var(--wk-primary);
+      }
+    }
 
-    .homebrew-btn { margin-top: var(--wk-space-lg); padding: var(--wk-space-sm); background: none; border: 1px dashed var(--wk-border); border-radius: var(--wk-radius-md); color: var(--wk-primary); cursor: pointer; width: 100%; }
-    .homebrew-form { margin-top: var(--wk-space-md); display: flex; flex-direction: column; gap: var(--wk-space-sm); }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--wk-space-2);
+      color: var(--wk-text-secondary);
+      text-decoration: none;
+      font-size: var(--wk-text-sm);
+      transition: color var(--wk-transition-fast);
 
-    .ability-grid { display: flex; flex-direction: column; gap: var(--wk-space-sm); max-width: 400px; }
-    .ability-row { display: flex; align-items: center; gap: var(--wk-space-md); }
-    .ability-label { width: 100px; font-weight: 500; }
-    .ability-btn { width: 32px; height: 32px; border: 1px solid var(--wk-border); border-radius: var(--wk-radius-sm); background: var(--wk-surface); color: var(--wk-text-primary); cursor: pointer; }
-    .ability-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .ability-value { width: 40px; text-align: center; font-size: 1.25rem; font-weight: 600; }
-    .ability-mod { color: var(--wk-text-secondary); }
+      lucide-icon { width: 16px; height: 16px; }
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--wk-space-md); }
-    .form-group { display: flex; flex-direction: column; gap: var(--wk-space-xs); }
-    .form-group--full { grid-column: 1 / -1; }
-    .form-group label { font-weight: 500; font-size: 0.875rem; }
-    .form-input { padding: var(--wk-space-sm); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: var(--wk-background); color: var(--wk-text-primary); }
+      &:hover {
+        color: var(--wk-primary);
+      }
+    }
 
-    .review-card { background: var(--wk-surface); padding: var(--wk-space-lg); border-radius: var(--wk-radius-lg); }
-    .review-card h3 { margin: 0 0 var(--wk-space-xs); }
-    .review-card p { color: var(--wk-text-secondary); margin: var(--wk-space-xs) 0; }
-    .review-stats { display: flex; gap: var(--wk-space-md); margin-top: var(--wk-space-md); }
-    .review-stat { text-align: center; }
-    .review-stat__label { display: block; font-size: 0.625rem; color: var(--wk-text-muted); }
-    .review-stat__value { font-size: 1.25rem; font-weight: 600; }
+    /* Steps */
+    .steps {
+      display: flex;
+      gap: var(--wk-space-2);
+      padding: var(--wk-space-4) var(--wk-space-6);
+      overflow-x: auto;
+      background: var(--wk-glass-bg-light);
+      border-bottom: 1px solid var(--wk-glass-border);
+    }
 
-    .builder__footer { display: flex; justify-content: space-between; padding: var(--wk-space-md) var(--wk-space-lg); border-top: 1px solid var(--wk-border); background: var(--wk-surface); }
-    .btn { padding: var(--wk-space-sm) var(--wk-space-lg); border: 1px solid var(--wk-border); border-radius: var(--wk-radius-md); background: none; color: var(--wk-text-primary); cursor: pointer; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn--primary { background: var(--wk-primary); border-color: var(--wk-primary); }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: var(--wk-space-2);
+      padding: var(--wk-space-2) var(--wk-space-4);
+      background: var(--wk-glass-bg);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-lg);
+      color: var(--wk-text-secondary);
+      font-size: var(--wk-text-sm);
+      font-weight: var(--wk-font-medium);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--wk-transition-fast);
 
-    /* Tooltip styles */
-    .help-trigger {
+      &:disabled { opacity: 0.4; cursor: not-allowed; }
+
+      &:hover:not(:disabled) {
+        background: var(--wk-surface-hover);
+        border-color: var(--wk-glass-border-hover);
+      }
+
+      .step__number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: var(--wk-surface-elevated);
+        border-radius: var(--wk-radius-full);
+        font-size: var(--wk-text-xs);
+      }
+
+      .step__check {
+        width: 16px;
+        height: 16px;
+        color: var(--wk-success);
+      }
+
+      &--active {
+        background: var(--wk-primary-glow);
+        border-color: var(--wk-primary);
+        color: var(--wk-primary-light);
+
+        .step__number {
+          background: var(--wk-primary);
+          color: white;
+        }
+      }
+
+      &--complete {
+        border-color: var(--wk-success);
+        color: var(--wk-success);
+
+        .step__number {
+          background: var(--wk-success-glow);
+          color: var(--wk-success);
+        }
+      }
+    }
+
+    /* Content */
+    .builder__content {
+      flex: 1;
+      padding: var(--wk-space-6);
+      overflow-y: auto;
+    }
+
+    .step-content {
+      max-width: 900px;
+      margin: 0 auto;
+      opacity: 0;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: var(--wk-space-3);
+      margin-bottom: var(--wk-space-2);
+
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: var(--wk-space-2);
+        font-size: var(--wk-text-xl);
+        margin: 0;
+
+        lucide-icon {
+          width: 24px;
+          height: 24px;
+          color: var(--wk-warning);
+        }
+      }
+    }
+
+    .help-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--wk-glass-bg-light);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-full);
+      color: var(--wk-text-muted);
+      cursor: pointer;
+      transition: all var(--wk-transition-fast);
+
+      lucide-icon { width: 16px; height: 16px; }
+
+      &:hover {
+        color: var(--wk-primary);
+        border-color: var(--wk-primary);
+        background: var(--wk-primary-glow);
+      }
+    }
+
+    .step-desc {
+      color: var(--wk-text-secondary);
+      margin-bottom: var(--wk-space-6);
+      font-size: var(--wk-text-sm);
+    }
+
+    .points-badge {
+      display: inline-flex;
+      padding: var(--wk-space-1) var(--wk-space-3);
+      background: var(--wk-warning-glow);
+      border: 1px solid var(--wk-warning);
+      border-radius: var(--wk-radius-full);
+      color: var(--wk-warning);
+      font-size: var(--wk-text-xs);
+      font-weight: var(--wk-font-medium);
+      margin-left: var(--wk-space-2);
+
+      &--done {
+        background: var(--wk-success-glow);
+        border-color: var(--wk-success);
+        color: var(--wk-success);
+      }
+    }
+
+    /* Option cards */
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--wk-space-4);
+    }
+
+    .option-card {
       position: relative;
+      padding: var(--wk-space-4);
+      background: var(--wk-glass-bg);
+      backdrop-filter: blur(var(--wk-blur-sm));
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-xl);
+      text-align: left;
+      cursor: pointer;
+      transition: all var(--wk-transition-fast);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--wk-glass-shine);
+        border-radius: inherit;
+        pointer-events: none;
+      }
+
+      &:hover {
+        border-color: var(--wk-primary);
+        box-shadow: 0 0 20px var(--wk-primary-glow);
+        transform: translateY(-2px);
+      }
+
+      &--selected {
+        border-color: var(--wk-primary);
+        background: var(--wk-primary-glow);
+        box-shadow: 0 0 25px var(--wk-primary-glow);
+      }
+
+      &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--wk-space-2);
+      }
+
+      &__title {
+        font-size: var(--wk-text-base);
+        font-weight: var(--wk-font-semibold);
+        margin: 0;
+        color: var(--wk-text-primary);
+      }
+
+      &__check {
+        width: 20px;
+        height: 20px;
+        color: var(--wk-primary);
+      }
+
+      &__desc {
+        font-size: var(--wk-text-xs);
+        color: var(--wk-text-secondary);
+        margin: 0 0 var(--wk-space-2);
+        line-height: var(--wk-leading-relaxed);
+      }
+
+      &__traits {
+        display: flex;
+        gap: var(--wk-space-1);
+        flex-wrap: wrap;
+      }
+
+      &__stats {
+        display: flex;
+        gap: var(--wk-space-3);
+        margin-top: var(--wk-space-2);
+
+        .stat {
+          display: flex;
+          align-items: center;
+          gap: var(--wk-space-1);
+          font-size: var(--wk-text-xs);
+          color: var(--wk-text-muted);
+
+          lucide-icon { width: 14px; height: 14px; }
+        }
+      }
+    }
+
+    .trait {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: var(--wk-surface-elevated);
+      border-radius: var(--wk-radius-full);
+      color: var(--wk-text-muted);
+    }
+
+    /* Homebrew */
+    .homebrew-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--wk-space-2);
+      width: 100%;
+      margin-top: var(--wk-space-6);
+      padding: var(--wk-space-3);
+      background: transparent;
+      border: 1px dashed var(--wk-glass-border);
+      border-radius: var(--wk-radius-lg);
+      color: var(--wk-primary);
+      font-size: var(--wk-text-sm);
+      cursor: pointer;
+      transition: all var(--wk-transition-fast);
+
+      lucide-icon { width: 16px; height: 16px; }
+
+      &:hover {
+        background: var(--wk-primary-glow);
+        border-color: var(--wk-primary);
+      }
+    }
+
+    .homebrew-form {
+      margin-top: var(--wk-space-4);
+      padding: var(--wk-space-4);
+      background: var(--wk-glass-bg);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--wk-space-4);
+      opacity: 0;
+    }
+
+    /* Ability cards */
+    .ability-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--wk-space-4);
+    }
+
+    .ability-card {
+      background: var(--wk-glass-bg);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-xl);
+      padding: var(--wk-space-4);
+      text-align: center;
+
+      &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--wk-space-3);
+      }
+
+      &__name {
+        font-size: var(--wk-text-sm);
+        font-weight: var(--wk-font-medium);
+        color: var(--wk-text-secondary);
+      }
+
+      &__mod {
+        font-size: var(--wk-text-sm);
+        font-weight: var(--wk-font-bold);
+        color: var(--wk-primary);
+      }
+
+      &__controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--wk-space-3);
+      }
+
+      &__value {
+        font-size: var(--wk-text-2xl);
+        font-weight: var(--wk-font-bold);
+        color: var(--wk-text-primary);
+        min-width: 40px;
+      }
+    }
+
+    .ability-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--wk-glass-bg-light);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-lg);
+      color: var(--wk-text-primary);
+      cursor: pointer;
+      transition: all var(--wk-transition-fast);
+
+      lucide-icon { width: 16px; height: 16px; }
+
+      &:hover:not(:disabled) {
+        background: var(--wk-primary);
+        border-color: var(--wk-primary);
+        color: white;
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Forms */
+    .details-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--wk-space-4);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--wk-space-4);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--wk-space-2);
+
+      label {
+        font-size: var(--wk-text-sm);
+        font-weight: var(--wk-font-medium);
+        color: var(--wk-text-secondary);
+      }
+    }
+
+    .form-input {
+      padding: var(--wk-space-3) var(--wk-space-4);
+      background: var(--wk-glass-bg);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-lg);
+      color: var(--wk-text-primary);
+      font-size: var(--wk-text-base);
+      transition: all var(--wk-transition-fast);
+
+      &::placeholder { color: var(--wk-text-muted); }
+
+      &:hover {
+        border-color: var(--wk-glass-border-hover);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--wk-primary);
+        box-shadow: 0 0 0 3px var(--wk-primary-glow);
+      }
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    select.form-input {
+      cursor: pointer;
+    }
+
+    /* Review card */
+    .review-card {
+      background: var(--wk-glass-bg);
+      backdrop-filter: blur(var(--wk-blur-md));
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-2xl);
+      padding: var(--wk-space-6);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--wk-glass-shine);
+        pointer-events: none;
+      }
+
+      &__header {
+        display: flex;
+        gap: var(--wk-space-4);
+        margin-bottom: var(--wk-space-6);
+      }
+
+      &__avatar {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, var(--wk-primary) 0%, var(--wk-primary-dark) 100%);
+        border-radius: var(--wk-radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--wk-text-2xl);
+        font-weight: var(--wk-font-bold);
+        color: white;
+        box-shadow: 0 0 20px var(--wk-primary-glow);
+      }
+
+      &__info {
+        h3 {
+          font-size: var(--wk-text-xl);
+          margin: 0 0 var(--wk-space-1);
+        }
+
+        p {
+          color: var(--wk-text-secondary);
+          margin: 0 0 var(--wk-space-2);
+          font-size: var(--wk-text-sm);
+        }
+      }
+
+      &__badge {
+        display: inline-flex;
+        padding: var(--wk-space-1) var(--wk-space-3);
+        background: var(--wk-primary-glow);
+        border: 1px solid var(--wk-primary);
+        border-radius: var(--wk-radius-full);
+        color: var(--wk-primary-light);
+        font-size: var(--wk-text-xs);
+        font-weight: var(--wk-font-medium);
+        margin-right: var(--wk-space-2);
+
+        &--secondary {
+          background: var(--wk-surface-elevated);
+          border-color: var(--wk-glass-border);
+          color: var(--wk-text-secondary);
+        }
+      }
+
+      &__stats {
+        display: flex;
+        gap: var(--wk-space-4);
+        padding: var(--wk-space-4) 0;
+        border-top: 1px solid var(--wk-glass-border);
+        border-bottom: 1px solid var(--wk-glass-border);
+        margin-bottom: var(--wk-space-4);
+      }
+
+      &__backstory {
+        h4 {
+          font-size: var(--wk-text-sm);
+          color: var(--wk-text-secondary);
+          margin: 0 0 var(--wk-space-2);
+        }
+
+        p {
+          font-size: var(--wk-text-sm);
+          color: var(--wk-text-primary);
+          line-height: var(--wk-leading-relaxed);
+          margin: 0;
+        }
+      }
+    }
+
+    .review-stat {
+      text-align: center;
+      flex: 1;
+
+      &__label {
+        display: block;
+        font-size: var(--wk-text-xs);
+        color: var(--wk-text-muted);
+        margin-bottom: var(--wk-space-1);
+      }
+
+      &__value {
+        display: block;
+        font-size: var(--wk-text-xl);
+        font-weight: var(--wk-font-bold);
+        color: var(--wk-text-primary);
+      }
+
+      &__mod {
+        display: block;
+        font-size: var(--wk-text-xs);
+        color: var(--wk-primary);
+        font-weight: var(--wk-font-medium);
+      }
+    }
+
+    /* Footer */
+    .builder__footer {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--wk-space-4) var(--wk-space-6);
+      background: var(--wk-glass-bg);
+      backdrop-filter: blur(var(--wk-blur-md));
+      border-top: 1px solid var(--wk-glass-border);
+    }
+
+    .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 16px;
-      margin-left: 6px;
-      border-radius: 50%;
-      background: var(--wk-surface-elevated);
-      border: 1px solid var(--wk-border);
-      color: var(--wk-text-muted);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: help;
-      vertical-align: middle;
-    }
-    .help-trigger:hover { border-color: var(--wk-primary); color: var(--wk-primary); }
-    .tooltip {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      transform: translateY(-4px);
-      width: 280px;
-      padding: var(--wk-space-sm) var(--wk-space-md);
-      background: var(--wk-surface-elevated);
-      border: 1px solid var(--wk-border);
-      border-radius: var(--wk-radius-md);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      gap: var(--wk-space-2);
+      padding: var(--wk-space-3) var(--wk-space-6);
+      background: var(--wk-glass-bg-light);
+      border: 1px solid var(--wk-glass-border);
+      border-radius: var(--wk-radius-lg);
       color: var(--wk-text-primary);
-      font-size: 0.8125rem;
-      font-weight: 400;
-      line-height: 1.5;
-      white-space: pre-line;
-      text-align: left;
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
-      pointer-events: none;
+      font-size: var(--wk-text-sm);
+      font-weight: var(--wk-font-medium);
+      cursor: pointer;
+      transition: all var(--wk-transition-fast);
+
+      lucide-icon { width: 18px; height: 18px; }
+
+      &:hover:not(:disabled) {
+        background: var(--wk-surface-hover);
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &--primary {
+        background: linear-gradient(135deg, var(--wk-primary) 0%, var(--wk-primary-dark) 100%);
+        border-color: var(--wk-primary);
+        color: white;
+        box-shadow: 0 0 15px var(--wk-primary-glow);
+
+        &:hover:not(:disabled) {
+          box-shadow: var(--wk-shadow-glow-primary);
+        }
+      }
     }
-    .help-trigger:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
-    .tooltip::before {
-      content: '';
-      position: absolute;
-      bottom: 100%;
-      left: 8px;
-      border: 6px solid transparent;
-      border-bottom-color: var(--wk-border);
-    }
-    .label-with-help { display: flex; align-items: center; }
   `]
 })
 export class CharacterBuilderComponent implements OnInit {
   private readonly characterService = inject(CharacterService);
   private readonly catalogService = inject(CatalogService);
   private readonly router = inject(Router);
+
+  // Lucide icons
+  readonly ArrowLeftIcon = ArrowLeft;
+  readonly UserIcon = User;
+  readonly CheckIcon = CheckCircle2;
+  readonly PlusIcon = Plus;
+  readonly MinusIcon = Minus;
+  readonly HelpIcon = HelpCircle;
+  readonly DicesIcon = Dices;
+  readonly SparklesIcon = Sparkles;
+  readonly SaveIcon = Save;
+  readonly LoaderIcon = Loader2;
+  readonly ChevronRightIcon = ChevronRight;
+  readonly ChevronLeftIcon = ChevronLeft;
 
   id = input<string>();
 
@@ -335,22 +999,6 @@ export class CharacterBuilderComponent implements OnInit {
   };
   readonly abilityNames: (keyof AbilityScores)[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
   readonly alignments = ['Lawful Good', 'Neutral Good', 'Chaotic Good', 'Lawful Neutral', 'True Neutral', 'Chaotic Neutral', 'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'];
-
-  readonly helpText: Record<string, string> = {
-    race: 'Your character\'s species determines innate abilities, physical traits, and cultural background. Each race provides ability score bonuses and unique racial traits.',
-    class: 'Your class defines your character\'s combat style, abilities, and role in the party. It determines hit points, proficiencies, and special features gained as you level up.',
-    background: 'Your background represents your character\'s life before adventuring. It provides skill proficiencies, equipment, and roleplaying hooks that shape your story.',
-    abilities: 'Ability scores define your character\'s core capabilities. Use the point-buy system: you have 27 points to spend. Scores 8-13 cost 1 point each, 14 costs 7 points, 15 costs 9 points.',
-    name: 'Your character\'s name. This can be a fantasy name fitting your race, or anything that suits your character concept.',
-    alignment: 'Alignment describes your character\'s moral and ethical outlook.\n\nLawful/Chaotic: Respect for order vs. personal freedom.\nGood/Evil: Altruism vs. self-interest.\nNeutral: Balance or indifference on either axis.',
-    backstory: 'Your character\'s history before the adventure begins. Include formative events, relationships, motivations, and goals. The AI will reference this during gameplay.',
-    strength: 'Physical power. Affects melee attacks, carrying capacity, and Athletics checks. Important for: Fighter, Paladin, Barbarian.',
-    dexterity: 'Agility and reflexes. Affects AC, ranged attacks, initiative, and Acrobatics/Stealth. Important for: Rogue, Ranger, Monk.',
-    constitution: 'Endurance and vitality. Affects hit points and Constitution saving throws. Important for all classes, especially frontline fighters.',
-    intelligence: 'Reasoning and memory. Affects Arcana, History, Investigation. Important for: Wizard, Artificer.',
-    wisdom: 'Perception and insight. Affects Perception, Insight, Survival, and spellcasting. Important for: Cleric, Druid, Ranger.',
-    charisma: 'Force of personality. Affects Persuasion, Deception, Intimidation, and spellcasting. Important for: Bard, Sorcerer, Warlock, Paladin.'
-  };
 
   readonly step = signal<Step>('race');
   readonly races = signal<SrdRace[]>([]);
@@ -387,6 +1035,11 @@ export class CharacterBuilderComponent implements OnInit {
       this.races.update(r => [...r, { id: 'custom', ...this.homebrewRace, ability_bonuses: {}, traits: [], speed: 30, size: 'Medium' }]);
       this.showHomebrew.set(false);
     }
+  }
+
+  showHelp(topic: string): void {
+    // Could open a modal or tooltip with help text
+    console.log('Help for:', topic);
   }
 
   getPointCost(score: number): number {
