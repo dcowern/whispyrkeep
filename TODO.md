@@ -1,7 +1,7 @@
 # WhispyrKeep Development TODO
 
 **Last Updated**: 2025-11-23
-**Current Epic**: 2 - SRD Rules + Homebrew Catalog
+**Current Epic**: 5 - Lore System + ChromaDB
 
 ## Status Legend
 
@@ -119,9 +119,9 @@
 
 | Ticket | Description | Status | Tests |
 |--------|-------------|--------|-------|
-| 4.1.1 | Worldgen orchestration endpoint | `NOT_STARTED` | `NOT_STARTED` |
-| 4.1.2 | Bulk catalog pre-generation task | `NOT_STARTED` | `NOT_STARTED` |
-| 4.1.3 | Tone & rules sliders persistence | `NOT_STARTED` | `NOT_STARTED` |
+| 4.1.1 | Worldgen orchestration endpoint | `DONE` | `DONE` |
+| 4.1.2 | Bulk catalog pre-generation task | `DONE` | `DONE` |
+| 4.1.3 | Tone & rules sliders persistence | `DONE` | `DONE` |
 
 ---
 
@@ -396,7 +396,7 @@
 | 1 | 8 | 8 | 0 | 0 |
 | 2 | 5 | 5 | 0 | 0 |
 | 3 | 4 | 4 | 0 | 0 |
-| 4 | 5 | 2 | 0 | 3 |
+| 4 | 5 | 5 | 0 | 0 |
 | 5 | 8 | 0 | 0 | 8 |
 | 6 | 4 | 0 | 0 | 4 |
 | 7 | 4 | 0 | 0 | 4 |
@@ -407,4 +407,4 @@
 | 12 | 23 | 0 | 0 | 23 |
 | 13 | 2 | 0 | 0 | 2 |
 | 14 | 6 | 0 | 0 | 6 |
-| **TOTAL** | **92** | **22** | **0** | **70** |
+| **TOTAL** | **92** | **25** | **0** | **67** |
