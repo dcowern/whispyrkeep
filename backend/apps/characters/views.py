@@ -17,6 +17,7 @@ from .serializers import (
     CharacterSheetSummarySerializer,
     CharacterUpdateHPSerializer,
 )
+from .services.leveling import LevelingService
 from .services.validation import CharacterValidationService
 
 
@@ -266,3 +267,119 @@ class CharacterSheetViewSet(viewsets.ModelViewSet):
             character.save()
 
         return Response(CharacterSheetSerializer(character).data)
+
+    @action(detail=True, methods=["get"])
+    def xp(self, request, pk=None):
+        """
+        Get XP information for a character.
+
+        GET /api/characters/{id}/xp/
+
+        Returns:
+            {
+                "current_xp": 2700,
+                "current_level": 4,
+                "xp_for_next_level": 6500,
+                "xp_needed": 3800,
+                "can_level_up": false
+            }
+        """
+        character = self.get_object()
+        leveling = LevelingService()
+        xp_info = leveling.get_xp_info(character)
+
+        return Response({
+            "current_xp": xp_info.current_xp,
+            "current_level": xp_info.current_level,
+            "xp_for_next_level": xp_info.xp_for_next_level,
+            "xp_needed": xp_info.xp_needed,
+            "can_level_up": xp_info.can_level_up,
+        })
+
+    @action(detail=True, methods=["post"], url_path="add-xp")
+    def add_xp(self, request, pk=None):
+        """
+        Add XP to a character.
+
+        POST /api/characters/{id}/add-xp/
+
+        Body:
+            {
+                "xp": 500
+            }
+
+        Returns updated XP info.
+        """
+        character = self.get_object()
+        xp_amount = request.data.get("xp", 0)
+
+        if not isinstance(xp_amount, int) or xp_amount < 0:
+            return Response(
+                {"detail": "XP must be a non-negative integer"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        leveling = LevelingService()
+        xp_info = leveling.add_xp(character, xp_amount)
+
+        return Response({
+            "current_xp": xp_info.current_xp,
+            "current_level": xp_info.current_level,
+            "xp_for_next_level": xp_info.xp_for_next_level,
+            "xp_needed": xp_info.xp_needed,
+            "can_level_up": xp_info.can_level_up,
+        })
+
+    @action(detail=True, methods=["post"], url_path="level-up")
+    def level_up(self, request, pk=None):
+        """
+        Level up a character.
+
+        POST /api/characters/{id}/level-up/
+
+        Body (optional):
+            {
+                "class": "Fighter",  // For multiclass, defaults to primary class
+                "use_average_hp": true,  // Use average HP (default) or roll
+                "hp_roll": 6  // Only if use_average_hp is false
+            }
+
+        Returns:
+            {
+                "success": true,
+                "new_level": 6,
+                "hp_gained": 8,
+                "hit_die_added": "d10",
+                "message": "Successfully leveled up to 6 in Fighter",
+                "character": { ... }
+            }
+        """
+        character = self.get_object()
+
+        # Get options from request
+        class_name = request.data.get("class")
+        use_average_hp = request.data.get("use_average_hp", True)
+        hp_roll = request.data.get("hp_roll")
+
+        leveling = LevelingService()
+        result = leveling.level_up(
+            character,
+            class_name=class_name,
+            use_average_hp=use_average_hp,
+            hp_roll=hp_roll,
+        )
+
+        response_data = {
+            "success": result.success,
+            "new_level": result.new_level,
+            "hp_gained": result.hp_gained,
+            "hit_die_added": result.hit_die_added,
+            "message": result.message,
+            "errors": result.errors,
+        }
+
+        if result.success:
+            response_data["character"] = CharacterSheetSerializer(character).data
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
