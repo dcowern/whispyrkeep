@@ -391,3 +391,89 @@ export interface SrdSpell {
   description: string;
   classes: string[];
 }
+
+/**
+ * Worldgen Session models for AI-assisted universe building
+ */
+export type WorldgenSessionStatus = 'draft' | 'completed' | 'abandoned';
+export type WorldgenSessionMode = 'ai_collab' | 'manual';
+export type WorldgenStepName = 'basics' | 'tone' | 'rules' | 'calendar' | 'lore' | 'homebrew';
+
+export interface WorldgenStepStatus {
+  complete: boolean;
+  fields: Record<string, boolean>;
+}
+
+export interface WorldgenDraftData {
+  basics?: {
+    name?: string;
+    description?: string;
+  };
+  tone?: {
+    darkness?: number;
+    humor?: number;
+    realism?: number;
+    magic_level?: number;
+    themes?: string[];
+  };
+  rules?: {
+    permadeath?: boolean;
+    critical_fumbles?: boolean;
+    encumbrance?: boolean;
+    rules_strictness?: string;
+  };
+  calendar?: {
+    calendar_type?: string;
+    months?: Array<{ name: string; days: number }>;
+    weekdays?: string[];
+  };
+  lore?: {
+    canon_docs?: Array<{ title: string; content: string }>;
+    world_overview?: string;
+  };
+  homebrew?: {
+    species?: unknown[];
+    spells?: unknown[];
+    items?: unknown[];
+    monsters?: unknown[];
+    feats?: unknown[];
+    backgrounds?: unknown[];
+    classes?: unknown[];
+    generate_options?: Record<string, unknown>;
+  };
+}
+
+export interface WorldgenChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
+export interface WorldgenSession {
+  id: string;
+  status: WorldgenSessionStatus;
+  mode: WorldgenSessionMode;
+  draft_data_json: WorldgenDraftData;
+  step_status_json: Record<WorldgenStepName, WorldgenStepStatus>;
+  conversation_json: WorldgenChatMessage[];
+  resulting_universe?: Universe | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorldgenSessionSummary {
+  id: string;
+  name: string;
+  status: WorldgenSessionStatus;
+  mode: WorldgenSessionMode;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorldgenStreamEvent {
+  type: 'chunk' | 'complete' | 'error';
+  content?: string;
+  step_status?: Record<WorldgenStepName, WorldgenStepStatus>;
+  draft_data?: WorldgenDraftData;
+  current_step?: WorldgenStepName;
+}

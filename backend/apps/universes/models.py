@@ -89,6 +89,114 @@ class UniverseHardCanonDoc(models.Model):
         return f"{self.title} ({self.universe.name})"
 
 
+class WorldgenSession(models.Model):
+    """
+    Persistent session for AI-assisted universe building.
+
+    Stores conversation history, draft universe data, and step completion status.
+    Users can resume sessions and switch between AI and manual modes.
+    """
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        COMPLETED = "completed", "Completed"
+        ABANDONED = "abandoned", "Abandoned"
+
+    class Mode(models.TextChoices):
+        AI_COLLAB = "ai_collab", "AI Collaboration"
+        MANUAL = "manual", "Manual"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="worldgen_sessions",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+    )
+    mode = models.CharField(
+        max_length=20,
+        choices=Mode.choices,
+        default=Mode.AI_COLLAB,
+    )
+
+    # Draft universe data - structured JSON holding all fields
+    draft_data_json = models.JSONField(
+        default=dict,
+        help_text="Draft universe data: name, description, tone, rules, calendar, lore, homebrew",
+    )
+
+    # Step completion tracking
+    step_status_json = models.JSONField(
+        default=dict,
+        help_text="Completion status per step: {step_name: {complete: bool, fields: {...}}}",
+    )
+
+    # Conversation history for AI collaboration
+    conversation_json = models.JSONField(
+        default=list,
+        help_text="Array of {role: 'user'|'assistant', content: str, timestamp: str}",
+    )
+
+    # Link to resulting universe when finalized
+    resulting_universe = models.ForeignKey(
+        Universe,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="worldgen_session",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Worldgen Session"
+        verbose_name_plural = "Worldgen Sessions"
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        name = self.draft_data_json.get("basics", {}).get("name", "Untitled")
+        return f"Worldgen: {name} ({self.status})"
+
+    def get_step_status(self, step_name: str) -> dict:
+        """Get the status of a specific step."""
+        return self.step_status_json.get(step_name, {"complete": False, "fields": {}})
+
+    def set_step_status(self, step_name: str, complete: bool, fields: dict = None):
+        """Update the status of a specific step."""
+        self.step_status_json[step_name] = {
+            "complete": complete,
+            "fields": fields or {},
+        }
+
+    def add_message(self, role: str, content: str):
+        """Add a message to the conversation history."""
+        from datetime import datetime, timezone
+
+        if not isinstance(self.conversation_json, list):
+            self.conversation_json = []
+        self.conversation_json.append(
+            {
+                "role": role,
+                "content": content,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
+    @property
+    def all_steps_complete(self) -> bool:
+        """Check if all required steps are complete."""
+        required_steps = ["basics", "tone", "rules"]
+        return all(
+            self.step_status_json.get(step, {}).get("complete", False)
+            for step in required_steps
+        )
+
+
 # Import homebrew models to make them available from this module
 from .homebrew_models import (  # noqa: E402, F401
     HomebrewBackground,

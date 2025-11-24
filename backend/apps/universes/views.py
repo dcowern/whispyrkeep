@@ -695,3 +695,298 @@ class UniverseExportView(APIView):
                 "status": job.status,
                 "errors": result.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ==================== Worldgen Session Views ====================
+
+
+class WorldgenSessionListView(APIView):
+    """
+    GET /api/universes/worldgen/sessions/ - List user's draft sessions
+    POST /api/universes/worldgen/sessions/ - Create new session
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """List user's draft worldgen sessions."""
+        from .serializers import WorldgenSessionSummarySerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        service = WorldgenChatService(request.user)
+        sessions = service.list_sessions()
+        serializer = WorldgenSessionSummarySerializer(sessions, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """Create a new worldgen session."""
+        from .serializers import (
+            WorldgenSessionCreateSerializer,
+            WorldgenSessionSerializer,
+        )
+        from .services.worldgen_chat import WorldgenChatService
+
+        create_serializer = WorldgenSessionCreateSerializer(data=request.data)
+        if not create_serializer.is_valid():
+            return Response(create_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = WorldgenChatService(request.user)
+
+        # Check if LLM is configured for AI collab mode
+        mode = create_serializer.validated_data["mode"]
+        if mode == "ai_collab" and not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured. Please configure an LLM endpoint in settings."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        session = service.create_session(mode=mode)
+        serializer = WorldgenSessionSerializer(session)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class WorldgenSessionDetailView(APIView):
+    """
+    GET /api/universes/worldgen/sessions/{id}/ - Get session details
+    DELETE /api/universes/worldgen/sessions/{id}/ - Abandon session
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, session_id):
+        """Get session details."""
+        from .serializers import WorldgenSessionSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        service = WorldgenChatService(request.user)
+        session = service.get_session(session_id)
+
+        if not session:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = WorldgenSessionSerializer(session)
+        return Response(serializer.data)
+
+    def delete(self, request, session_id):
+        """Abandon a session."""
+        from .services.worldgen_chat import WorldgenChatService
+
+        service = WorldgenChatService(request.user)
+        try:
+            service.abandon_session(session_id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class WorldgenSessionChatView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/chat/ - Send chat message (SSE streaming)
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Send a chat message and stream the response via SSE."""
+        import json
+        from django.http import StreamingHttpResponse
+        from .serializers import WorldgenChatMessageSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        serializer = WorldgenChatMessageSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = WorldgenChatService(request.user)
+        session = service.get_session(session_id)
+
+        if not session:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        def event_stream():
+            """Generate SSE events from chat stream."""
+            try:
+                for event in service.send_message_stream(
+                    session_id, serializer.validated_data["message"]
+                ):
+                    yield f"data: {json.dumps(event)}\n\n"
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
+
+        response = StreamingHttpResponse(
+            event_stream(),
+            content_type="text/event-stream",
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"
+        return response
+
+
+class WorldgenSessionUpdateView(APIView):
+    """
+    PATCH /api/universes/worldgen/sessions/{id}/update/ - Update step data directly
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, session_id):
+        """Update step data directly (for manual mode)."""
+        from .serializers import WorldgenSessionSerializer, WorldgenStepUpdateSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        serializer = WorldgenStepUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = WorldgenChatService(request.user)
+        try:
+            session = service.update_draft_data(
+                session_id,
+                serializer.validated_data["step"],
+                serializer.validated_data["data"],
+            )
+            result_serializer = WorldgenSessionSerializer(session)
+            return Response(result_serializer.data)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class WorldgenSessionModeView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/mode/ - Switch mode
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Switch between AI collab and manual mode."""
+        from .serializers import WorldgenSessionSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        new_mode = request.data.get("mode")
+        if new_mode not in ("ai_collab", "manual"):
+            return Response(
+                {"error": "Mode must be 'ai_collab' or 'manual'"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        service = WorldgenChatService(request.user)
+
+        # Check LLM config when switching to AI mode
+        if new_mode == "ai_collab" and not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            session = service.switch_mode(session_id, new_mode)
+            serializer = WorldgenSessionSerializer(session)
+            return Response(serializer.data)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class WorldgenSessionFinalizeView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/finalize/ - Create universe from session
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Finalize session and create universe."""
+        from .serializers import UniverseSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        service = WorldgenChatService(request.user)
+        try:
+            universe = service.finalize_session(session_id)
+            serializer = UniverseSerializer(universe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WorldgenSessionAiAssistView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/assist/ - Get AI help for a specific step
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Get AI assistance for a step (streaming SSE)."""
+        import json
+        from django.http import StreamingHttpResponse
+        from .serializers import WorldgenAiAssistSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        serializer = WorldgenAiAssistSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = WorldgenChatService(request.user)
+        session = service.get_session(session_id)
+
+        if not session:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        def event_stream():
+            """Generate SSE events from AI assist stream."""
+            try:
+                for event in service.get_ai_assist(
+                    session_id,
+                    serializer.validated_data["step"],
+                    serializer.validated_data.get("field"),
+                    serializer.validated_data.get("message"),
+                ):
+                    yield f"data: {json.dumps(event)}\n\n"
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
+
+        response = StreamingHttpResponse(
+            event_stream(),
+            content_type="text/event-stream",
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"
+        return response
+
+
+class WorldgenLlmStatusView(APIView):
+    """
+    GET /api/universes/worldgen/llm-status/ - Check if LLM is configured
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Check if user has an active LLM configuration."""
+        from .services.worldgen_chat import WorldgenChatService
+
+        service = WorldgenChatService(request.user)
+        return Response({
+            "configured": service.has_llm_config(),
+        })

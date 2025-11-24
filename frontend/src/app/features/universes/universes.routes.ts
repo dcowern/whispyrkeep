@@ -7,7 +7,11 @@ export const UNIVERSES_ROUTES: Routes = [
   },
   {
     path: 'new',
-    loadComponent: () => import('./universe-builder/universe-builder.component').then(m => m.UniverseBuilderComponent)
+    loadComponent: () => import('./universe-mode-select/universe-mode-select.component').then(m => m.UniverseModeSelectComponent)
+  },
+  {
+    path: 'build/:sessionId',
+    loadComponent: () => import('./universe-ai-builder/universe-ai-builder.component').then(m => m.UniverseAiBuilderComponent)
   },
   {
     path: ':id',

@@ -67,6 +67,39 @@ urlpatterns = [
     # Worldgen endpoints (must be before router to avoid being caught by UUID lookup)
     path("worldgen/", views.WorldgenView.as_view(), name="universe_worldgen"),
     path("worldgen/preview/", views.WorldgenPreviewView.as_view(), name="universe_worldgen_preview"),
+    # Worldgen session endpoints for AI collaboration
+    path("worldgen/llm-status/", views.WorldgenLlmStatusView.as_view(), name="worldgen_llm_status"),
+    path("worldgen/sessions/", views.WorldgenSessionListView.as_view(), name="worldgen_session_list"),
+    path(
+        "worldgen/sessions/<uuid:session_id>/",
+        views.WorldgenSessionDetailView.as_view(),
+        name="worldgen_session_detail",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/chat/",
+        views.WorldgenSessionChatView.as_view(),
+        name="worldgen_session_chat",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/update/",
+        views.WorldgenSessionUpdateView.as_view(),
+        name="worldgen_session_update",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/mode/",
+        views.WorldgenSessionModeView.as_view(),
+        name="worldgen_session_mode",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/finalize/",
+        views.WorldgenSessionFinalizeView.as_view(),
+        name="worldgen_session_finalize",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/assist/",
+        views.WorldgenSessionAiAssistView.as_view(),
+        name="worldgen_session_assist",
+    ),
     # Router URLs
     path("", include(router.urls)),
     path("", include(universe_router.urls)),

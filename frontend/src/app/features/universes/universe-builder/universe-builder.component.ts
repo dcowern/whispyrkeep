@@ -1,9 +1,10 @@
-import { Component, inject, input, signal, OnInit } from '@angular/core';
+import { Component, inject, input, signal, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UniverseService } from '@core/services';
-import { Universe, UniverseCreate, UniverseTone, UniverseRules } from '@core/models';
+import { UniverseService, WorldgenService } from '@core/services';
+import { Universe, UniverseCreate, UniverseTone, UniverseRules, WorldgenStepName } from '@core/models';
+import { AiAssistPopupComponent } from '../ai-assist-popup/ai-assist-popup.component';
 import {
   LucideAngularModule,
   Globe,
@@ -21,7 +22,8 @@ import {
   X,
   Check,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Wand2
 } from 'lucide-angular';
 
 type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
@@ -29,7 +31,7 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
 @Component({
   selector: 'app-universe-builder',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule, AiAssistPopupComponent],
   template: `
     <div class="builder">
       <!-- Animated background -->
@@ -76,6 +78,10 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
                 <h2>Universe Basics</h2>
                 <p class="step-desc">Define the foundation of your world.</p>
               </div>
+              <button class="btn btn--ai-assist" (click)="showAiAssist('basics')" title="Ask Whispyr for help">
+                <lucide-icon [img]="Wand2Icon" />
+                Ask Whispyr
+              </button>
             </div>
             <div class="form-grid">
               <div class="form-group">
@@ -111,6 +117,10 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
                 <h2>Universe Tone</h2>
                 <p class="step-desc">Adjust sliders to set the tone of your universe.</p>
               </div>
+              <button class="btn btn--ai-assist" (click)="showAiAssist('tone')" title="Ask Whispyr for suggestions">
+                <lucide-icon [img]="Wand2Icon" />
+                Ask Whispyr
+              </button>
             </div>
             <div class="sliders-container">
               @for (slider of toneSliders; track slider.key) {
@@ -142,6 +152,10 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
                 <h2>Optional Rules</h2>
                 <p class="step-desc">Enable or disable optional gameplay rules.</p>
               </div>
+              <button class="btn btn--ai-assist" (click)="showAiAssist('rules')" title="Ask Whispyr for recommendations">
+                <lucide-icon [img]="Wand2Icon" />
+                Ask Whispyr
+              </button>
             </div>
             <div class="rules-list">
               <label class="rule-toggle" [class.rule-toggle--active]="universe.rules!.permadeath">
@@ -355,6 +369,15 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
           </button>
         }
       </footer>
+
+      <!-- AI Assist Popup -->
+      <app-ai-assist-popup
+        #aiAssistPopup
+        [sessionId]="worldgenSessionId()"
+        [currentStep]="aiAssistStep()"
+        (closed)="onAiAssistClosed()"
+        (dataUpdated)="onAiDataUpdated()"
+      />
     </div>
   `,
   styles: [`
@@ -1160,6 +1183,25 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
         padding: 0;
         border-radius: var(--wk-radius-full);
       }
+
+      &--ai-assist {
+        margin-left: auto;
+        background: linear-gradient(135deg, var(--wk-secondary) 0%, var(--wk-accent) 100%);
+        border: 1px solid var(--wk-secondary);
+        color: white;
+        padding: var(--wk-space-2) var(--wk-space-4);
+        box-shadow: 0 0 15px var(--wk-secondary-glow);
+
+        lucide-icon {
+          width: 16px;
+          height: 16px;
+        }
+
+        &:hover:not(:disabled) {
+          box-shadow: 0 0 25px var(--wk-secondary-glow);
+          transform: translateY(-2px);
+        }
+      }
     }
 
     /* Tooltip styles */
@@ -1256,7 +1298,10 @@ type Step = 'basics' | 'tone' | 'rules' | 'cowrite' | 'lore' | 'review';
 })
 export class UniverseBuilderComponent implements OnInit {
   private readonly universeService = inject(UniverseService);
+  private readonly worldgenService = inject(WorldgenService);
   private readonly router = inject(Router);
+
+  @ViewChild('aiAssistPopup') aiAssistPopup?: AiAssistPopupComponent;
 
   // Lucide icons
   readonly GlobeIcon = Globe;
@@ -1275,6 +1320,7 @@ export class UniverseBuilderComponent implements OnInit {
   readonly CheckIcon = Check;
   readonly ChevronRightIcon = ChevronRight;
   readonly ChevronLeftIcon = ChevronLeft;
+  readonly Wand2Icon = Wand2;
 
   id = input<string>();
 
@@ -1318,6 +1364,11 @@ export class UniverseBuilderComponent implements OnInit {
   readonly uploadedFiles = signal<File[]>([]);
   readonly isGenerating = signal(false);
   readonly isSaving = signal(false);
+
+  // AI Assist state
+  readonly worldgenSessionId = signal<string | undefined>(undefined);
+  readonly aiAssistStep = signal<WorldgenStepName>('basics');
+  private isCreatingSession = false;
 
   chatInput = '';
 
@@ -1386,5 +1437,77 @@ export class UniverseBuilderComponent implements OnInit {
       next: (u) => this.router.navigate(['/universes', u.id]),
       error: () => this.isSaving.set(false)
     });
+  }
+
+  // AI Assist methods
+  showAiAssist(step: Step): void {
+    // Map builder step to worldgen step name (cowrite/review don't have AI assist in manual mode)
+    const stepMap: Partial<Record<Step, WorldgenStepName>> = {
+      basics: 'basics',
+      tone: 'tone',
+      rules: 'rules'
+    };
+
+    const worldgenStep = stepMap[step];
+    if (!worldgenStep) return;
+
+    this.aiAssistStep.set(worldgenStep);
+
+    // Create a worldgen session if we don't have one
+    if (!this.worldgenSessionId() && !this.isCreatingSession) {
+      this.isCreatingSession = true;
+
+      // Check LLM status first
+      this.worldgenService.checkLlmStatus().subscribe({
+        next: status => {
+          if (!status.configured) {
+            // Redirect to settings if LLM not configured
+            this.router.navigate(['/settings'], { queryParams: { setup: 'llm' } });
+            this.isCreatingSession = false;
+            return;
+          }
+
+          // Create a manual mode session
+          this.worldgenService.createSession('manual').subscribe({
+            next: session => {
+              this.worldgenSessionId.set(session.id);
+              this.isCreatingSession = false;
+              this.aiAssistPopup?.show();
+            },
+            error: err => {
+              console.error('Failed to create worldgen session:', err);
+              this.isCreatingSession = false;
+            }
+          });
+        },
+        error: err => {
+          console.error('Failed to check LLM status:', err);
+          this.isCreatingSession = false;
+        }
+      });
+    } else if (this.worldgenSessionId()) {
+      this.aiAssistPopup?.show();
+    }
+  }
+
+  onAiAssistClosed(): void {
+    // Popup was closed, nothing special to do
+  }
+
+  onAiDataUpdated(): void {
+    // AI generated some data - could sync it to the form if desired
+    // For now, we just keep the manual form separate
+    const session = this.worldgenService.currentSession();
+    if (session?.draft_data_json) {
+      // Optionally update local universe data from AI suggestions
+      const draft = session.draft_data_json;
+      if (draft.basics?.name && !this.universe.name) {
+        this.universe.name = draft.basics.name;
+      }
+      if (draft.basics?.description && !this.universe.description) {
+        this.universe.description = draft.basics.description;
+      }
+      // Could also sync tone and rules if desired
+    }
   }
 }

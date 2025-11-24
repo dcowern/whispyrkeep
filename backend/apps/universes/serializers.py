@@ -26,6 +26,7 @@ from .models import (
     HomebrewSubclass,
     Universe,
     UniverseHardCanonDoc,
+    WorldgenSession,
 )
 
 # ==================== Universe Serializers ====================
@@ -572,3 +573,80 @@ class HomebrewSubclassSummarySerializer(serializers.ModelSerializer):
             "parent_class_name",
             "srd_parent_class_name",
         ]
+
+
+# ==================== Worldgen Session Serializers ====================
+
+
+class WorldgenSessionSerializer(serializers.ModelSerializer):
+    """Full serializer for WorldgenSession."""
+
+    resulting_universe = UniverseSummarySerializer(read_only=True)
+
+    class Meta:
+        model = WorldgenSession
+        fields = [
+            "id",
+            "status",
+            "mode",
+            "draft_data_json",
+            "step_status_json",
+            "conversation_json",
+            "resulting_universe",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "status",
+            "draft_data_json",
+            "step_status_json",
+            "conversation_json",
+            "resulting_universe",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class WorldgenSessionSummarySerializer(serializers.ModelSerializer):
+    """Summary serializer for WorldgenSession list views."""
+
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WorldgenSession
+        fields = ["id", "name", "status", "mode", "created_at", "updated_at"]
+
+    def get_name(self, obj):
+        """Get draft universe name if available."""
+        return obj.draft_data_json.get("basics", {}).get("name", "Untitled")
+
+
+class WorldgenSessionCreateSerializer(serializers.Serializer):
+    """Serializer for creating a new worldgen session."""
+
+    mode = serializers.ChoiceField(
+        choices=[("ai_collab", "AI Collaboration"), ("manual", "Manual")],
+        default="ai_collab",
+    )
+
+
+class WorldgenChatMessageSerializer(serializers.Serializer):
+    """Serializer for sending a chat message."""
+
+    message = serializers.CharField(max_length=10000)
+
+
+class WorldgenStepUpdateSerializer(serializers.Serializer):
+    """Serializer for updating step data directly."""
+
+    step = serializers.CharField(max_length=50)
+    data = serializers.DictField()
+
+
+class WorldgenAiAssistSerializer(serializers.Serializer):
+    """Serializer for requesting AI assistance on a step."""
+
+    step = serializers.CharField(max_length=50)
+    field = serializers.CharField(max_length=100, required=False, allow_null=True)
+    message = serializers.CharField(max_length=2000, required=False, allow_blank=True)

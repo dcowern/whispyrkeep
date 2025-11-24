@@ -8,3 +8,4 @@ export * from './catalog.service';
 export * from './export.service';
 export * from './llm-config.service';
 export * from './llm-endpoint.service';
+export * from './worldgen.service';
