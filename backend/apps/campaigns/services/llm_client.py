@@ -221,7 +221,7 @@ class LLMClient:
     def _build_request_body(
         self,
         messages: list[Message],
-        temperature: float = 0.7,
+        temperature: float | None = None,
         max_tokens: int | None = None,
         **kwargs: Any,
     ) -> dict:
@@ -229,16 +229,31 @@ class LLMClient:
         body: dict[str, Any] = {
             "model": self.config.model,
             "messages": [m.to_dict() for m in messages],
-            "temperature": temperature,
         }
 
+        if temperature is not None:
+            body["temperature"] = temperature
+
         if max_tokens:
-            body["max_tokens"] = max_tokens
+            body[self._max_tokens_param()] = max_tokens
 
         # Add any additional parameters
         body.update(kwargs)
 
         return body
+
+    def _max_tokens_param(self) -> str:
+        """
+        Choose the correct tokens parameter name for the provider/model.
+
+        Newer OpenAI o-series models require `max_completion_tokens`, while legacy
+        OpenAI/Anthropic/local endpoints still accept `max_tokens`.
+        """
+        if self.config.provider in (LLMProvider.OPENAI, LLMProvider.AZURE_OPENAI):
+            model = (self.config.model or "").lower()
+            if model.startswith("o"):  # o1/o3 etc
+                return "max_completion_tokens"
+        return "max_tokens"
 
     def _parse_response(self, response_data: dict) -> LLMResponse:
         """Parse the API response."""
@@ -302,7 +317,7 @@ class LLMClient:
     def chat(
         self,
         messages: list[Message],
-        temperature: float = 0.7,
+        temperature: float | None = None,
         max_tokens: int | None = None,
         **kwargs: Any,
     ) -> LLMResponse:
@@ -383,7 +398,7 @@ class LLMClient:
     def chat_stream(
         self,
         messages: list[Message],
-        temperature: float = 0.7,
+        temperature: float | None = None,
         max_tokens: int | None = None,
         **kwargs: Any,
     ) -> Generator[str, None, None]:

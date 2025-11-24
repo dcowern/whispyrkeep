@@ -13,6 +13,7 @@ import {
   Minimize2,
   Maximize2
 } from 'lucide-angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ai-assist-popup',
@@ -370,6 +371,7 @@ export class AiAssistPopupComponent implements OnDestroy, AfterViewChecked {
 
   inputText = '';
   private shouldScrollToBottom = false;
+  private activeStreamSub: Subscription | null = null;
 
   // From service
   readonly isStreaming = this.worldgenService.isStreaming;
@@ -382,16 +384,14 @@ export class AiAssistPopupComponent implements OnDestroy, AfterViewChecked {
     }
   }
 
-  ngOnDestroy(): void {
-    // Clean up if needed
-  }
-
   show(): void {
     this.isVisible.set(true);
     this.isMinimized.set(false);
   }
 
   hide(): void {
+    this.activeStreamSub?.unsubscribe();
+    this.activeStreamSub = null;
     this.isVisible.set(false);
   }
 
@@ -422,7 +422,8 @@ export class AiAssistPopupComponent implements OnDestroy, AfterViewChecked {
     }]);
 
     // Use AI assist for the current step with user's message
-    this.worldgenService.getAiAssist(sessionId, step || 'basics', undefined, message).subscribe({
+    this.activeStreamSub?.unsubscribe();
+    this.activeStreamSub = this.worldgenService.getAiAssist(sessionId, step || 'basics', undefined, message).subscribe({
       next: event => {
         if (event.type === 'chunk') {
           this.shouldScrollToBottom = true;
@@ -453,5 +454,10 @@ export class AiAssistPopupComponent implements OnDestroy, AfterViewChecked {
       const el = this.messagesContainer.nativeElement;
       el.scrollTop = el.scrollHeight;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.activeStreamSub?.unsubscribe();
+    this.activeStreamSub = null;
   }
 }

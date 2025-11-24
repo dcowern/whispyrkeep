@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UniverseService, WorldgenService } from '@core/services';
-import { Universe, UniverseCreate, UniverseTone, UniverseRules, WorldgenStepName } from '@core/models';
+import { UniverseCreate, WorldgenStepName } from '@core/models';
 import { AiAssistPopupComponent } from '../ai-assist-popup/ai-assist-popup.component';
 import {
   LucideAngularModule,

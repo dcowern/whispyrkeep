@@ -10,6 +10,19 @@ type LineSpacing = 'standard' | 'roomy' | 'relaxed';
 type ContentRating = 'G' | 'PG' | 'PG13' | 'R' | 'NC17';
 type UiMode = 'dark' | 'light';
 type ModelMode = 'api' | 'custom';
+type NdOptions = {
+  low_stim_mode?: boolean;
+  concise_recap?: boolean;
+  decision_menu_mode?: boolean;
+  dyslexia_font?: boolean;
+  font_size?: FontSize;
+  line_spacing?: LineSpacing;
+};
+type SafetyDefaults = { content_rating?: ContentRating };
+type ExtendedUserSettings = UserSettings & {
+  nd_options?: NdOptions;
+  safety_defaults?: SafetyDefaults;
+};
 
 type HelpCopy = {
   accessibility: string;
@@ -1162,23 +1175,23 @@ export class SettingsPanelComponent implements OnInit {
     });
   }
 
-  private applySettings(settings: Partial<UserSettings>): void {
-    const nd = (settings as any).nd_options || {};
-    const safety = (settings as any).safety_defaults || {};
+  private applySettings(settings: Partial<ExtendedUserSettings>): void {
+    const nd = settings.nd_options ?? {};
+    const safety = settings.safety_defaults ?? {};
 
-    this.lowStimMode.set(nd.low_stim_mode ?? (settings as any).low_stim_mode ?? false);
-    this.conciseRecap.set(nd.concise_recap ?? (settings as any).concise_recap ?? false);
-    this.decisionMenuMode.set(nd.decision_menu_mode ?? (settings as any).decision_menu_mode ?? false);
-    this.dyslexiaFont.set(nd.dyslexia_font ?? (settings as any).dyslexia_font ?? false);
-    this.fontSize.set(nd.font_size ?? (settings as any).font_size ?? 'medium');
-    this.lineSpacing.set(nd.line_spacing ?? (settings as any).line_spacing ?? 'standard');
-    this.contentRating.set(safety.content_rating ?? (settings as any).content_rating ?? 'PG13');
-    this.uiMode.set((settings as any).ui_mode ?? 'dark');
-    const hasKey = Boolean((settings as any).endpoint_has_api_key);
+    this.lowStimMode.set(nd.low_stim_mode ?? settings.low_stim_mode ?? false);
+    this.conciseRecap.set(nd.concise_recap ?? settings.concise_recap ?? false);
+    this.decisionMenuMode.set(nd.decision_menu_mode ?? settings.decision_menu_mode ?? false);
+    this.dyslexiaFont.set(nd.dyslexia_font ?? settings.dyslexia_font ?? false);
+    this.fontSize.set(nd.font_size ?? settings.font_size ?? 'medium');
+    this.lineSpacing.set(nd.line_spacing ?? settings.line_spacing ?? 'standard');
+    this.contentRating.set(safety.content_rating ?? settings.content_rating ?? 'PG13');
+    this.uiMode.set(settings.ui_mode ?? 'dark');
+    const hasKey = Boolean(settings.endpoint_has_api_key);
     this.hasEndpointApiKey.set(hasKey);
     this.apiKeyLocked.set(hasKey);
     this.endpointApiKey.set('');
-    this.applyEndpointPreference((settings as any).endpoint_pref as EndpointPreference | string | undefined);
+    this.applyEndpointPreference(settings.endpoint_pref);
   }
 
   private applyEndpointPreference(pref: EndpointPreference | string | undefined): void {

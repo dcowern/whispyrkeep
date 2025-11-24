@@ -113,6 +113,8 @@ class WorldgenChatService:
         """Initialize the service for a user."""
         self.user = user
         self.llm_config = self._get_llm_config()
+        self.user_max_tokens = self._get_user_max_tokens()
+        self.user_temperature = self._get_user_temperature()
 
     def _get_llm_config(self) -> LlmEndpointConfig | None:
         """Get user's active LLM configuration."""
@@ -195,10 +197,13 @@ class WorldgenChatService:
         current_step = self._get_current_step(session)
         step_context = get_ai_context_for_step(current_step, session.draft_data_json)
 
-        return WORLDGEN_SYSTEM_PROMPT.format(
-            step_context=step_context,
-            current_data=json.dumps(session.draft_data_json, indent=2),
+        # Avoid str.format interpreting braces in JSON example; do simple placeholder replacement
+        prompt = WORLDGEN_SYSTEM_PROMPT
+        prompt = prompt.replace("{step_context}", step_context)
+        prompt = prompt.replace(
+            "{current_data}", json.dumps(session.draft_data_json, indent=2)
         )
+        return prompt
 
     def _get_current_step(self, session: WorldgenSession) -> StepName:
         """Determine the current step based on completion status."""
@@ -208,6 +213,28 @@ class WorldgenChatService:
                 return step
         # All steps complete, default to homebrew for additional content
         return StepName.HOMEBREW
+
+    def _get_user_max_tokens(self) -> int | None:
+        """Read a user-specified max_tokens preference from settings_json if present."""
+        settings = getattr(self.user, "settings_json", {}) or {}
+        endpoint_pref = settings.get("endpoint_pref")
+        if not isinstance(endpoint_pref, dict):
+            return None
+        max_tokens = endpoint_pref.get("max_tokens")
+        if isinstance(max_tokens, int) and max_tokens > 0:
+            return max_tokens
+        return None
+
+    def _get_user_temperature(self) -> float | None:
+        """Read a user-specified temperature preference from settings_json if present."""
+        settings = getattr(self.user, "settings_json", {}) or {}
+        endpoint_pref = settings.get("endpoint_pref")
+        if not isinstance(endpoint_pref, dict):
+            return None
+        temp = endpoint_pref.get("temperature")
+        if isinstance(temp, (int, float)):
+            return float(temp)
+        return None
 
     def _build_messages(self, session: WorldgenSession) -> list[Message]:
         """Build message list for LLM from session conversation."""
@@ -301,7 +328,11 @@ class WorldgenChatService:
 
         config = LLMClientConfig.from_endpoint_config(self.llm_config)
         with LLMClient(config) as client:
-            response = client.chat(messages, temperature=0.8, max_tokens=2000)
+            response = client.chat(
+                messages,
+                temperature=self.user_temperature,
+                max_tokens=self.user_max_tokens,
+            )
 
         # Parse response
         chat_text, data_json = self._parse_ai_response(response.content)
@@ -353,7 +384,11 @@ class WorldgenChatService:
         full_response = ""
 
         with LLMClient(config) as client:
-            for chunk in client.chat_stream(messages, temperature=0.8, max_tokens=2000):
+            for chunk in client.chat_stream(
+                messages,
+                temperature=self.user_temperature,
+                max_tokens=self.user_max_tokens,
+            ):
                 full_response += chunk
                 yield {"type": "chunk", "content": chunk}
 

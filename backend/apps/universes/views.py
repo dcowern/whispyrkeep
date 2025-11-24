@@ -4,6 +4,7 @@ Views for universe and homebrew content APIs.
 Provides CRUD endpoints for managing universes and their homebrew content.
 All endpoints require authentication and are scoped to the authenticated user.
 """
+import logging
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
@@ -45,6 +46,8 @@ from .serializers import (
     UniverseSerializer,
     UniverseSummarySerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class UniverseViewSet(viewsets.ModelViewSet):
@@ -823,6 +826,7 @@ class WorldgenSessionChatView(APIView):
                 ):
                     yield f"data: {json.dumps(event)}\n\n"
             except Exception as e:
+                logger.exception("Worldgen chat stream failed for session %s", session_id)
                 yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
 
         response = StreamingHttpResponse(

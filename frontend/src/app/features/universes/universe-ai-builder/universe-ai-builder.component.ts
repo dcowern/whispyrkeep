@@ -3,24 +3,17 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { WorldgenService, WORLDGEN_STEPS } from '@core/services/worldgen.service';
-import { WorldgenStepName, WorldgenChatMessage } from '@core/models';
+import { WorldgenStepName } from '@core/models';
 import {
   LucideAngularModule,
   ArrowLeft,
-  Globe,
   Sparkles,
   Send,
   Loader2,
   Check,
   Circle,
-  SlidersHorizontal,
-  Settings,
-  Calendar,
-  BookOpen,
-  Wand2,
   Bot,
   User,
-  RefreshCw,
   PenTool
 } from 'lucide-angular';
 
@@ -101,6 +94,12 @@ import {
 
         <!-- Chat area -->
         <main class="chat-area">
+          @if (errorMessage()) {
+            <div class="chat-error">
+              {{ errorMessage() }}
+            </div>
+          }
+
           <div class="chat-messages" #chatContainer>
             @for (msg of messages(); track $index) {
               <div class="message" [class.message--user]="msg.role === 'user'" [class.message--assistant]="msg.role === 'assistant'">
@@ -109,7 +108,7 @@ import {
                 </div>
                 <div class="message__content">
                   <span class="message__role">{{ msg.role === 'user' ? 'You' : 'Whispyr' }}</span>
-                  <div class="message__text">{{ msg.content }}</div>
+                  <div class="message__text" [innerHTML]="renderMarkdown(msg.content)"></div>
                 </div>
               </div>
             }
@@ -121,8 +120,7 @@ import {
                 </div>
                 <div class="message__content">
                   <span class="message__role">Whispyr</span>
-                  <div class="message__text">
-                    {{ streamContent() }}
+                  <div class="message__text" [innerHTML]="renderMarkdown(streamContent())">
                     <span class="typing-indicator">
                       <span></span><span></span><span></span>
                     </span>
@@ -376,6 +374,16 @@ import {
       min-width: 0;
     }
 
+    .chat-error {
+      background: rgba(255, 99, 99, 0.12);
+      border: 1px solid rgba(255, 99, 99, 0.4);
+      color: #f05d5d;
+      padding: var(--wk-space-3);
+      border-radius: var(--wk-radius-md);
+      margin: var(--wk-space-4) var(--wk-space-6) 0;
+      font-size: var(--wk-text-sm);
+    }
+
     .chat-messages {
       flex: 1;
       overflow-y: auto;
@@ -621,7 +629,6 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   @ViewChild('chatContainer') chatContainer!: ElementRef<HTMLDivElement>;
 
   readonly ArrowLeftIcon = ArrowLeft;
-  readonly GlobeIcon = Globe;
   readonly SparklesIcon = Sparkles;
   readonly SendIcon = Send;
   readonly Loader2Icon = Loader2;
@@ -647,6 +654,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   readonly messages = computed(() => this.session()?.conversation_json ?? []);
   readonly mode = computed(() => this.session()?.mode ?? 'ai_collab');
   readonly universeName = computed(() => this.session()?.draft_data_json?.basics?.name ?? '');
+  readonly errorMessage = signal('');
 
   get modeIcon() { return this.mode() === 'ai_collab' ? this.BotIcon : this.PenToolIcon; }
 
@@ -679,6 +687,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   sendMessage(): void {
     if (!this.inputText.trim() || this.isStreaming()) return;
 
+    this.errorMessage.set('');
     const message = this.inputText.trim();
     this.inputText = '';
     this.shouldScrollToBottom = true;
@@ -694,6 +703,8 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
       },
       error: err => {
         console.error('Chat error:', err);
+        const friendly = err?.message && err.message.trim() !== '' ? err.message : 'Chat request failed. Please try again.';
+        this.errorMessage.set(friendly);
       }
     });
   }
@@ -727,5 +738,9 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
       const el = this.chatContainer.nativeElement;
       el.scrollTop = el.scrollHeight;
     }
+  }
+
+  renderMarkdown(text: string): string {
+    return this.worldgenService.renderMarkdown(text);
   }
 }

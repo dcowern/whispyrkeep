@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CampaignService, CharacterService, AuthService } from '@core/services';
-import { Campaign, TurnEvent, CharacterSheet, UserSettings } from '@core/models';
+import { Campaign, TurnEvent, CharacterSheet } from '@core/models';
 import {
   LucideAngularModule,
   Swords,

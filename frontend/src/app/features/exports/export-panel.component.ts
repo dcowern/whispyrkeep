@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ExportService, UniverseService, CampaignService, CharacterService } from '@core/services';
-import { ExportJob, Universe, Campaign, CharacterSheet } from '@core/models';
+import { ExportJob } from '@core/models';
 
 type ExportType = 'universe' | 'campaign' | 'character';
 type ExportFormat = 'json' | 'markdown' | 'pdf';

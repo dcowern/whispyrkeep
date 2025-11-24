@@ -170,4 +170,24 @@ class UserSettingsSerializer(serializers.ModelSerializer):
                     {"endpoint_pref": "Model must be a string if provided."}
                 )
 
+            max_tokens = endpoint_pref.get("max_tokens")
+            if max_tokens is not None:
+                if not isinstance(max_tokens, int) or max_tokens <= 0:
+                    raise serializers.ValidationError(
+                        {"endpoint_pref": "max_tokens must be a positive integer if provided."}
+                    )
+
+            temperature = endpoint_pref.get("temperature")
+            if temperature is not None:
+                try:
+                    temp_val = float(temperature)
+                except (TypeError, ValueError):
+                    raise serializers.ValidationError(
+                        {"endpoint_pref": "temperature must be a number if provided."}
+                    )
+                if temp_val < 0 or temp_val > 2:
+                    raise serializers.ValidationError(
+                        {"endpoint_pref": "temperature must be between 0 and 2."}
+                    )
+
         return value

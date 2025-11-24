@@ -9,7 +9,6 @@ import { WorldgenSession, WorldgenSessionMode } from '../models/api.models';
 describe('WorldgenService', () => {
   let service: WorldgenService;
   let httpMock: HttpTestingController;
-  let storageService: StorageService;
 
   const mockSession: WorldgenSession = {
     id: 'session-123',
@@ -44,7 +43,6 @@ describe('WorldgenService', () => {
     });
     service = TestBed.inject(WorldgenService);
     httpMock = TestBed.inject(HttpTestingController);
-    storageService = TestBed.inject(StorageService);
   });
 
   afterEach(() => {
