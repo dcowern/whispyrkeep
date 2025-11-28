@@ -212,6 +212,10 @@ export class WorldgenService {
 
                 if (event.type === 'chunk' && event.content) {
                   const combined = this._streamContent() + event.content;
+                  // Check if we're receiving unfiltered DATA_JSON (should not happen)
+                  if (event.content.includes('DATA_JSON')) {
+                    console.warn('[WORLDGEN] ⚠️  Chunk contains DATA_JSON - backend filter may not be active:', event.content.substring(0, 100));
+                  }
                   this._streamContent.set(this.cleanAssistantContent(combined));
                 }
 
@@ -375,6 +379,10 @@ export class WorldgenService {
 
                 if (event.type === 'chunk' && event.content) {
                   const combined = this._streamContent() + event.content;
+                  // Check if we're receiving unfiltered DATA_JSON (should not happen)
+                  if (event.content.includes('DATA_JSON')) {
+                    console.warn('[WORLDGEN] ⚠️  Chunk contains DATA_JSON - backend filter may not be active:', event.content.substring(0, 100));
+                  }
                   this._streamContent.set(this.cleanAssistantContent(combined));
                 }
 
@@ -440,6 +448,13 @@ export class WorldgenService {
 
   renderMarkdown(text: string): string {
     const clean = this.cleanAssistantContent(text);
+    // Debug logging
+    if (clean.length > 0) {
+      console.log('[WORLDGEN] Rendering markdown. Input length:', text.length, 'Cleaned length:', clean.length);
+      if (clean.includes('DATA_JSON')) {
+        console.warn('[WORLDGEN] ⚠️  CLEANED CONTENT STILL HAS DATA_JSON!');
+      }
+    }
     // Escape HTML to avoid injection, then render markdown
     const escaped = clean
       .replace(/&/g, '&amp;')
@@ -447,6 +462,7 @@ export class WorldgenService {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
-    return marked.parse(escaped, { renderer: this.markdownRenderer }) as string;
+    const html = marked.parse(escaped, { renderer: this.markdownRenderer }) as string;
+    return html;
   }
 }
