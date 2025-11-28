@@ -44,11 +44,13 @@ export class WorldgenService {
   private readonly _currentSession = signal<WorldgenSession | null>(null);
   private readonly _isStreaming = signal(false);
   private readonly _streamContent = signal('');
+  private readonly _pendingUserMessage = signal<string | null>(null);
 
   // Public signals
   readonly currentSession = this._currentSession.asReadonly();
   readonly isStreaming = this._isStreaming.asReadonly();
   readonly streamContent = this._streamContent.asReadonly();
+  readonly pendingUserMessage = this._pendingUserMessage.asReadonly();
 
   // Computed values
   readonly stepStatus = computed(() => {
@@ -161,6 +163,7 @@ export class WorldgenService {
 
     this._isStreaming.set(true);
     this._streamContent.set('');
+    this._pendingUserMessage.set(message);
 
     const url = `${environment.apiUrl}${this.endpoint}sessions/${sessionId}/chat/`;
 
@@ -241,6 +244,7 @@ export class WorldgenService {
                       ]
                     };
                   });
+                  this._pendingUserMessage.set(null);
                 }
 
                 subject.next(event);
@@ -256,11 +260,13 @@ export class WorldgenService {
 
         processStream().catch(err => {
           this._isStreaming.set(false);
+          this._pendingUserMessage.set(null);
           subject.error(err);
         });
       })
       .catch(err => {
         this._isStreaming.set(false);
+        this._pendingUserMessage.set(null);
         subject.error(err);
       });
 
@@ -417,11 +423,13 @@ export class WorldgenService {
 
         processStream().catch(err => {
           this._isStreaming.set(false);
+          this._pendingUserMessage.set(null);
           subject.error(err);
         });
       })
       .catch(err => {
         this._isStreaming.set(false);
+        this._pendingUserMessage.set(null);
         subject.error(err);
       });
 
@@ -433,6 +441,7 @@ export class WorldgenService {
     this._currentSession.set(null);
     this._streamContent.set('');
     this._isStreaming.set(false);
+    this._pendingUserMessage.set(null);
   }
 
   private cleanAssistantContent(raw: string): string {

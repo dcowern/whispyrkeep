@@ -113,6 +113,18 @@ import {
               </div>
             }
 
+            @if (pendingUserMessage()) {
+              <div class="message message--user">
+                <div class="message__avatar">
+                  <lucide-icon [img]="UserIcon" />
+                </div>
+                <div class="message__content">
+                  <span class="message__role">You</span>
+                  <div class="message__text">{{ pendingUserMessage() }}</div>
+                </div>
+              </div>
+            }
+
             @if (isStreaming()) {
               <div class="message message--assistant">
                 <div class="message__avatar">
@@ -120,10 +132,15 @@ import {
                 </div>
                 <div class="message__content">
                   <span class="message__role">Whispyr</span>
-                  <div class="message__text" [innerHTML]="renderMarkdown(streamContent())">
-                    <span class="typing-indicator">
-                      <span></span><span></span><span></span>
-                    </span>
+                  <div class="message__text">
+                    @if (streamContent()) {
+                      <span [innerHTML]="renderMarkdown(streamContent())"></span>
+                      <span class="streaming-cursor"></span>
+                    } @else {
+                      <span class="typing-indicator">
+                        <span></span><span></span><span></span>
+                      </span>
+                    }
                   </div>
                 </div>
               </div>
@@ -474,9 +491,10 @@ import {
     }
 
     .message--assistant .message__text {
-      background: var(--wk-glass-bg);
-      border: 1px solid var(--wk-glass-border);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.25);
       color: var(--wk-text-primary);
+      backdrop-filter: blur(8px);
     }
 
     .message--user .message__text {
@@ -487,11 +505,10 @@ import {
     .typing-indicator {
       display: inline-flex;
       gap: 4px;
-      margin-left: var(--wk-space-2);
 
       span {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
         background: var(--wk-text-muted);
         border-radius: 50%;
         animation: typing 1.4s infinite ease-in-out;
@@ -501,9 +518,24 @@ import {
       }
     }
 
+    .streaming-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--wk-primary);
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
     @keyframes typing {
       0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-      40% { transform: scale(1); opacity: 1; }
+      40% { transform: scale(1.2); opacity: 1; }
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
     }
 
     /* Chat input */
@@ -650,6 +682,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   readonly stepStatus = this.worldgenService.stepStatus;
   readonly canFinalize = this.worldgenService.canFinalize;
   readonly currentStep = this.worldgenService.currentStep;
+  readonly pendingUserMessage = this.worldgenService.pendingUserMessage;
 
   readonly messages = computed(() => this.session()?.conversation_json ?? []);
   readonly mode = computed(() => this.session()?.mode ?? 'ai_collab');
