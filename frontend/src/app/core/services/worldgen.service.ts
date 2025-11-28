@@ -465,14 +465,8 @@ export class WorldgenService {
         console.warn('[WORLDGEN] ⚠️  CLEANED CONTENT STILL HAS DATA_JSON!');
       }
     }
-    // Escape HTML to avoid injection, then render markdown
-    const escaped = clean
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-    const html = marked.parse(escaped, { renderer: this.markdownRenderer }) as string;
+    // Let marked handle escaping and rendering naturally
+    const html = marked.parse(clean, { renderer: this.markdownRenderer }) as string;
     return html;
   }
 }

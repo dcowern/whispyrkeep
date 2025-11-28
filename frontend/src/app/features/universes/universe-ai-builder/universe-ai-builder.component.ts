@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit, OnDestroy, ViewChild, Elem
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { WorldgenService, WORLDGEN_STEPS } from '@core/services/worldgen.service';
 import { WorldgenStepName } from '@core/models';
 import {
@@ -110,7 +111,7 @@ import {
                 <div class="message__content">
                   <span class="message__role">{{ msg.role === 'user' ? 'You' : 'Whispyr' }}</span>
                   @if (msg.role === 'assistant') {
-                    <div class="message__text" [innerHTML]="renderMarkdown(msg.content)"></div>
+                    <div class="message__text" [innerHTML]="renderMarkdownSafe(msg.content)"></div>
                   } @else {
                     <div class="message__text">{{ msg.content }}</div>
                   }
@@ -719,6 +720,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   private readonly worldgenService = inject(WorldgenService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
 
   @ViewChild('chatContainer') chatContainer!: ElementRef<HTMLDivElement>;
 
@@ -886,6 +888,11 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
 
   renderMarkdown(text: string): string {
     return this.worldgenService.renderMarkdown(text);
+  }
+
+  renderMarkdownSafe(text: string): SafeHtml {
+    const html = this.worldgenService.renderMarkdown(text);
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   // Clean streaming content (remove DATA_JSON and CHAT: prefix)
