@@ -447,7 +447,8 @@ export class WorldgenService {
   private cleanAssistantContent(raw: string): string {
     // Drop CHAT: prefix and remove any DATA_JSON section that follows
     let content = raw;
-    const dataJsonIdx = content.indexOf('DATA_JSON:');
+    // Remove DATA_JSON section (with or without colon that follows)
+    const dataJsonIdx = content.indexOf('DATA_JSON');
     if (dataJsonIdx !== -1) {
       content = content.slice(0, dataJsonIdx);
     }
