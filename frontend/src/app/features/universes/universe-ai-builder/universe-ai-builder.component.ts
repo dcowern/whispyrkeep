@@ -14,7 +14,8 @@ import {
   Circle,
   Bot,
   User,
-  PenTool
+  PenTool,
+  ChevronDown
 } from 'lucide-angular';
 
 @Component({
@@ -100,7 +101,7 @@ import {
             </div>
           }
 
-          <div class="chat-messages" #chatContainer>
+          <div class="chat-messages" #chatContainer (scroll)="onScroll()">
             @for (msg of messages(); track $index) {
               <div class="message" [class.message--user]="msg.role === 'user'" [class.message--assistant]="msg.role === 'assistant'">
                 <div class="message__avatar">
@@ -159,16 +160,24 @@ import {
             }
           </div>
 
+          @if (showScrollButton()) {
+            <button class="scroll-to-bottom" (click)="scrollToBottom()" type="button">
+              <lucide-icon [img]="ChevronDownIcon" />
+            </button>
+          }
+
           <!-- Chat input -->
           <form class="chat-input" (ngSubmit)="sendMessage()">
-            <input
-              type="text"
+            <textarea
               [(ngModel)]="inputText"
               name="message"
               placeholder="Describe your universe..."
               [disabled]="isStreaming()"
               class="chat-input__field"
-            />
+              rows="1"
+              (input)="adjustTextareaHeight($event)"
+              (keydown.enter)="onEnterKey($event)"
+            ></textarea>
             <button type="submit" class="chat-input__btn" [disabled]="!inputText.trim() || isStreaming()">
               @if (isStreaming()) {
                 <lucide-icon [img]="Loader2Icon" class="animate-spin" />
@@ -393,6 +402,7 @@ import {
       display: flex;
       flex-direction: column;
       min-width: 0;
+      position: relative;
     }
 
     .chat-error {
@@ -563,7 +573,15 @@ import {
       border-radius: var(--wk-radius-lg);
       color: var(--wk-text-primary);
       font-size: var(--wk-text-sm);
+      font-family: inherit;
+      line-height: var(--wk-leading-normal);
       transition: all var(--wk-transition-fast);
+      resize: none;
+      overflow-y: auto;
+      min-height: 48px;
+      max-height: 200px;
+      word-wrap: break-word;
+      white-space: pre-wrap;
 
       &::placeholder { color: var(--wk-text-muted); }
 
@@ -651,6 +669,36 @@ import {
       }
     }
 
+    .scroll-to-bottom {
+      position: absolute;
+      bottom: 80px;
+      right: var(--wk-space-6);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--wk-primary) 0%, var(--wk-primary-dark) 100%);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all var(--wk-transition-fast);
+      z-index: 10;
+
+      lucide-icon { width: 24px; height: 24px; }
+
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -676,11 +724,14 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   readonly BotIcon = Bot;
   readonly UserIcon = User;
   readonly PenToolIcon = PenTool;
+  readonly ChevronDownIcon = ChevronDown;
 
   readonly steps = WORLDGEN_STEPS;
 
   inputText = '';
   private shouldScrollToBottom = false;
+  private readonly isAtBottom = signal(true);
+  readonly showScrollButton = computed(() => !this.isAtBottom());
 
   // Computed from service
   readonly session = this.worldgenService.currentSession;
@@ -702,6 +753,9 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     const sessionId = this.route.snapshot.paramMap.get('sessionId');
     if (sessionId) {
       this.worldgenService.getSession(sessionId).subscribe({
+        next: () => {
+          this.shouldScrollToBottom = true;
+        },
         error: () => this.router.navigate(['/universes/new'])
       });
     } else {
@@ -715,7 +769,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
 
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
-      this.scrollToBottom();
+      this.scrollToBottomInstant();
       this.shouldScrollToBottom = false;
     }
   }
@@ -730,6 +784,13 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     this.errorMessage.set('');
     const message = this.inputText.trim();
     this.inputText = '';
+
+    // Reset textarea height
+    const textarea = document.querySelector('.chat-input__field') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.style.height = 'auto';
+    }
+
     this.shouldScrollToBottom = true;
 
     const sessionId = this.session()?.id;
@@ -747,6 +808,42 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
         this.errorMessage.set(friendly);
       }
     });
+  }
+
+  adjustTextareaHeight(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    const maxHeight = 200;
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = newHeight + 'px';
+  }
+
+  onEnterKey(event: Event): void {
+    const keyEvent = event as KeyboardEvent;
+    if (!keyEvent.shiftKey) {
+      keyEvent.preventDefault();
+      this.sendMessage();
+    }
+  }
+
+  onScroll(): void {
+    if (!this.chatContainer?.nativeElement) return;
+
+    const el = this.chatContainer.nativeElement;
+    const threshold = 100;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+
+    this.isAtBottom.set(atBottom);
+  }
+
+  scrollToBottom(): void {
+    if (this.chatContainer?.nativeElement) {
+      const el = this.chatContainer.nativeElement;
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   }
 
   switchMode(): void {
@@ -773,7 +870,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     });
   }
 
-  private scrollToBottom(): void {
+  private scrollToBottomInstant(): void {
     if (this.chatContainer?.nativeElement) {
       const el = this.chatContainer.nativeElement;
       el.scrollTop = el.scrollHeight;
