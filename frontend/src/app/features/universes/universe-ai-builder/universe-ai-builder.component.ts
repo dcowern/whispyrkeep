@@ -108,7 +108,11 @@ import {
                 </div>
                 <div class="message__content">
                   <span class="message__role">{{ msg.role === 'user' ? 'You' : 'Whispyr' }}</span>
-                  <div class="message__text" [innerHTML]="renderMarkdown(msg.content)"></div>
+                  @if (msg.role === 'assistant') {
+                    <div class="message__text" [innerHTML]="renderMarkdown(msg.content)"></div>
+                  } @else {
+                    <div class="message__text">{{ msg.content }}</div>
+                  }
                 </div>
               </div>
             }
