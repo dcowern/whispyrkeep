@@ -139,8 +139,8 @@ import {
                   <span class="message__role">Whispyr</span>
                   <div class="message__text">
                     @if (streamContent()) {
-                      <span [innerHTML]="renderMarkdown(streamContent())"></span>
-                      <span class="streaming-cursor"></span>
+                      <!-- Show plain text during streaming to avoid innerHTML corruption with marked.parse() -->
+                      <span class="streaming-text">{{ cleanStreamingContent(streamContent()) }}<span class="streaming-cursor"></span></span>
                     } @else {
                       <span class="typing-indicator">
                         <span></span><span></span><span></span>
@@ -535,6 +535,13 @@ import {
       }
     }
 
+    .streaming-text {
+      display: block;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
     .streaming-cursor {
       display: inline-block;
       width: 2px;
@@ -879,5 +886,17 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
 
   renderMarkdown(text: string): string {
     return this.worldgenService.renderMarkdown(text);
+  }
+
+  // Clean streaming content (remove DATA_JSON and CHAT: prefix)
+  cleanStreamingContent(text: string): string {
+    let content = text;
+    // Remove DATA_JSON section (with or without colon that follows)
+    const dataJsonIdx = content.indexOf('DATA_JSON');
+    if (dataJsonIdx !== -1) {
+      content = content.slice(0, dataJsonIdx);
+    }
+    content = content.replace(/^\s*CHAT:\s*/i, '');
+    return content.trim();
   }
 }
