@@ -499,7 +499,10 @@ import {
 
     .message--user .message__text {
       background: linear-gradient(135deg, var(--wk-primary) 0%, var(--wk-primary-dark) 100%);
+      border: 1px solid rgba(129, 140, 248, 0.4);
       color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .typing-indicator {

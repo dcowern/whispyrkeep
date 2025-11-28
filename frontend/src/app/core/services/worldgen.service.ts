@@ -240,7 +240,7 @@ export class WorldgenService {
                       conversation_json: [
                         ...session.conversation_json,
                         { role: 'user' as const, content: message, timestamp: new Date().toISOString() },
-                        { role: 'assistant' as const, content: this._streamContent(), timestamp: new Date().toISOString() }
+                        { role: 'assistant' as const, content: this.cleanAssistantContent(this._streamContent()), timestamp: new Date().toISOString() }
                       ]
                     };
                   });
