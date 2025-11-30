@@ -497,7 +497,37 @@ import {
       border-radius: var(--wk-radius-lg);
       font-size: var(--wk-text-sm);
       line-height: var(--wk-leading-relaxed);
-      white-space: pre-wrap;
+
+      /* Use ::ng-deep to style dynamically inserted innerHTML content */
+      ::ng-deep {
+        ul, ol {
+          margin: var(--wk-space-2) 0;
+          padding-left: 1.5rem;
+          list-style-position: outside;
+        }
+
+        ul { list-style-type: disc; }
+        ol { list-style-type: decimal; }
+
+        ul ul, ol ul {
+          list-style-type: circle;
+          padding-left: 1.5rem;
+        }
+        ul ol, ol ol {
+          list-style-type: lower-alpha;
+          padding-left: 1.5rem;
+        }
+
+        li {
+          margin: var(--wk-space-1) 0;
+          padding-left: 0.25rem;
+        }
+
+        li > ul, li > ol {
+          margin-top: var(--wk-space-1);
+          margin-bottom: var(--wk-space-1);
+        }
+      }
     }
 
     .message--assistant .message__text {

@@ -248,9 +248,13 @@ export class WorldgenService {
   }
 
   renderMarkdown(text: string): string {
-    // Pre-process: convert Unicode bullet characters (•) to standard markdown list markers
+    // Pre-process: convert Unicode bullet characters to standard markdown list markers
     // This handles LLM output that uses • instead of - or *
-    const processedText = text.replace(/^(\s*)•\s*/gm, '$1- ');
+    let processedText = text.replace(/^(\s*)•\s*/gm, '$1- ');
+
+    // Convert en-dashes (–) used as sub-bullets to indented markdown list items
+    // The LLM often uses – for sub-items which should be nested
+    processedText = processedText.replace(/^(\s*)–\s*/gm, '$1  - ');
 
     const html = marked.parse(processedText, { renderer: this.markdownRenderer }) as string;
     return html;
