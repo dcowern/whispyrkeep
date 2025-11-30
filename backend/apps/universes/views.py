@@ -787,15 +787,13 @@ class WorldgenSessionDetailView(APIView):
 
 class WorldgenSessionChatView(APIView):
     """
-    POST /api/universes/worldgen/sessions/{id}/chat/ - Send chat message (SSE streaming)
+    POST /api/universes/worldgen/sessions/{id}/chat/ - Send chat message
     """
 
     permission_classes = [IsAuthenticated]
 
     def post(self, request, session_id):
-        """Send a chat message and stream the response via SSE."""
-        import json
-        from django.http import StreamingHttpResponse
+        """Send a chat message and return the complete response."""
         from .serializers import WorldgenChatMessageSerializer
         from .services.worldgen_chat import WorldgenChatService
 
@@ -818,24 +816,17 @@ class WorldgenSessionChatView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        def event_stream():
-            """Generate SSE events from chat stream."""
-            try:
-                for event in service.send_message_stream(
-                    session_id, serializer.validated_data["message"]
-                ):
-                    yield f"data: {json.dumps(event)}\n\n"
-            except Exception as e:
-                logger.exception("Worldgen chat stream failed for session %s", session_id)
-                yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
-
-        response = StreamingHttpResponse(
-            event_stream(),
-            content_type="text/event-stream",
-        )
-        response["Cache-Control"] = "no-cache"
-        response["X-Accel-Buffering"] = "no"
-        return response
+        try:
+            result = service.send_message(
+                session_id, serializer.validated_data["message"]
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception("Worldgen chat failed for session %s", session_id)
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
 
 class WorldgenSessionUpdateView(APIView):
@@ -932,9 +923,7 @@ class WorldgenSessionAiAssistView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, session_id):
-        """Get AI assistance for a step (streaming SSE)."""
-        import json
-        from django.http import StreamingHttpResponse
+        """Get AI assistance for a step."""
         from .serializers import WorldgenAiAssistSerializer
         from .services.worldgen_chat import WorldgenChatService
 
@@ -957,26 +946,20 @@ class WorldgenSessionAiAssistView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        def event_stream():
-            """Generate SSE events from AI assist stream."""
-            try:
-                for event in service.get_ai_assist(
-                    session_id,
-                    serializer.validated_data["step"],
-                    serializer.validated_data.get("field"),
-                    serializer.validated_data.get("message"),
-                ):
-                    yield f"data: {json.dumps(event)}\n\n"
-            except Exception as e:
-                yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
-
-        response = StreamingHttpResponse(
-            event_stream(),
-            content_type="text/event-stream",
-        )
-        response["Cache-Control"] = "no-cache"
-        response["X-Accel-Buffering"] = "no"
-        return response
+        try:
+            result = service.get_ai_assist(
+                session_id,
+                serializer.validated_data["step"],
+                serializer.validated_data.get("field"),
+                serializer.validated_data.get("message"),
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception("Worldgen AI assist failed for session %s", session_id)
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
 
 class WorldgenLlmStatusView(APIView):

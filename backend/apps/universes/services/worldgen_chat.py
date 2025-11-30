@@ -5,14 +5,12 @@ Manages chat sessions for AI-assisted universe creation with:
 - Persistent conversation history
 - Structured data extraction from AI responses
 - Step completion tracking
-- Streaming support
 """
 
 import hashlib
 import json
 import logging
 import re
-from collections.abc import Generator
 from datetime import datetime
 from typing import Any
 
@@ -91,102 +89,6 @@ DATA_JSON:
 - For homebrew content, generate valid SRD 5.2 compatible stats
 - Keep lore documents concise but flavorful
 - Respect the user's creative direction"""
-
-
-class StreamingResponseParser:
-    """Parse LLM streaming response, filtering out DATA_JSON during stream.
-
-    Incrementally processes chunks from the LLM, extracting and yielding only
-    the CHAT: section content. The DATA_JSON: section is buffered internally
-    and made available after streaming completes for final parsing.
-
-    This prevents the frontend from seeing technical JSON data during streaming,
-    eliminating flashing and broken markdown rendering.
-    """
-
-    def __init__(self):
-        self.full_buffer = ""
-        self.yielded_length = 0  # Track how many chars of cleaned content we've yielded
-        self.chat_started = False
-        self.data_json_started = False
-        self.marker_end_pos = -1  # Track where CHAT: marker ends
-
-    def _get_cleaned_chat_content(self) -> str:
-        """Extract CHAT content from full_buffer (before DATA_JSON if present), removing prefix.
-
-        Returns:
-            Cleaned chat content (without CHAT: prefix)
-        """
-        # Get content before DATA_JSON: if present
-        idx = self.full_buffer.find("DATA_JSON:")
-        if idx != -1:
-            chat_section = self.full_buffer[:idx]
-        else:
-            chat_section = self.full_buffer
-
-        # Remove CHAT: prefix
-        cleaned = re.sub(r'^\s*CHAT:\s*\n?', '', chat_section, flags=re.IGNORECASE)
-        return cleaned
-
-    def add_chunk(self, chunk: str) -> Generator[str, None, None]:
-        """Process a chunk and yield cleaned content.
-
-        Args:
-            chunk: A chunk of text from the LLM stream
-
-        Yields:
-            Cleaned content (only CHAT: section, without prefixes)
-        """
-        self.full_buffer += chunk
-
-        # If we've already hit DATA_JSON, stop yielding anything
-        if self.data_json_started:
-            return
-
-        # Check if DATA_JSON marker has appeared
-        if "DATA_JSON:" in self.full_buffer:
-            self.data_json_started = True
-            # Get cleaned chat content and yield anything new
-            cleaned = self._get_cleaned_chat_content()
-            new_content = cleaned[self.yielded_length:]
-            if new_content:
-                yield new_content
-                self.yielded_length = len(cleaned)
-            return
-
-        # If we haven't found and processed CHAT: yet, check for it
-        if not self.chat_started:
-            if "CHAT:" in self.full_buffer:
-                self.chat_started = True
-                # Find where CHAT: marker ends and content begins
-                match = re.search(r'CHAT:\s*\n?', self.full_buffer, re.IGNORECASE)
-                if match:
-                    self.marker_end_pos = match.end()
-                    # Extract and yield everything after CHAT: marker
-                    new_content = self.full_buffer[self.marker_end_pos:]
-                    if new_content:
-                        yield new_content
-                        self.yielded_length = len(new_content)
-            # No CHAT: yet, don't yield anything - keep buffering
-            return
-
-        # We're in the middle of CHAT content (after we've found and passed the marker)
-        if self.chat_started and not self.data_json_started and self.marker_end_pos != -1:
-            # Yield only the content after the marker that we haven't yielded yet
-            current_pos = self.marker_end_pos + self.yielded_length
-            new_chunk_start = max(len(self.full_buffer) - len(chunk), self.marker_end_pos)
-            if current_pos >= len(self.full_buffer) - len(chunk):
-                # This chunk is new content after the marker
-                yield chunk
-                self.yielded_length += len(chunk)
-
-    def get_full_response(self) -> str:
-        """Get the complete buffered response for final parsing.
-
-        Returns:
-            The complete raw response including CHAT: and DATA_JSON: sections
-        """
-        return self.full_buffer
 
 
 class WorldgenChatService:
@@ -447,74 +349,6 @@ class WorldgenChatService:
             "current_step": self._get_current_step(session).value,
         }
 
-    def send_message_stream(
-        self, session_id: str, user_message: str
-    ) -> Generator[dict, None, None]:
-        """
-        Send a message and stream the response.
-
-        Uses StreamingResponseParser to filter out DATA_JSON content during
-        streaming, ensuring only clean CHAT content is sent to the frontend.
-
-        Args:
-            session_id: The session ID
-            user_message: The user's message
-
-        Yields:
-            Dict with 'type' and 'content':
-            - {"type": "chunk", "content": "..."} for text chunks (CHAT only)
-            - {"type": "complete", "step_status": {...}, "draft_data": {...}}
-        """
-        session = self.get_session(session_id)
-        if not session:
-            raise ValueError("Session not found")
-
-        if not self.llm_config:
-            raise LLMError("No LLM configuration found")
-
-        # Add user message to history
-        session.add_message("user", user_message)
-        session.save()
-
-        # Build messages and call LLM with streaming
-        messages = self._build_messages(session)
-
-        config = LLMClientConfig.from_endpoint_config(self.llm_config)
-
-        # Create parser for incremental filtering of DATA_JSON
-        parser = StreamingResponseParser()
-
-        with LLMClient(config) as client:
-            for chunk in client.chat_stream(
-                messages,
-                temperature=self.user_temperature,
-                max_tokens=self.user_max_tokens,
-            ):
-                # Process chunk through parser, only yield clean content
-                for clean_chunk in parser.add_chunk(chunk):
-                    yield {"type": "chunk", "content": clean_chunk}
-
-        # Get complete response for final parsing
-        full_response = parser.get_full_response()
-
-        # Parse complete response
-        chat_text, data_json = self._parse_ai_response(full_response)
-
-        # Apply updates
-        self._apply_updates(session, data_json)
-
-        # Add assistant message (only the chat part)
-        session.add_message("assistant", chat_text)
-        session.save()
-
-        # Yield final completion event
-        yield {
-            "type": "complete",
-            "step_status": session.step_status_json,
-            "draft_data": session.draft_data_json,
-            "current_step": self._get_current_step(session).value,
-        }
-
     def update_draft_data(
         self, session_id: str, step_name: str, data: dict
     ) -> WorldgenSession:
@@ -693,7 +527,7 @@ class WorldgenChatService:
         step_name: str,
         field_name: str | None = None,
         message: str | None = None,
-    ) -> Generator[dict, None, None]:
+    ) -> dict:
         """
         Get AI assistance for a specific step/field (for manual mode).
 
@@ -703,8 +537,8 @@ class WorldgenChatService:
             field_name: Optional specific field to focus on
             message: Optional user message/question
 
-        Yields:
-            Same format as send_message_stream
+        Returns:
+            Same format as send_message
         """
         session = self.get_session(session_id)
         if not session:
@@ -731,5 +565,4 @@ class WorldgenChatService:
         else:
             question = f"Help me fill out the {step_spec.display_name} section for my universe."
 
-        # Use the streaming message method
-        yield from self.send_message_stream(session_id, question)
+        return self.send_message(session_id, question)

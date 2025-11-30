@@ -65,7 +65,6 @@ import { Subscription } from 'rxjs';
                 <lucide-icon [img]="SparklesIcon" />
               </div>
               <div class="popup__text">
-                {{ streamContent() }}
                 <span class="typing">
                   <span></span><span></span><span></span>
                 </span>
@@ -375,7 +374,6 @@ export class AiAssistPopupComponent implements OnDestroy, AfterViewChecked {
 
   // From service
   readonly isStreaming = this.worldgenService.isStreaming;
-  readonly streamContent = this.worldgenService.streamContent;
 
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom && this.messagesContainer) {
@@ -424,19 +422,15 @@ export class AiAssistPopupComponent implements OnDestroy, AfterViewChecked {
     // Use AI assist for the current step with user's message
     this.activeStreamSub?.unsubscribe();
     this.activeStreamSub = this.worldgenService.getAiAssist(sessionId, step || 'basics', undefined, message).subscribe({
-      next: event => {
-        if (event.type === 'chunk') {
-          this.shouldScrollToBottom = true;
-        }
-        if (event.type === 'complete') {
-          // Add assistant message
-          this.messages.update(msgs => [...msgs, {
-            role: 'assistant',
-            content: this.streamContent(),
-            timestamp: new Date().toISOString()
-          }]);
-          this.dataUpdated.emit();
-        }
+      next: result => {
+        // Add assistant message
+        this.messages.update(msgs => [...msgs, {
+          role: 'assistant',
+          content: result.response,
+          timestamp: new Date().toISOString()
+        }]);
+        this.dataUpdated.emit();
+        this.shouldScrollToBottom = true;
       },
       error: err => {
         console.error('AI assist error:', err);

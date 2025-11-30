@@ -5,7 +5,6 @@ Provides a unified interface for calling LLM endpoints with:
 - Support for OpenAI, Anthropic, Azure OpenAI, and custom endpoints
 - Retry with exponential backoff
 - Encrypted API key decryption
-- Streaming support (optional)
 
 Tickets: 8.0.1, 8.0.2
 
@@ -14,7 +13,6 @@ Based on SYSTEM_DESIGN.md section 8 LLM Orchestration.
 
 import logging
 import time
-from collections.abc import Generator
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -394,50 +392,3 @@ class LLMClient:
         if last_error:
             raise last_error
         raise LLMError("Unknown error occurred")
-
-    def chat_stream(
-        self,
-        messages: list[Message],
-        temperature: float | None = None,
-        max_tokens: int | None = None,
-        **kwargs: Any,
-    ) -> Generator[str, None, None]:
-        """
-        Send a streaming chat completion request.
-
-        Args:
-            messages: List of messages in the conversation
-            temperature: Sampling temperature (0-1)
-            max_tokens: Maximum tokens in response
-            **kwargs: Additional API parameters
-
-        Yields:
-            String chunks of the response content
-        """
-        url = f"{self.config.get_base_url()}/chat/completions"
-        headers = self._get_headers()
-        body = self._build_request_body(messages, temperature, max_tokens, **kwargs)
-        body["stream"] = True
-
-        with self.http_client.stream("POST", url, json=body, headers=headers) as response:
-            if response.status_code != 200:
-                # Read the response to get error details
-                response.read()
-                self._handle_error_response(response)
-
-            for line in response.iter_lines():
-                if line.startswith("data: "):
-                    data = line[6:]
-                    if data == "[DONE]":
-                        break
-
-                    try:
-                        import json
-
-                        chunk = json.loads(data)
-                        delta = chunk.get("choices", [{}])[0].get("delta", {})
-                        content = delta.get("content", "")
-                        if content:
-                            yield content
-                    except Exception:
-                        continue

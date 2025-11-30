@@ -139,14 +139,9 @@ import {
                 <div class="message__content">
                   <span class="message__role">Whispyr</span>
                   <div class="message__text">
-                    @if (streamContent()) {
-                      <!-- Show plain text during streaming to avoid innerHTML corruption with marked.parse() -->
-                      <span class="streaming-text">{{ cleanStreamingContent(streamContent()) }}<span class="streaming-cursor"></span></span>
-                    } @else {
-                      <span class="typing-indicator">
-                        <span></span><span></span><span></span>
-                      </span>
-                    }
+                    <span class="typing-indicator">
+                      <span></span><span></span><span></span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -745,7 +740,6 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   // Computed from service
   readonly session = this.worldgenService.currentSession;
   readonly isStreaming = this.worldgenService.isStreaming;
-  readonly streamContent = this.worldgenService.streamContent;
   readonly stepStatus = this.worldgenService.stepStatus;
   readonly canFinalize = this.worldgenService.canFinalize;
   readonly currentStep = this.worldgenService.currentStep;
@@ -806,10 +800,8 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     if (!sessionId) return;
 
     this.worldgenService.sendMessage(sessionId, message).subscribe({
-      next: event => {
-        if (event.type === 'chunk') {
-          this.shouldScrollToBottom = true;
-        }
+      next: () => {
+        this.shouldScrollToBottom = true;
       },
       error: err => {
         console.error('Chat error:', err);
@@ -893,17 +885,5 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   renderMarkdownSafe(text: string): SafeHtml {
     const html = this.worldgenService.renderMarkdown(text);
     return this.sanitizer.bypassSecurityTrustHtml(html);
-  }
-
-  // Clean streaming content (remove DATA_JSON and CHAT: prefix)
-  cleanStreamingContent(text: string): string {
-    let content = text;
-    // Remove DATA_JSON section (with or without colon that follows)
-    const dataJsonIdx = content.indexOf('DATA_JSON');
-    if (dataJsonIdx !== -1) {
-      content = content.slice(0, dataJsonIdx);
-    }
-    content = content.replace(/^\s*CHAT:\s*/i, '');
-    return content.trim();
   }
 }

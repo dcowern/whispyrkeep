@@ -477,3 +477,10 @@ export interface WorldgenStreamEvent {
   draft_data?: WorldgenDraftData;
   current_step?: WorldgenStepName;
 }
+
+export interface WorldgenChatResponse {
+  response: string;
+  step_status: Record<WorldgenStepName, WorldgenStepStatus>;
+  draft_data: WorldgenDraftData;
+  current_step: WorldgenStepName;
+}
