@@ -248,8 +248,11 @@ export class WorldgenService {
   }
 
   renderMarkdown(text: string): string {
-    // Backend now returns clean content, just render it
-    const html = marked.parse(text, { renderer: this.markdownRenderer }) as string;
+    // Pre-process: convert Unicode bullet characters (•) to standard markdown list markers
+    // This handles LLM output that uses • instead of - or *
+    const processedText = text.replace(/^(\s*)•\s*/gm, '$1- ');
+
+    const html = marked.parse(processedText, { renderer: this.markdownRenderer }) as string;
     return html;
   }
 }
