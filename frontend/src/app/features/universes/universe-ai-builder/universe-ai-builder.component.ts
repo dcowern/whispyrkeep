@@ -518,6 +518,12 @@ import {
           padding-left: 1.5rem;
         }
 
+        /* Handle sibling pattern: ul following ol (LLM often generates this instead of nested) */
+        ol + ul {
+          list-style-type: circle;
+          padding-left: 3rem;
+        }
+
         li {
           margin: var(--wk-space-1) 0;
           padding-left: 0.25rem;
