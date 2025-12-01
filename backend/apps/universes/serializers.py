@@ -650,3 +650,10 @@ class WorldgenAiAssistSerializer(serializers.Serializer):
     step = serializers.CharField(max_length=50)
     field = serializers.CharField(max_length=100, required=False, allow_null=True)
     message = serializers.CharField(max_length=2000, required=False, allow_blank=True)
+
+
+class WorldgenFieldActionSerializer(serializers.Serializer):
+    """Serializer for field-level AI actions (extract/extend)."""
+
+    step = serializers.CharField(max_length=50)
+    field = serializers.CharField(max_length=100)

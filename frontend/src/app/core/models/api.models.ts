@@ -402,6 +402,7 @@ export type WorldgenStepName = 'basics' | 'tone' | 'rules' | 'calendar' | 'lore'
 export interface WorldgenStepStatus {
   complete: boolean;
   fields: Record<string, boolean>;
+  touched?: boolean;  // Whether user/AI has engaged with this step
 }
 
 export interface WorldgenDraftData {
@@ -428,6 +429,23 @@ export interface WorldgenDraftData {
     weekdays?: string[];
   };
   lore?: {
+    // History
+    world_timeline?: string;
+    regional_histories?: string;
+    legendary_figures?: string;
+    political_history?: string;
+    // Geography & Cultures
+    geography?: string;
+    regions_settlements?: string;
+    cultures_peoples?: string;
+    factions_religions?: string;
+    mysterious_lands?: string;
+    // Politics
+    political_leaders?: string;
+    leader_agendas?: string;
+    regional_tensions?: string;
+    faction_conflicts?: string;
+    // Legacy fields
     canon_docs?: Array<{ title: string; content: string }>;
     world_overview?: string;
   };
@@ -483,4 +501,5 @@ export interface WorldgenChatResponse {
   step_status: Record<WorldgenStepName, WorldgenStepStatus>;
   draft_data: WorldgenDraftData;
   current_step: WorldgenStepName;
+  extracted_fields?: string[];  // Field paths that were auto-populated, e.g., ["basics.name", "lore.factions_religions"]
 }

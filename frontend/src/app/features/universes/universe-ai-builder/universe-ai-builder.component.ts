@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { WorldgenService, WORLDGEN_STEPS } from '@core/services/worldgen.service';
 import { WorldgenStepName } from '@core/models';
+import { StepDetailPanelComponent } from '../step-detail-panel/step-detail-panel.component';
 import {
   LucideAngularModule,
   ArrowLeft,
@@ -22,7 +23,7 @@ import {
 @Component({
   selector: 'app-universe-ai-builder',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule, StepDetailPanelComponent],
   template: `
     <div class="builder">
       <div class="builder__bg">
@@ -73,7 +74,14 @@ import {
                 class="step-item"
                 [class.step-item--active]="currentStep() === step.name"
                 [class.step-item--complete]="isStepComplete(step.name)"
+                [class.step-item--touched]="isStepTouched(step.name) && !isStepComplete(step.name)"
                 [class.step-item--required]="step.required"
+                [class.step-item--selected]="selectedStep() === step.name"
+                (click)="selectStep(step.name)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="selectStep(step.name)"
+                (keydown.space)="selectStep(step.name); $event.preventDefault()"
               >
                 <div class="step-item__icon">
                   @if (isStepComplete(step.name)) {
@@ -183,7 +191,19 @@ import {
             </button>
           </form>
         </main>
+
+        <!-- Step detail slide-out panel -->
+        <app-step-detail-panel
+          [step]="selectedStep()"
+          [isOpen]="isPanelOpen()"
+          [draftData]="draftData()"
+          [stepStatus]="stepStatus()"
+          [sessionId]="session()?.id ?? null"
+          (close)="closePanel()"
+          (saved)="onPanelSaved()"
+        />
       </div>
+
     </div>
   `,
   styles: [`
@@ -340,6 +360,16 @@ import {
       border-radius: var(--wk-radius-lg);
       background: transparent;
       transition: all var(--wk-transition-fast);
+      cursor: pointer;
+
+      &:hover {
+        background: var(--wk-surface-elevated);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--wk-primary-glow);
+      }
     }
 
     .step-item__icon {
@@ -361,10 +391,21 @@ import {
       lucide-icon { color: white; }
     }
 
+    .step-item--touched .step-item__icon {
+      background: var(--wk-warning);
+      border-color: var(--wk-warning);
+      lucide-icon { color: white; }
+    }
+
     .step-item--active {
       background: var(--wk-primary-glow);
       .step-item__icon { border-color: var(--wk-primary); }
       .step-item__name { color: var(--wk-primary); }
+    }
+
+    .step-item--selected {
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-primary);
     }
 
     .step-item__content {
@@ -745,6 +786,44 @@ import {
       .sidebar { display: none; }
       .builder__actions { gap: var(--wk-space-2); }
     }
+
+    /* Extraction toast notification */
+    .extraction-toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-secondary);
+      border-radius: var(--wk-radius-lg);
+      padding: var(--wk-space-3) var(--wk-space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--wk-space-3);
+      animation: toast-in 0.3s ease-out;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      font-size: var(--wk-text-sm);
+      color: var(--wk-text-primary);
+
+      lucide-icon {
+        width: 18px;
+        height: 18px;
+        color: var(--wk-secondary);
+        flex-shrink: 0;
+      }
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
   `]
 })
 export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -777,6 +856,7 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   readonly session = this.worldgenService.currentSession;
   readonly isStreaming = this.worldgenService.isStreaming;
   readonly stepStatus = this.worldgenService.stepStatus;
+  readonly draftData = this.worldgenService.draftData;
   readonly canFinalize = this.worldgenService.canFinalize;
   readonly currentStep = this.worldgenService.currentStep;
   readonly pendingUserMessage = this.worldgenService.pendingUserMessage;
@@ -785,6 +865,10 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   readonly mode = computed(() => this.session()?.mode ?? 'ai_collab');
   readonly universeName = computed(() => this.session()?.draft_data_json?.basics?.name ?? '');
   readonly errorMessage = signal('');
+
+  // Step detail panel state
+  readonly selectedStep = signal<WorldgenStepName | null>(null);
+  readonly isPanelOpen = computed(() => this.selectedStep() !== null);
 
   get modeIcon() { return this.mode() === 'ai_collab' ? this.BotIcon : this.PenToolIcon; }
 
@@ -815,6 +899,27 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
 
   isStepComplete(stepName: WorldgenStepName): boolean {
     return this.stepStatus()?.[stepName]?.complete ?? false;
+  }
+
+  isStepTouched(stepName: WorldgenStepName): boolean {
+    return this.stepStatus()?.[stepName]?.touched ?? false;
+  }
+
+  selectStep(stepName: WorldgenStepName): void {
+    // Toggle: if already selected, close; otherwise open
+    if (this.selectedStep() === stepName) {
+      this.selectedStep.set(null);
+    } else {
+      this.selectedStep.set(stepName);
+    }
+  }
+
+  closePanel(): void {
+    this.selectedStep.set(null);
+  }
+
+  onPanelSaved(): void {
+    // Panel saved changes - data is already updated via service
   }
 
   sendMessage(): void {

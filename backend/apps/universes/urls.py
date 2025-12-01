@@ -100,6 +100,16 @@ urlpatterns = [
         views.WorldgenSessionAiAssistView.as_view(),
         name="worldgen_session_assist",
     ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/extract-field/",
+        views.WorldgenSessionExtractFieldView.as_view(),
+        name="worldgen_session_extract_field",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/extend-field/",
+        views.WorldgenSessionExtendFieldView.as_view(),
+        name="worldgen_session_extend_field",
+    ),
     # Router URLs
     path("", include(router.urls)),
     path("", include(universe_router.urls)),

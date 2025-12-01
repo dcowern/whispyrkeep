@@ -229,7 +229,8 @@ class LLMClient:
             "messages": [m.to_dict() for m in messages],
         }
 
-        if temperature is not None:
+        # Only add temperature if supported by the model
+        if temperature is not None and self._supports_temperature():
             body["temperature"] = temperature
 
         if max_tokens:
@@ -244,14 +245,35 @@ class LLMClient:
         """
         Choose the correct tokens parameter name for the provider/model.
 
-        Newer OpenAI o-series models require `max_completion_tokens`, while legacy
+        Newer OpenAI models require `max_completion_tokens`, while legacy
         OpenAI/Anthropic/local endpoints still accept `max_tokens`.
+
+        Models requiring max_completion_tokens:
+        - o1, o1-mini, o1-pro, o1-preview (reasoning models)
+        - o3, o3-mini (reasoning models)
+        - gpt-4o, gpt-4o-mini (also use newer API)
+        - gpt-5.x models (newer API)
         """
         if self.config.provider in (LLMProvider.OPENAI, LLMProvider.AZURE_OPENAI):
             model = (self.config.model or "").lower()
-            if model.startswith("o"):  # o1/o3 etc
+            # Check for o-series models, gpt-4o variants, or gpt-5+ models
+            if (model.startswith("o") or "4o" in model or "-o" in model or
+                    "gpt-5" in model or "gpt-6" in model):
                 return "max_completion_tokens"
         return "max_tokens"
+
+    def _supports_temperature(self) -> bool:
+        """
+        Check if the model supports custom temperature values.
+
+        Some newer OpenAI models (o-series, gpt-5.x) only support default temperature (1).
+        """
+        if self.config.provider in (LLMProvider.OPENAI, LLMProvider.AZURE_OPENAI):
+            model = (self.config.model or "").lower()
+            # o-series and gpt-5+ models don't support custom temperature
+            if (model.startswith("o") or "gpt-5" in model or "gpt-6" in model):
+                return False
+        return True
 
     def _parse_response(self, response_data: dict) -> LLMResponse:
         """Parse the API response."""

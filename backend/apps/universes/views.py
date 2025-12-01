@@ -962,6 +962,102 @@ class WorldgenSessionAiAssistView(APIView):
             )
 
 
+class WorldgenSessionExtractFieldView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/extract-field/ - Extract data for a specific field
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Extract field data from conversation history."""
+        from .serializers import WorldgenFieldActionSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        serializer = WorldgenFieldActionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = WorldgenChatService(request.user)
+        session = service.get_session(session_id)
+
+        if not session:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            result = service.extract_field(
+                session_id,
+                serializer.validated_data["step"],
+                serializer.validated_data["field"],
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.exception("Worldgen extract field failed for session %s", session_id)
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+
+class WorldgenSessionExtendFieldView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/extend-field/ - Extend existing field content
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Extend field content with more detail."""
+        from .serializers import WorldgenFieldActionSerializer
+        from .services.worldgen_chat import WorldgenChatService
+
+        serializer = WorldgenFieldActionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = WorldgenChatService(request.user)
+        session = service.get_session(session_id)
+
+        if not session:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            result = service.extend_field(
+                session_id,
+                serializer.validated_data["step"],
+                serializer.validated_data["field"],
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.exception("Worldgen extend field failed for session %s", session_id)
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+
 class WorldgenLlmStatusView(APIView):
     """
     GET /api/universes/worldgen/llm-status/ - Check if LLM is configured

@@ -240,6 +240,44 @@ export class WorldgenService {
     );
   }
 
+  // Extract data for a specific field from conversation history
+  extractField(sessionId: string, step: WorldgenStepName, field: string): Observable<WorldgenChatResponse> {
+    return this.api.post<WorldgenChatResponse>(
+      `${this.endpoint}sessions/${sessionId}/extract-field/`,
+      { step, field }
+    ).pipe(
+      tap(result => {
+        this._currentSession.update(session => {
+          if (!session) return session;
+          return {
+            ...session,
+            step_status_json: result.step_status,
+            draft_data_json: result.draft_data
+          };
+        });
+      })
+    );
+  }
+
+  // Extend existing field content with more detail
+  extendField(sessionId: string, step: WorldgenStepName, field: string): Observable<WorldgenChatResponse> {
+    return this.api.post<WorldgenChatResponse>(
+      `${this.endpoint}sessions/${sessionId}/extend-field/`,
+      { step, field }
+    ).pipe(
+      tap(result => {
+        this._currentSession.update(session => {
+          if (!session) return session;
+          return {
+            ...session,
+            step_status_json: result.step_status,
+            draft_data_json: result.draft_data
+          };
+        });
+      })
+    );
+  }
+
   // Clear current session (for navigation)
   clearSession(): void {
     this._currentSession.set(null);

@@ -41,6 +41,46 @@ from apps.universes.schemas import (
 logger = logging.getLogger(__name__)
 
 
+def _get_all_fields_schema() -> str:
+    """Generate condensed schema of all extractable fields for the LLM."""
+    schema_parts = []
+    for step_name in STEP_ORDER:
+        spec = STEP_SPECS[step_name]
+        fields_list = []
+        for field in spec.fields:
+            # Skip internal section headers
+            if field.name.startswith("_"):
+                continue
+            req = " (required)" if field.required else ""
+            fields_list.append(f"  - {field.name}{req}: {field.description}")
+        schema_parts.append(f"### {step_name.value}\n" + "\n".join(fields_list))
+    return "\n\n".join(schema_parts)
+
+
+def _merge_text_field(existing: str | None, new_content: str | None) -> str:
+    """
+    Merge new content into existing text field.
+
+    The LLM should ideally handle merging in DATA_JSON, but this is a fallback
+    for cases where it provides only new content without existing.
+    """
+    if not existing or not existing.strip():
+        return new_content or ""
+    if not new_content or not new_content.strip():
+        return existing
+
+    # Check if the new content is already contained in existing (LLM merged properly)
+    if new_content.strip() in existing:
+        return existing
+
+    # Check if existing is contained in new (LLM replaced with merged version)
+    if existing.strip() in new_content:
+        return new_content
+
+    # LLM didn't merge - append new content with separator
+    return f"{existing.rstrip()}\n\n{new_content.strip()}"
+
+
 # System prompt for the worldgen AI assistant
 WORLDGEN_SYSTEM_PROMPT = """You are a creative world-building assistant helping a user create a universe for their tabletop RPG game using SRD 5.2 mechanics.
 
@@ -48,7 +88,7 @@ Your role is to:
 1. Have a friendly conversation to understand the user's vision
 2. Ask clarifying questions to flesh out details
 3. Generate creative suggestions that match their preferences
-4. Extract structured data from the conversation
+4. Extract ALL relevant structured data from EVERY message
 
 ## Output Format
 
@@ -58,20 +98,42 @@ CHAT:
 <Your conversational response to the user>
 
 DATA_JSON:
-{
-  "step": "<current step being discussed: basics|tone|rules|calendar|lore|homebrew>",
-  "updates": {
-    "<step_name>": {
+{{
+  "step": "<current step focus: basics|tone|rules|calendar|lore|homebrew>",
+  "updates": {{
+    "<step_name>": {{
       "<field_name>": <value>,
       ...
-    }
-  },
-  "suggested_fields": ["<fields you're asking about>"]
-}
+    }}
+  }},
+  "extracted_fields": ["<step.field paths that were updated>"]
+}}
 
-## Step Information
+## CRITICAL: Comprehensive Data Extraction
+
+On EVERY turn, analyze the user's message for information that fits ANY universe category - not just the current step. Extract both explicitly stated facts AND clear implications.
+
+**Extraction Examples:**
+- "dark and gritty medieval world" → basics.description + tone.darkness (low value like 20)
+- "magic is rare and feared" → tone.magic_level (low, like 15) + lore.cultures_peoples
+- "there's a thieves guild called the Shadow Hand" → lore.factions_religions
+- "I want critical failures to matter" → rules.critical_fumbles = true
+- "The kingdom of Valdris rules the northern lands" → lore.regions_settlements + lore.political_leaders
+
+**For text fields (especially lore):**
+- APPEND new information to existing content - don't replace
+- Check for consistency with what's already written
+- If there's a conflict, the newer information takes precedence
+- Merge overlapping details smoothly
+- When updating a text field that has existing content, include the merged result
+
+## Current Step Focus
 
 {step_context}
+
+## All Available Fields
+
+{all_fields}
 
 ## Current Draft Data
 
@@ -83,8 +145,9 @@ DATA_JSON:
 
 - Be creative and enthusiastic about the user's ideas
 - Ask one or two questions at a time, don't overwhelm
-- When you have enough information for a field, include it in DATA_JSON updates
-- Always include DATA_JSON even if no updates (use empty updates: {{}})
+- ALWAYS extract ALL relevant information to any field, regardless of current step
+- Include extracted_fields array listing all "step.field" paths you updated
+- Always include DATA_JSON even if no updates (use empty updates: {{}}, extracted_fields: [])
 - For tone sliders, use values 0-100 (0=low, 100=high)
 - For homebrew content, generate valid SRD 5.2 compatible stats
 - Keep lore documents concise but flavorful
@@ -138,15 +201,16 @@ class WorldgenChatService:
         # Initialize with default values
         draft_data = get_step_defaults()
 
-        # Initialize step status
+        # Initialize step status - no steps are touched yet
         step_status = {}
         for step_name in STEP_ORDER:
             is_complete, field_status = check_step_completion(
-                step_name, draft_data.get(step_name.value, {})
+                step_name, draft_data.get(step_name.value, {}), touched=False
             )
             step_status[step_name.value] = {
                 "complete": is_complete,
                 "fields": field_status,
+                "touched": False,  # Track whether user/AI has engaged with this step
             }
 
         session = WorldgenSession.objects.create(
@@ -195,9 +259,13 @@ class WorldgenChatService:
         current_step = self._get_current_step(session)
         step_context = get_ai_context_for_step(current_step, session.draft_data_json)
 
+        # Generate all fields schema for comprehensive extraction
+        all_fields = _get_all_fields_schema()
+
         # Avoid str.format interpreting braces in JSON example; do simple placeholder replacement
         prompt = WORLDGEN_SYSTEM_PROMPT
         prompt = prompt.replace("{step_context}", step_context)
+        prompt = prompt.replace("{all_fields}", all_fields)
         prompt = prompt.replace(
             "{current_data}", json.dumps(session.draft_data_json, indent=2)
         )
@@ -279,26 +347,63 @@ class WorldgenChatService:
 
         return chat_text, data_json
 
-    def _apply_updates(self, session: WorldgenSession, data_json: dict) -> None:
-        """Apply updates from AI response to session draft data."""
+    def _apply_updates(self, session: WorldgenSession, data_json: dict) -> list[str]:
+        """
+        Apply updates from AI response to session draft data.
+
+        For text fields (string type), merges new content with existing.
+        Returns list of extracted field paths (e.g., ["basics.name", "lore.factions_religions"]).
+        """
         updates = data_json.get("updates", {})
+        extracted_fields = data_json.get("extracted_fields", [])
+        touched_steps = set()
+        updated_field_paths = []
 
         for step_name, step_updates in updates.items():
             if step_name not in session.draft_data_json:
                 session.draft_data_json[step_name] = {}
 
+            # Get the step spec for field type checking
+            try:
+                step_enum = StepName(step_name)
+                step_spec = STEP_SPECS.get(step_enum)
+            except ValueError:
+                step_spec = None
+
             for field_name, value in step_updates.items():
-                # Validate and apply the update
+                # Get field spec to determine type
+                field_spec = step_spec.get_field(field_name) if step_spec else None
+
+                # For string fields, merge with existing content
+                if field_spec and field_spec.field_type == "string":
+                    existing = session.draft_data_json[step_name].get(field_name)
+                    value = _merge_text_field(existing, value)
+
+                # Apply the update
                 session.draft_data_json[step_name][field_name] = value
+                touched_steps.add(step_name)
+                updated_field_paths.append(f"{step_name}.{field_name}")
 
         # Recalculate step completion status
         for step in STEP_ORDER:
             step_data = session.draft_data_json.get(step.value, {})
-            is_complete, field_status = check_step_completion(step, step_data)
+
+            # Preserve existing touched status, or set to True if just updated
+            current_status = session.step_status_json.get(step.value, {})
+            was_touched = current_status.get("touched", False)
+            is_touched = was_touched or step.value in touched_steps
+
+            is_complete, field_status = check_step_completion(
+                step, step_data, touched=is_touched
+            )
             session.step_status_json[step.value] = {
                 "complete": is_complete,
                 "fields": field_status,
+                "touched": is_touched,
             }
+
+        # Use LLM-provided extracted_fields if available, otherwise use our tracked paths
+        return extracted_fields if extracted_fields else updated_field_paths
 
     def send_message(self, session_id: str, user_message: str) -> dict:
         """
@@ -309,7 +414,7 @@ class WorldgenChatService:
             user_message: The user's message
 
         Returns:
-            Dict with 'response', 'step_status', 'draft_data'
+            Dict with 'response', 'step_status', 'draft_data', 'current_step', 'extracted_fields'
         """
         session = self.get_session(session_id)
         if not session:
@@ -335,8 +440,8 @@ class WorldgenChatService:
         # Parse response
         chat_text, data_json = self._parse_ai_response(response.content)
 
-        # Apply updates
-        self._apply_updates(session, data_json)
+        # Apply updates and get extracted fields
+        extracted_fields = self._apply_updates(session, data_json)
 
         # Add assistant message
         session.add_message("assistant", chat_text)
@@ -347,13 +452,14 @@ class WorldgenChatService:
             "step_status": session.step_status_json,
             "draft_data": session.draft_data_json,
             "current_step": self._get_current_step(session).value,
+            "extracted_fields": extracted_fields,
         }
 
     def update_draft_data(
         self, session_id: str, step_name: str, data: dict
     ) -> WorldgenSession:
         """
-        Update draft data directly (for manual mode).
+        Update draft data directly (for manual mode or slide-out panel edits).
 
         Args:
             session_id: The session ID
@@ -372,15 +478,16 @@ class WorldgenChatService:
             session.draft_data_json[step_name] = {}
         session.draft_data_json[step_name].update(data)
 
-        # Recalculate step completion
+        # Recalculate step completion - mark as touched since user is editing
         try:
             step = StepName(step_name)
             is_complete, field_status = check_step_completion(
-                step, session.draft_data_json[step_name]
+                step, session.draft_data_json[step_name], touched=True
             )
             session.step_status_json[step_name] = {
                 "complete": is_complete,
                 "fields": field_status,
+                "touched": True,  # Manual edit means user has engaged with this step
             }
         except ValueError:
             pass
@@ -478,13 +585,24 @@ class WorldgenChatService:
             lore = draft.get("lore", {})
             canon_docs = lore.get("canon_docs", [])
             for doc in canon_docs:
-                if doc.get("title") and doc.get("content"):
-                    checksum = hashlib.sha256(doc["content"].encode()).hexdigest()
+                # Handle both dict format {title, content} and string format
+                if isinstance(doc, dict):
+                    title = doc.get("title", "")
+                    content = doc.get("content", "")
+                elif isinstance(doc, str) and doc.strip():
+                    # If LLM returned strings, use a generic title
+                    title = "Lore Document"
+                    content = doc
+                else:
+                    continue
+
+                if title and content:
+                    checksum = hashlib.sha256(content.encode()).hexdigest()
                     UniverseHardCanonDoc.objects.create(
                         universe=universe,
                         source_type="worldgen",
-                        title=doc["title"],
-                        raw_text=doc["content"],
+                        title=title,
+                        raw_text=content,
                         checksum=checksum,
                         never_compact=True,
                     )
@@ -520,6 +638,224 @@ class WorldgenChatService:
 
         session.status = WorldgenSession.Status.ABANDONED
         session.save()
+
+    def extract_field(
+        self, session_id: str, step_name: str, field_name: str
+    ) -> dict:
+        """
+        Extract information for a specific field from conversation history.
+
+        Reviews the entire conversation and extracts any relevant information
+        for the specified field that isn't already captured.
+
+        Args:
+            session_id: The session ID
+            step_name: The step containing the field (e.g., "lore")
+            field_name: The field to extract for (e.g., "factions_religions")
+
+        Returns:
+            Dict with 'response', 'step_status', 'draft_data', 'current_step', 'extracted_fields'
+        """
+        session = self.get_session(session_id)
+        if not session:
+            raise ValueError("Session not found")
+
+        if not self.llm_config:
+            raise LLMError("No LLM configuration found")
+
+        # Get field spec for context
+        try:
+            step_enum = StepName(step_name)
+            step_spec = STEP_SPECS.get(step_enum)
+        except ValueError:
+            raise ValueError(f"Unknown step: {step_name}")
+
+        field_spec = step_spec.get_field(field_name) if step_spec else None
+        if not field_spec:
+            raise ValueError(f"Unknown field: {field_name} in step {step_name}")
+
+        # Get current field value
+        current_value = session.draft_data_json.get(step_name, {}).get(field_name, "")
+
+        # Build extraction prompt
+        extraction_prompt = f"""You are a data extraction assistant. Review the conversation history and extract ALL information relevant to a specific field.
+
+## Target Field
+- **Step**: {step_name}
+- **Field**: {field_name}
+- **Description**: {field_spec.description}
+- **Type**: {field_spec.field_type}
+
+## Current Field Value
+{current_value if current_value else "(empty)"}
+
+## Instructions
+
+1. Review the ENTIRE conversation history below
+2. Find ALL information relevant to "{field_name}"
+3. Extract and compile it into a comprehensive value for this field
+4. If the field already has content, merge new information with existing
+5. For text fields, write detailed content capturing all relevant details
+
+## Output Format
+
+CHAT:
+<Brief summary of what you found/extracted>
+
+DATA_JSON:
+{{
+  "step": "{step_name}",
+  "updates": {{
+    "{step_name}": {{
+      "{field_name}": <extracted value>
+    }}
+  }},
+  "extracted_fields": ["{step_name}.{field_name}"]
+}}
+
+If no relevant information was found in the conversation, return empty updates and explain in CHAT."""
+
+        # Build messages with conversation history
+        messages = [Message(role="system", content=extraction_prompt)]
+
+        for msg in session.conversation_json:
+            if msg["role"] in ("user", "assistant"):
+                messages.append(Message(role=msg["role"], content=msg["content"]))
+
+        messages.append(Message(
+            role="user",
+            content=f"Please extract all information relevant to the '{field_name}' field from our conversation."
+        ))
+
+        # Call LLM
+        config = LLMClientConfig.from_endpoint_config(self.llm_config)
+        with LLMClient(config) as client:
+            response = client.chat(
+                messages,
+                temperature=self.user_temperature,
+                max_tokens=self.user_max_tokens or 2048,
+            )
+
+        # Parse and apply
+        chat_text, data_json = self._parse_ai_response(response.content)
+        extracted_fields = self._apply_updates(session, data_json)
+        session.save()
+
+        return {
+            "response": chat_text,
+            "step_status": session.step_status_json,
+            "draft_data": session.draft_data_json,
+            "current_step": self._get_current_step(session).value,
+            "extracted_fields": extracted_fields,
+        }
+
+    def extend_field(
+        self, session_id: str, step_name: str, field_name: str
+    ) -> dict:
+        """
+        Extend/elaborate on existing field content.
+
+        Takes the current field value and asks the AI to expand on it,
+        adding more detail while maintaining consistency with the universe.
+
+        Args:
+            session_id: The session ID
+            step_name: The step containing the field
+            field_name: The field to extend
+
+        Returns:
+            Dict with 'response', 'step_status', 'draft_data', 'current_step', 'extracted_fields'
+        """
+        session = self.get_session(session_id)
+        if not session:
+            raise ValueError("Session not found")
+
+        if not self.llm_config:
+            raise LLMError("No LLM configuration found")
+
+        # Get field spec
+        try:
+            step_enum = StepName(step_name)
+            step_spec = STEP_SPECS.get(step_enum)
+        except ValueError:
+            raise ValueError(f"Unknown step: {step_name}")
+
+        field_spec = step_spec.get_field(field_name) if step_spec else None
+        if not field_spec:
+            raise ValueError(f"Unknown field: {field_name} in step {step_name}")
+
+        # Get current field value - must not be empty
+        current_value = session.draft_data_json.get(step_name, {}).get(field_name, "")
+        if not current_value or not str(current_value).strip():
+            raise ValueError(f"Field '{field_name}' is empty. Use Extract first to populate it.")
+
+        # Build extension prompt with universe context
+        extension_prompt = f"""You are a creative world-building assistant. Expand on existing content while maintaining consistency with the established universe.
+
+## Universe Context
+```json
+{json.dumps(session.draft_data_json, indent=2)}
+```
+
+## Target Field
+- **Step**: {step_name}
+- **Field**: {field_name}
+- **Description**: {field_spec.description}
+
+## Current Content to Extend
+{current_value}
+
+## Instructions
+
+1. Review the current content carefully
+2. Expand on it with MORE detail, depth, and richness
+3. Maintain consistency with the existing universe details
+4. Add specific names, places, events, relationships as appropriate
+5. Keep the same writing style and tone
+6. The extended content should be 2-3x longer with meaningful additions
+
+## Output Format
+
+CHAT:
+<Brief summary of what you added/expanded>
+
+DATA_JSON:
+{{
+  "step": "{step_name}",
+  "updates": {{
+    "{step_name}": {{
+      "{field_name}": <extended content - the FULL new version, not just additions>
+    }}
+  }},
+  "extracted_fields": ["{step_name}.{field_name}"]
+}}"""
+
+        messages = [
+            Message(role="system", content=extension_prompt),
+            Message(role="user", content=f"Please extend and elaborate on the '{field_name}' content with more detail and depth."),
+        ]
+
+        # Call LLM
+        config = LLMClientConfig.from_endpoint_config(self.llm_config)
+        with LLMClient(config) as client:
+            response = client.chat(
+                messages,
+                temperature=self.user_temperature or 0.8,  # Slightly higher for creativity
+                max_tokens=self.user_max_tokens or 2048,
+            )
+
+        # Parse and apply
+        chat_text, data_json = self._parse_ai_response(response.content)
+        extracted_fields = self._apply_updates(session, data_json)
+        session.save()
+
+        return {
+            "response": chat_text,
+            "step_status": session.step_status_json,
+            "draft_data": session.draft_data_json,
+            "current_step": self._get_current_step(session).value,
+            "extracted_fields": extracted_fields,
+        }
 
     def get_ai_assist(
         self,
