@@ -11,7 +11,9 @@ import {
   WorldgenSessionMode,
   WorldgenStepName,
   WorldgenChatResponse,
-  Universe
+  Universe,
+  ConsistencyCheckProgress,
+  ConsistencyCheckStartResponse
 } from '../models/api.models';
 
 export interface StepInfo {
@@ -283,6 +285,51 @@ export class WorldgenService {
     this._currentSession.set(null);
     this._isStreaming.set(false);
     this._pendingUserMessage.set(null);
+  }
+
+  // ==================== Consistency Check Methods ====================
+
+  // Start a consistency check for the session
+  startConsistencyCheck(sessionId: string): Observable<ConsistencyCheckStartResponse> {
+    return this.api.post<ConsistencyCheckStartResponse>(
+      `${this.endpoint}sessions/${sessionId}/consistency-check/`,
+      {}
+    );
+  }
+
+  // Get current status of a consistency check
+  getConsistencyCheckStatus(sessionId: string, checkId: string): Observable<ConsistencyCheckProgress> {
+    return this.api.get<ConsistencyCheckProgress>(
+      `${this.endpoint}sessions/${sessionId}/consistency-check/${checkId}/`
+    );
+  }
+
+  // Continue a paused consistency check (advance to next pair)
+  continueConsistencyCheck(sessionId: string, checkId: string): Observable<ConsistencyCheckProgress> {
+    return this.api.post<ConsistencyCheckProgress>(
+      `${this.endpoint}sessions/${sessionId}/consistency-check/${checkId}/`,
+      {}
+    );
+  }
+
+  // Resolve a conflict and continue checking
+  resolveConflict(
+    sessionId: string,
+    checkId: string,
+    action: 'accept' | 'edit',
+    fieldUpdates?: Record<string, unknown>
+  ): Observable<ConsistencyCheckProgress> {
+    return this.api.post<ConsistencyCheckProgress>(
+      `${this.endpoint}sessions/${sessionId}/consistency-check/${checkId}/resolve/`,
+      { action, field_updates: fieldUpdates }
+    );
+  }
+
+  // Cancel an active consistency check
+  cancelConsistencyCheck(sessionId: string, checkId: string): Observable<void> {
+    return this.api.delete<void>(
+      `${this.endpoint}sessions/${sessionId}/consistency-check/${checkId}/cancel/`
+    );
   }
 
   renderMarkdown(text: string): string {

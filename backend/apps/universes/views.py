@@ -22,6 +22,7 @@ from .models import (
     HomebrewSpecies,
     HomebrewSpell,
     HomebrewSubclass,
+    LoreSession,
     Universe,
     UniverseHardCanonDoc,
 )
@@ -1073,3 +1074,459 @@ class WorldgenLlmStatusView(APIView):
         return Response({
             "configured": service.has_llm_config(),
         })
+
+
+# ==================== Consistency Check Views ====================
+
+
+class WorldgenConsistencyCheckStartView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/consistency-check/ - Start consistency check
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id):
+        """Start a new consistency check for the session."""
+        from .models import WorldgenSession
+        from .services.consistency_check import ConsistencyCheckService
+
+        try:
+            session = WorldgenSession.objects.get(id=session_id, user=request.user)
+        except WorldgenSession.DoesNotExist:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        service = ConsistencyCheckService(request.user, session)
+
+        # Check if LLM is configured
+        if not service.llm_config:
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get comparison pairs to show what will be checked
+        pairs = service.get_comparison_pairs()
+        if not pairs:
+            return Response({
+                "check_id": None,
+                "status": "completed",
+                "message": "No fields to compare - fill in more content first",
+                "total_pairs": 0,
+            })
+
+        # Start the check
+        check_id = service.start_check()
+        progress = service.get_progress(check_id)
+
+        return Response({
+            "check_id": check_id,
+            "status": progress.status.value,
+            "total_pairs": progress.total_pairs,
+            "checked_pairs": progress.checked_pairs,
+            "current_pair": progress.current_pair,
+        }, status=status.HTTP_201_CREATED)
+
+
+class WorldgenConsistencyCheckStatusView(APIView):
+    """
+    GET /api/universes/worldgen/sessions/{id}/consistency-check/{check_id}/ - Get check status
+    POST /api/universes/worldgen/sessions/{id}/consistency-check/{check_id}/ - Continue check
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, session_id, check_id):
+        """Get current status of a consistency check."""
+        from .models import WorldgenSession
+        from .services.consistency_check import ConsistencyCheckService
+
+        try:
+            session = WorldgenSession.objects.get(id=session_id, user=request.user)
+        except WorldgenSession.DoesNotExist:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        service = ConsistencyCheckService(request.user, session)
+        progress = service.get_progress(check_id)
+
+        if not progress:
+            return Response(
+                {"error": "Check not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        response_data = {
+            "check_id": progress.check_id,
+            "status": progress.status.value,
+            "total_pairs": progress.total_pairs,
+            "checked_pairs": progress.checked_pairs,
+            "current_pair": progress.current_pair,
+            "conflicts_found": progress.conflicts_found,
+            "conflicts_resolved": progress.conflicts_resolved,
+            "error_message": progress.error_message,
+        }
+
+        # Include conflict details if one was found
+        if progress.current_conflict:
+            response_data["current_conflict"] = {
+                "field_a": progress.current_conflict.field_a,
+                "field_b": progress.current_conflict.field_b,
+                "field_a_label": progress.current_conflict.field_a_label,
+                "field_b_label": progress.current_conflict.field_b_label,
+                "has_conflict": progress.current_conflict.has_conflict,
+                "conflict_description": progress.current_conflict.conflict_description,
+                "suggested_resolution": progress.current_conflict.suggested_resolution,
+                "resolution_target": progress.current_conflict.resolution_target,
+            }
+
+        return Response(response_data)
+
+    def post(self, request, session_id, check_id):
+        """Continue a paused consistency check (advance to next pair)."""
+        from .models import WorldgenSession
+        from .services.consistency_check import ConsistencyCheckService
+
+        try:
+            session = WorldgenSession.objects.get(id=session_id, user=request.user)
+        except WorldgenSession.DoesNotExist:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        service = ConsistencyCheckService(request.user, session)
+        progress = service.continue_check(check_id)
+
+        if not progress:
+            return Response(
+                {"error": "Check not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        response_data = {
+            "check_id": progress.check_id,
+            "status": progress.status.value,
+            "total_pairs": progress.total_pairs,
+            "checked_pairs": progress.checked_pairs,
+            "current_pair": progress.current_pair,
+            "conflicts_found": progress.conflicts_found,
+            "conflicts_resolved": progress.conflicts_resolved,
+            "error_message": progress.error_message,
+        }
+
+        if progress.current_conflict:
+            response_data["current_conflict"] = {
+                "field_a": progress.current_conflict.field_a,
+                "field_b": progress.current_conflict.field_b,
+                "field_a_label": progress.current_conflict.field_a_label,
+                "field_b_label": progress.current_conflict.field_b_label,
+                "has_conflict": progress.current_conflict.has_conflict,
+                "conflict_description": progress.current_conflict.conflict_description,
+                "suggested_resolution": progress.current_conflict.suggested_resolution,
+                "resolution_target": progress.current_conflict.resolution_target,
+            }
+
+        return Response(response_data)
+
+
+class WorldgenConsistencyCheckResolveView(APIView):
+    """
+    POST /api/universes/worldgen/sessions/{id}/consistency-check/{check_id}/resolve/ - Resolve conflict
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, session_id, check_id):
+        """Resolve a conflict and continue checking."""
+        from .models import WorldgenSession
+        from .services.consistency_check import ConsistencyCheckService
+
+        try:
+            session = WorldgenSession.objects.get(id=session_id, user=request.user)
+        except WorldgenSession.DoesNotExist:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        action = request.data.get("action")
+        if action not in ("accept", "edit"):
+            return Response(
+                {"error": "Action must be 'accept' or 'edit'"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        field_updates = request.data.get("field_updates", {})
+
+        service = ConsistencyCheckService(request.user, session)
+        progress = service.resolve_conflict(check_id, action, field_updates)
+
+        if not progress:
+            return Response(
+                {"error": "Check not found or no conflict to resolve"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        response_data = {
+            "check_id": progress.check_id,
+            "status": progress.status.value,
+            "total_pairs": progress.total_pairs,
+            "checked_pairs": progress.checked_pairs,
+            "current_pair": progress.current_pair,
+            "conflicts_found": progress.conflicts_found,
+            "conflicts_resolved": progress.conflicts_resolved,
+            "error_message": progress.error_message,
+        }
+
+        if progress.current_conflict:
+            response_data["current_conflict"] = {
+                "field_a": progress.current_conflict.field_a,
+                "field_b": progress.current_conflict.field_b,
+                "field_a_label": progress.current_conflict.field_a_label,
+                "field_b_label": progress.current_conflict.field_b_label,
+                "has_conflict": progress.current_conflict.has_conflict,
+                "conflict_description": progress.current_conflict.conflict_description,
+                "suggested_resolution": progress.current_conflict.suggested_resolution,
+                "resolution_target": progress.current_conflict.resolution_target,
+            }
+
+        return Response(response_data)
+
+
+class WorldgenConsistencyCheckCancelView(APIView):
+    """
+    DELETE /api/universes/worldgen/sessions/{id}/consistency-check/{check_id}/ - Cancel check
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, session_id, check_id):
+        """Cancel an active consistency check."""
+        from .models import WorldgenSession
+        from .services.consistency_check import ConsistencyCheckService
+
+        try:
+            session = WorldgenSession.objects.get(id=session_id, user=request.user)
+        except WorldgenSession.DoesNotExist:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        service = ConsistencyCheckService(request.user, session)
+        service.cancel_check(check_id)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ==================== Lore Session Views ====================
+
+
+class LoreSessionListView(APIView):
+    """
+    GET /api/universes/{universe_id}/lore/sessions/ - List user's lore sessions for universe
+    POST /api/universes/{universe_id}/lore/sessions/ - Create new lore session
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, universe_id):
+        """List user's active lore sessions for this universe."""
+        from .serializers import LoreSessionSummarySerializer
+        from .services.lore_chat import LoreChatService
+
+        service = LoreChatService(request.user)
+        sessions = service.list_sessions(universe_id)
+        serializer = LoreSessionSummarySerializer(sessions, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, universe_id):
+        """Create a new lore session for this universe."""
+        from .serializers import LoreSessionSerializer
+        from .services.lore_chat import LoreChatService
+
+        service = LoreChatService(request.user)
+
+        if not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured. Please configure an API key in Settings."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            session = service.create_session(universe_id)
+            serializer = LoreSessionSerializer(session)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LoreSessionDetailView(APIView):
+    """
+    GET /api/universes/{universe_id}/lore/sessions/{session_id}/ - Get session details
+    DELETE /api/universes/{universe_id}/lore/sessions/{session_id}/ - Abandon session
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, universe_id, session_id):
+        """Get session details."""
+        from .serializers import LoreSessionSerializer
+        from .services.lore_chat import LoreChatService
+
+        service = LoreChatService(request.user)
+        session = service.get_session(session_id, universe_id)
+
+        if not session:
+            return Response(
+                {"error": "Session not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = LoreSessionSerializer(session)
+        return Response(serializer.data)
+
+    def delete(self, request, universe_id, session_id):
+        """Abandon a session."""
+        from .services.lore_chat import LoreChatService
+
+        service = LoreChatService(request.user)
+        try:
+            service.abandon_session(session_id, universe_id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LoreSessionChatView(APIView):
+    """
+    POST /api/universes/{universe_id}/lore/sessions/{session_id}/chat/ - Send chat message
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, universe_id, session_id):
+        """Send a chat message and get response."""
+        from apps.campaigns.services.llm_client import LLMError
+
+        from .serializers import LoreChatMessageSerializer
+        from .services.lore_chat import LoreChatService
+
+        serializer = LoreChatMessageSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = LoreChatService(request.user)
+
+        if not service.has_llm_config():
+            return Response(
+                {"error": "No LLM endpoint configured"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            result = service.send_message(
+                session_id, universe_id, serializer.validated_data["message"]
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except LLMError as e:
+            logger.exception("Lore chat LLM error for session %s", session_id)
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+        except Exception as e:
+            logger.exception("Lore chat failed for session %s", session_id)
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class LoreSessionDocumentView(APIView):
+    """
+    POST /api/universes/{universe_id}/lore/sessions/{session_id}/document/ - Start new document
+    PATCH /api/universes/{universe_id}/lore/sessions/{session_id}/document/ - Update current document
+    PUT /api/universes/{universe_id}/lore/sessions/{session_id}/document/ - Save current to drafts
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, universe_id, session_id):
+        """Start a new document."""
+        from .serializers import LoreNewDocumentSerializer
+        from .services.lore_chat import LoreChatService
+
+        serializer = LoreNewDocumentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = LoreChatService(request.user)
+        try:
+            result = service.start_new_document(
+                session_id, universe_id, serializer.validated_data.get("title", "")
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request, universe_id, session_id):
+        """Update current document manually."""
+        from .serializers import LoreDocumentUpdateSerializer
+        from .services.lore_chat import LoreChatService
+
+        serializer = LoreDocumentUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        service = LoreChatService(request.user)
+        try:
+            result = service.update_current_document(
+                session_id, universe_id, serializer.validated_data
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, universe_id, session_id):
+        """Save current document to drafts."""
+        from .services.lore_chat import LoreChatService
+
+        service = LoreChatService(request.user)
+        try:
+            result = service.save_current_document(session_id, universe_id)
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoreSessionFinalizeView(APIView):
+    """
+    POST /api/universes/{universe_id}/lore/sessions/{session_id}/finalize/ - Create canon docs
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, universe_id, session_id):
+        """Finalize session and create UniverseHardCanonDocs."""
+        from .serializers import UniverseHardCanonDocSerializer
+        from .services.lore_chat import LoreChatService
+
+        service = LoreChatService(request.user)
+        try:
+            docs = service.finalize_session(session_id, universe_id)
+            serializer = UniverseHardCanonDocSerializer(docs, many=True)
+            return Response({
+                "created_documents": serializer.data,
+                "count": len(docs),
+            }, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -110,6 +110,27 @@ urlpatterns = [
         views.WorldgenSessionExtendFieldView.as_view(),
         name="worldgen_session_extend_field",
     ),
+    # Consistency check endpoints
+    path(
+        "worldgen/sessions/<uuid:session_id>/consistency-check/",
+        views.WorldgenConsistencyCheckStartView.as_view(),
+        name="worldgen_consistency_check_start",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/consistency-check/<str:check_id>/",
+        views.WorldgenConsistencyCheckStatusView.as_view(),
+        name="worldgen_consistency_check_status",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/consistency-check/<str:check_id>/resolve/",
+        views.WorldgenConsistencyCheckResolveView.as_view(),
+        name="worldgen_consistency_check_resolve",
+    ),
+    path(
+        "worldgen/sessions/<uuid:session_id>/consistency-check/<str:check_id>/cancel/",
+        views.WorldgenConsistencyCheckCancelView.as_view(),
+        name="worldgen_consistency_check_cancel",
+    ),
     # Router URLs
     path("", include(router.urls)),
     path("", include(universe_router.urls)),
@@ -118,6 +139,32 @@ urlpatterns = [
     path("<uuid:pk>/lore/", views.LoreListView.as_view(), name="lore_list"),
     path("<uuid:pk>/lore/query/", views.LoreQueryView.as_view(), name="lore_query"),
     path("<uuid:pk>/lore/stats/", views.LoreStatsView.as_view(), name="lore_stats"),
+    # Lore session endpoints for chat-based lore development
+    path(
+        "<uuid:universe_id>/lore/sessions/",
+        views.LoreSessionListView.as_view(),
+        name="lore_session_list",
+    ),
+    path(
+        "<uuid:universe_id>/lore/sessions/<uuid:session_id>/",
+        views.LoreSessionDetailView.as_view(),
+        name="lore_session_detail",
+    ),
+    path(
+        "<uuid:universe_id>/lore/sessions/<uuid:session_id>/chat/",
+        views.LoreSessionChatView.as_view(),
+        name="lore_session_chat",
+    ),
+    path(
+        "<uuid:universe_id>/lore/sessions/<uuid:session_id>/document/",
+        views.LoreSessionDocumentView.as_view(),
+        name="lore_session_document",
+    ),
+    path(
+        "<uuid:universe_id>/lore/sessions/<uuid:session_id>/finalize/",
+        views.LoreSessionFinalizeView.as_view(),
+        name="lore_session_finalize",
+    ),
     # Placeholder views for future epics
     path("<uuid:pk>/timeline/", views.TimelineView.as_view(), name="universe_timeline"),
     # Export endpoint (Epic 11)

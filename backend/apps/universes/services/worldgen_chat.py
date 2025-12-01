@@ -57,13 +57,28 @@ def _get_all_fields_schema() -> str:
     return "\n\n".join(schema_parts)
 
 
-def _merge_text_field(existing: str | None, new_content: str | None) -> str:
+def _merge_text_field(existing: str | list | None, new_content: str | list | None) -> str:
     """
     Merge new content into existing text field.
 
     The LLM should ideally handle merging in DATA_JSON, but this is a fallback
     for cases where it provides only new content without existing.
     """
+    # Handle case where existing is a list (legacy data format or LLM output)
+    if isinstance(existing, list):
+        # Convert list to string if it has content, otherwise treat as empty
+        if existing:
+            existing = "\n".join(str(item) for item in existing if item)
+        else:
+            existing = ""
+
+    # Handle case where new_content is a list (LLM sometimes returns arrays)
+    if isinstance(new_content, list):
+        if new_content:
+            new_content = "\n".join(str(item) for item in new_content if item)
+        else:
+            new_content = ""
+
     if not existing or not existing.strip():
         return new_content or ""
     if not new_content or not new_content.strip():

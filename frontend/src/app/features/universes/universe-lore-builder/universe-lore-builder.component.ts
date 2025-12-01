@@ -3,10 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { WorldgenService, WORLDGEN_STEPS } from '@core/services/worldgen.service';
-import { WorldgenStepName } from '@core/models';
-import { StepDetailPanelComponent } from '../step-detail-panel/step-detail-panel.component';
-import { ConsistencyCheckPanelComponent } from '../consistency-check-panel/consistency-check-panel.component';
+import { LoreService } from '@core/services/lore.service';
+import { LoreDocumentDraft } from '@core/models';
 import {
   LucideAngularModule,
   ArrowLeft,
@@ -14,18 +12,20 @@ import {
   Send,
   Loader2,
   Check,
-  Circle,
+  FileText,
   Bot,
   User,
-  PenTool,
+  Plus,
+  Save,
+  X,
   ChevronDown,
-  Shield
+  Book
 } from 'lucide-angular';
 
 @Component({
-  selector: 'app-universe-ai-builder',
+  selector: 'app-universe-lore-builder',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule, StepDetailPanelComponent, ConsistencyCheckPanelComponent],
+  imports: [CommonModule, RouterLink, FormsModule, LucideAngularModule],
   template: `
     <div class="builder">
       <div class="builder__bg">
@@ -35,81 +35,85 @@ import {
 
       <!-- Header -->
       <header class="builder__header">
-        <a routerLink="/universes/new" class="back-link">
+        <a [routerLink]="['/universes', universeId, 'lore']" class="back-link">
           <lucide-icon [img]="ArrowLeftIcon" />
-          Back
+          Back to Lore
         </a>
         <div class="builder__title">
           <div class="builder__title-icon">
-            <lucide-icon [img]="modeIcon" />
+            <lucide-icon [img]="BookIcon" />
           </div>
           <div>
-            <h1>{{ universeName() || 'New Universe' }}</h1>
-            <span class="builder__mode-badge" [class.builder__mode-badge--ai]="mode() === 'ai_collab'">
-              {{ mode() === 'ai_collab' ? 'With Whispyr' : 'Manual' }}
-            </span>
+            <h1>Lore Builder</h1>
+            <span class="builder__mode-badge">{{ session()?.universe_name }}</span>
           </div>
         </div>
         <div class="builder__actions">
-          <button class="btn btn--ghost btn--sm" (click)="switchMode()" [disabled]="isStreaming()">
-            <lucide-icon [img]="mode() === 'ai_collab' ? PenToolIcon : BotIcon" />
-            Switch to {{ mode() === 'ai_collab' ? 'Manual' : 'Whispyr' }}
+          <button
+            class="btn btn--ghost btn--sm"
+            (click)="saveCurrentDocument()"
+            [disabled]="isLoading() || !canSaveDocument()"
+          >
+            <lucide-icon [img]="SaveIcon" />
+            Save to Drafts
           </button>
           <button
             class="btn btn--ghost btn--sm"
-            (click)="openConsistencyCheck()"
-            [disabled]="isStreaming()"
+            (click)="startNewDocument()"
+            [disabled]="isLoading()"
           >
-            <lucide-icon [img]="ShieldIcon" />
-            Check Consistency
+            <lucide-icon [img]="PlusIcon" />
+            New Document
           </button>
           <button
             class="btn btn--primary btn--sm"
             (click)="finalize()"
-            [disabled]="!canFinalize() || isStreaming()"
+            [disabled]="!canFinalize() || isLoading()"
           >
             <lucide-icon [img]="CheckIcon" />
-            Create Universe
+            Create Canon Docs
           </button>
         </div>
       </header>
 
       <div class="builder__body">
-        <!-- Sidebar with step checklist -->
+        <!-- Sidebar with document list -->
         <aside class="sidebar">
-          <h3 class="sidebar__title">Progress</h3>
-          <ul class="step-list">
-            @for (step of steps; track step.name) {
-              <li
-                class="step-item"
-                [class.step-item--active]="currentStep() === step.name"
-                [class.step-item--complete]="isStepComplete(step.name)"
-                [class.step-item--touched]="isStepTouched(step.name) && !isStepComplete(step.name)"
-                [class.step-item--required]="step.required"
-                [class.step-item--selected]="selectedStep() === step.name"
-                (click)="selectStep(step.name)"
-                role="button"
-                tabindex="0"
-                (keydown.enter)="selectStep(step.name)"
-                (keydown.space)="selectStep(step.name); $event.preventDefault()"
-              >
-                <div class="step-item__icon">
-                  @if (isStepComplete(step.name)) {
-                    <lucide-icon [img]="CheckIcon" />
-                  } @else {
-                    <lucide-icon [img]="CircleIcon" />
-                  }
-                </div>
-                <div class="step-item__content">
-                  <span class="step-item__name">{{ step.displayName }}</span>
-                  <span class="step-item__desc">{{ step.description }}</span>
-                </div>
-                @if (step.required) {
-                  <span class="step-item__required">Required</span>
+          <h3 class="sidebar__title">Draft Documents</h3>
+          @if (draftDocuments().length === 0) {
+            <div class="sidebar__empty">
+              <lucide-icon [img]="FileTextIcon" />
+              <p>Chat with the AI to create lore documents</p>
+            </div>
+          } @else {
+            <ul class="doc-list">
+              @for (doc of draftDocuments(); track $index) {
+                <li class="doc-item">
+                  <lucide-icon [img]="FileTextIcon" />
+                  <div class="doc-item__content">
+                    <span class="doc-item__title">{{ doc.title || 'Untitled' }}</span>
+                    <span class="doc-item__preview">{{ doc.content | slice:0:50 }}{{ doc.content.length > 50 ? '...' : '' }}</span>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+
+          @if (currentDocument()?.title || currentDocument()?.content) {
+            <div class="sidebar__current">
+              <h4>Current Document</h4>
+              <div class="current-doc">
+                <span class="current-doc__title">{{ currentDocument()?.title || 'Untitled' }}</span>
+                @if (currentDocument()?.tags?.length) {
+                  <div class="current-doc__tags">
+                    @for (tag of currentDocument()!.tags; track tag) {
+                      <span class="tag">{{ tag }}</span>
+                    }
+                  </div>
                 }
-              </li>
-            }
-          </ul>
+              </div>
+            </div>
+          }
         </aside>
 
         <!-- Chat area -->
@@ -149,7 +153,7 @@ import {
               </div>
             }
 
-            @if (isStreaming()) {
+            @if (isLoading()) {
               <div class="message message--assistant">
                 <div class="message__avatar">
                   <lucide-icon [img]="SparklesIcon" />
@@ -165,11 +169,11 @@ import {
               </div>
             }
 
-            @if (messages().length === 0 && !isStreaming()) {
+            @if (messages().length === 0 && !isLoading()) {
               <div class="chat-empty">
                 <lucide-icon [img]="SparklesIcon" />
-                <h3>Let's Build Your Universe</h3>
-                <p>Start chatting to develop your world. I'll guide you through each step.</p>
+                <h3>Let's Create Lore</h3>
+                <p>Tell me about your world's history, geography, factions, or any other lore you'd like to document.</p>
               </div>
             }
           </div>
@@ -185,15 +189,15 @@ import {
             <textarea
               [(ngModel)]="inputText"
               name="message"
-              placeholder="Describe your universe..."
-              [disabled]="isStreaming()"
+              placeholder="Describe your lore..."
+              [disabled]="isLoading()"
               class="chat-input__field"
               rows="1"
               (input)="adjustTextareaHeight($event)"
               (keydown.enter)="onEnterKey($event)"
             ></textarea>
-            <button type="submit" class="chat-input__btn" [disabled]="!inputText.trim() || isStreaming()">
-              @if (isStreaming()) {
+            <button type="submit" class="chat-input__btn" [disabled]="!inputText.trim() || isLoading()">
+              @if (isLoading()) {
                 <lucide-icon [img]="Loader2Icon" class="animate-spin" />
               } @else {
                 <lucide-icon [img]="SendIcon" />
@@ -202,27 +206,27 @@ import {
           </form>
         </main>
 
-        <!-- Step detail slide-out panel -->
-        <app-step-detail-panel
-          [step]="selectedStep()"
-          [isOpen]="isPanelOpen()"
-          [draftData]="draftData()"
-          [stepStatus]="stepStatus()"
-          [sessionId]="session()?.id ?? null"
-          (close)="closePanel()"
-          (saved)="onPanelSaved()"
-        />
+        <!-- Document preview panel -->
+        @if (currentDocument()?.content) {
+          <aside class="preview-panel">
+            <div class="preview-header">
+              <h3>{{ currentDocument()?.title || 'Current Document' }}</h3>
+              <button class="btn btn--ghost btn--sm" (click)="closePreview()">
+                <lucide-icon [img]="XIcon" />
+              </button>
+            </div>
+            <div class="preview-content" [innerHTML]="renderMarkdownSafe(currentDocument()?.content || '')">
+            </div>
+            @if (currentDocument()?.tags?.length) {
+              <div class="preview-tags">
+                @for (tag of currentDocument()!.tags; track tag) {
+                  <span class="tag">{{ tag }}</span>
+                }
+              </div>
+            }
+          </aside>
+        }
       </div>
-
-      <!-- Consistency check panel -->
-      <app-consistency-check-panel
-        [isOpen]="isConsistencyPanelOpen()"
-        [sessionId]="session()?.id ?? null"
-        [draftData]="draftData()"
-        (close)="closeConsistencyCheck()"
-        (editFieldRequest)="onEditFieldRequest($event)"
-      />
-
     </div>
   `,
   styles: [`
@@ -320,11 +324,6 @@ import {
       border-radius: var(--wk-radius-sm);
       font-size: var(--wk-text-xs);
       color: var(--wk-text-secondary);
-
-      &--ai {
-        background: var(--wk-secondary-glow);
-        color: var(--wk-secondary);
-      }
     }
 
     .builder__actions {
@@ -349,6 +348,8 @@ import {
       padding: var(--wk-space-4);
       overflow-y: auto;
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar__title {
@@ -362,7 +363,28 @@ import {
       letter-spacing: 0.05em;
     }
 
-    .step-list {
+    .sidebar__empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: var(--wk-space-6);
+      color: var(--wk-text-muted);
+
+      lucide-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: var(--wk-space-3);
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: var(--wk-text-sm);
+      }
+    }
+
+    .doc-list {
       list-style: none;
       padding: 0;
       margin: 0;
@@ -371,85 +393,85 @@ import {
       gap: var(--wk-space-2);
     }
 
-    .step-item {
+    .doc-item {
       display: flex;
       align-items: flex-start;
       gap: var(--wk-space-3);
       padding: var(--wk-space-3);
       border-radius: var(--wk-radius-lg);
-      background: transparent;
-      transition: all var(--wk-transition-fast);
-      cursor: pointer;
+      background: var(--wk-surface-elevated);
+      border: 1px solid var(--wk-glass-border);
 
-      &:hover {
-        background: var(--wk-surface-elevated);
-      }
-
-      &:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px var(--wk-primary-glow);
+      > lucide-icon {
+        width: 18px;
+        height: 18px;
+        color: var(--wk-secondary);
+        flex-shrink: 0;
+        margin-top: 2px;
       }
     }
 
-    .step-item__icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--wk-surface-elevated);
-      border: 2px solid var(--wk-glass-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      lucide-icon { width: 12px; height: 12px; color: var(--wk-text-muted); }
-    }
-
-    .step-item--complete .step-item__icon {
-      background: var(--wk-success);
-      border-color: var(--wk-success);
-      lucide-icon { color: white; }
-    }
-
-    .step-item--touched .step-item__icon {
-      background: var(--wk-warning);
-      border-color: var(--wk-warning);
-      lucide-icon { color: white; }
-    }
-
-    .step-item--active {
-      background: var(--wk-primary-glow);
-      .step-item__icon { border-color: var(--wk-primary); }
-      .step-item__name { color: var(--wk-primary); }
-    }
-
-    .step-item--selected {
-      background: var(--wk-surface-elevated);
-      border: 1px solid var(--wk-primary);
-    }
-
-    .step-item__content {
+    .doc-item__content {
       flex: 1;
       min-width: 0;
     }
 
-    .step-item__name {
+    .doc-item__title {
       display: block;
       font-weight: var(--wk-font-medium);
       color: var(--wk-text-primary);
       font-size: var(--wk-text-sm);
     }
 
-    .step-item__desc {
+    .doc-item__preview {
       display: block;
       font-size: var(--wk-text-xs);
       color: var(--wk-text-muted);
       margin-top: var(--wk-space-1);
     }
 
-    .step-item__required {
+    .sidebar__current {
+      margin-top: auto;
+      padding-top: var(--wk-space-4);
+      border-top: 1px solid var(--wk-glass-border);
+
+      h4 {
+        margin: 0 0 var(--wk-space-2);
+        font-size: var(--wk-text-xs);
+        font-weight: var(--wk-font-semibold);
+        color: var(--wk-text-secondary);
+        text-transform: uppercase;
+      }
+    }
+
+    .current-doc {
+      padding: var(--wk-space-3);
+      background: var(--wk-primary-glow);
+      border: 1px solid var(--wk-primary);
+      border-radius: var(--wk-radius-lg);
+    }
+
+    .current-doc__title {
+      display: block;
+      font-weight: var(--wk-font-medium);
+      color: var(--wk-text-primary);
+      font-size: var(--wk-text-sm);
+    }
+
+    .current-doc__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--wk-space-1);
+      margin-top: var(--wk-space-2);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: var(--wk-space-1) var(--wk-space-2);
+      background: var(--wk-surface-elevated);
+      border-radius: var(--wk-radius-sm);
       font-size: var(--wk-text-xs);
-      color: var(--wk-warning);
-      flex-shrink: 0;
+      color: var(--wk-text-secondary);
     }
 
     /* Chat area */
@@ -558,7 +580,6 @@ import {
       font-size: var(--wk-text-sm);
       line-height: var(--wk-leading-relaxed);
 
-      /* Use ::ng-deep to style dynamically inserted innerHTML content */
       ::ng-deep {
         ul, ol {
           margin: var(--wk-space-2) 0;
@@ -569,20 +590,10 @@ import {
         ul { list-style-type: disc; }
         ol { list-style-type: decimal; }
 
-        ul ul, ol ul {
-          list-style-type: circle;
-          padding-left: 1.5rem;
-        }
-        ul ol, ol ol {
-          list-style-type: lower-alpha;
-          padding-left: 1.5rem;
-        }
+        ul ul, ol ul { list-style-type: circle; padding-left: 1.5rem; }
+        ul ol, ol ol { list-style-type: lower-alpha; padding-left: 1.5rem; }
 
-        /* Handle sibling pattern: ul following ol (LLM often generates this instead of nested) */
-        ol + ul {
-          list-style-type: circle;
-          padding-left: 3rem;
-        }
+        ol + ul { list-style-type: circle; padding-left: 3rem; }
 
         li {
           margin: var(--wk-space-1) 0;
@@ -627,31 +638,9 @@ import {
       }
     }
 
-    .streaming-text {
-      display: block;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    .streaming-cursor {
-      display: inline-block;
-      width: 2px;
-      height: 1em;
-      background: var(--wk-primary);
-      margin-left: 2px;
-      animation: blink 1s step-end infinite;
-      vertical-align: text-bottom;
-    }
-
     @keyframes typing {
       0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
       40% { transform: scale(1.2); opacity: 1; }
-    }
-
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
     }
 
     /* Chat input */
@@ -720,6 +709,49 @@ import {
         opacity: 0.5;
         cursor: not-allowed;
       }
+    }
+
+    /* Preview panel */
+    .preview-panel {
+      width: 350px;
+      background: var(--wk-glass-bg);
+      backdrop-filter: blur(var(--wk-blur-md));
+      border-left: 1px solid var(--wk-glass-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--wk-space-4);
+      border-bottom: 1px solid var(--wk-glass-border);
+
+      h3 {
+        margin: 0;
+        font-size: var(--wk-text-base);
+        font-weight: var(--wk-font-semibold);
+        color: var(--wk-text-primary);
+      }
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: var(--wk-space-4);
+      overflow-y: auto;
+      font-size: var(--wk-text-sm);
+      line-height: var(--wk-leading-relaxed);
+      color: var(--wk-text-secondary);
+    }
+
+    .preview-tags {
+      padding: var(--wk-space-4);
+      border-top: 1px solid var(--wk-glass-border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--wk-space-2);
     }
 
     /* Buttons */
@@ -792,61 +824,23 @@ import {
         transform: scale(1.1);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
       }
-
-      &:active {
-        transform: scale(0.95);
-      }
     }
 
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    @media (max-width: 1024px) {
+      .preview-panel { display: none; }
+    }
+
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .builder__actions { gap: var(--wk-space-2); }
     }
-
-    /* Extraction toast notification */
-    .extraction-toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--wk-surface-elevated);
-      border: 1px solid var(--wk-secondary);
-      border-radius: var(--wk-radius-lg);
-      padding: var(--wk-space-3) var(--wk-space-5);
-      display: flex;
-      align-items: center;
-      gap: var(--wk-space-3);
-      animation: toast-in 0.3s ease-out;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      font-size: var(--wk-text-sm);
-      color: var(--wk-text-primary);
-
-      lucide-icon {
-        width: 18px;
-        height: 18px;
-        color: var(--wk-secondary);
-        flex-shrink: 0;
-      }
-    }
-
-    @keyframes toast-in {
-      from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-    }
   `]
 })
-export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewChecked {
-  private readonly worldgenService = inject(WorldgenService);
+export class UniverseLoreBuilderComponent implements OnInit, OnDestroy, AfterViewChecked {
+  private readonly loreService = inject(LoreService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
@@ -858,59 +852,62 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
   readonly SendIcon = Send;
   readonly Loader2Icon = Loader2;
   readonly CheckIcon = Check;
-  readonly CircleIcon = Circle;
+  readonly FileTextIcon = FileText;
   readonly BotIcon = Bot;
   readonly UserIcon = User;
-  readonly PenToolIcon = PenTool;
+  readonly PlusIcon = Plus;
+  readonly SaveIcon = Save;
+  readonly XIcon = X;
   readonly ChevronDownIcon = ChevronDown;
-  readonly ShieldIcon = Shield;
-
-  readonly steps = WORLDGEN_STEPS;
+  readonly BookIcon = Book;
 
   inputText = '';
+  universeId = '';
+  sessionId = '';
   private shouldScrollToBottom = false;
   private readonly isAtBottom = signal(true);
   readonly showScrollButton = computed(() => !this.isAtBottom());
+  private showPreview = signal(true);
 
   // Computed from service
-  readonly session = this.worldgenService.currentSession;
-  readonly isStreaming = this.worldgenService.isStreaming;
-  readonly stepStatus = this.worldgenService.stepStatus;
-  readonly draftData = this.worldgenService.draftData;
-  readonly canFinalize = this.worldgenService.canFinalize;
-  readonly currentStep = this.worldgenService.currentStep;
-  readonly pendingUserMessage = this.worldgenService.pendingUserMessage;
+  readonly session = this.loreService.currentSession;
+  readonly isLoading = this.loreService.isLoading;
+  readonly currentDocument = this.loreService.currentDocument;
+  readonly draftDocuments = this.loreService.draftDocuments;
+  readonly pendingUserMessage = this.loreService.pendingUserMessage;
 
   readonly messages = computed(() => this.session()?.conversation_json ?? []);
-  readonly mode = computed(() => this.session()?.mode ?? 'ai_collab');
-  readonly universeName = computed(() => this.session()?.draft_data_json?.basics?.name ?? '');
   readonly errorMessage = signal('');
 
-  // Step detail panel state
-  readonly selectedStep = signal<WorldgenStepName | null>(null);
-  readonly isPanelOpen = computed(() => this.selectedStep() !== null);
+  readonly canSaveDocument = computed(() => {
+    const doc = this.currentDocument();
+    return doc && (doc.title || doc.content);
+  });
 
-  // Consistency check panel state
-  readonly isConsistencyPanelOpen = signal(false);
-
-  get modeIcon() { return this.mode() === 'ai_collab' ? this.BotIcon : this.PenToolIcon; }
+  readonly canFinalize = computed(() => {
+    const docs = this.draftDocuments();
+    const current = this.currentDocument();
+    return docs.length > 0 || (current && current.content);
+  });
 
   ngOnInit(): void {
-    const sessionId = this.route.snapshot.paramMap.get('sessionId');
-    if (sessionId) {
-      this.worldgenService.getSession(sessionId).subscribe({
+    this.universeId = this.route.snapshot.paramMap.get('id') || '';
+    this.sessionId = this.route.snapshot.paramMap.get('sessionId') || '';
+
+    if (this.universeId && this.sessionId) {
+      this.loreService.getSession(this.universeId, this.sessionId).subscribe({
         next: () => {
           this.shouldScrollToBottom = true;
         },
-        error: () => this.router.navigate(['/universes/new'])
+        error: () => this.router.navigate(['/universes', this.universeId, 'lore'])
       });
     } else {
-      this.router.navigate(['/universes/new']);
+      this.router.navigate(['/universes']);
     }
   }
 
   ngOnDestroy(): void {
-    this.worldgenService.clearSession();
+    this.loreService.clearSession();
   }
 
   ngAfterViewChecked(): void {
@@ -920,54 +917,13 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     }
   }
 
-  isStepComplete(stepName: WorldgenStepName): boolean {
-    return this.stepStatus()?.[stepName]?.complete ?? false;
-  }
-
-  isStepTouched(stepName: WorldgenStepName): boolean {
-    return this.stepStatus()?.[stepName]?.touched ?? false;
-  }
-
-  selectStep(stepName: WorldgenStepName): void {
-    // Toggle: if already selected, close; otherwise open
-    if (this.selectedStep() === stepName) {
-      this.selectedStep.set(null);
-    } else {
-      this.selectedStep.set(stepName);
-    }
-  }
-
-  closePanel(): void {
-    this.selectedStep.set(null);
-  }
-
-  onPanelSaved(): void {
-    // Panel saved changes - data is already updated via service
-  }
-
-  // Consistency check methods
-  openConsistencyCheck(): void {
-    this.isConsistencyPanelOpen.set(true);
-  }
-
-  closeConsistencyCheck(): void {
-    this.isConsistencyPanelOpen.set(false);
-  }
-
-  onEditFieldRequest(event: { step: string; field: string }): void {
-    // Close consistency panel and open the step panel for editing
-    this.closeConsistencyCheck();
-    this.selectedStep.set(event.step as WorldgenStepName);
-  }
-
   sendMessage(): void {
-    if (!this.inputText.trim() || this.isStreaming()) return;
+    if (!this.inputText.trim() || this.isLoading()) return;
 
     this.errorMessage.set('');
     const message = this.inputText.trim();
     this.inputText = '';
 
-    // Reset textarea height
     const textarea = document.querySelector('.chat-input__field') as HTMLTextAreaElement;
     if (textarea) {
       textarea.style.height = 'auto';
@@ -975,19 +931,49 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
 
     this.shouldScrollToBottom = true;
 
-    const sessionId = this.session()?.id;
-    if (!sessionId) return;
-
-    this.worldgenService.sendMessage(sessionId, message).subscribe({
+    this.loreService.sendMessage(this.universeId, this.sessionId, message).subscribe({
       next: () => {
         this.shouldScrollToBottom = true;
       },
       error: err => {
         console.error('Chat error:', err);
-        const friendly = err?.message && err.message.trim() !== '' ? err.message : 'Chat request failed. Please try again.';
+        const friendly = err?.error?.error || err?.message || 'Chat request failed. Please try again.';
         this.errorMessage.set(friendly);
       }
     });
+  }
+
+  saveCurrentDocument(): void {
+    this.loreService.saveCurrentDocument(this.universeId, this.sessionId).subscribe({
+      error: err => {
+        console.error('Save error:', err);
+        this.errorMessage.set(err?.error?.error || 'Failed to save document');
+      }
+    });
+  }
+
+  startNewDocument(): void {
+    this.loreService.startNewDocument(this.universeId, this.sessionId).subscribe({
+      error: err => {
+        console.error('New document error:', err);
+      }
+    });
+  }
+
+  finalize(): void {
+    this.loreService.finalizeSession(this.universeId, this.sessionId).subscribe({
+      next: result => {
+        this.router.navigate(['/universes', this.universeId, 'lore']);
+      },
+      error: err => {
+        console.error('Finalize error:', err);
+        this.errorMessage.set(err?.error?.error || 'Failed to create canon documents');
+      }
+    });
+  }
+
+  closePreview(): void {
+    this.showPreview.set(false);
   }
 
   adjustTextareaHeight(event: Event): void {
@@ -1026,30 +1012,6 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     }
   }
 
-  switchMode(): void {
-    const session = this.session();
-    if (!session) return;
-
-    const newMode = session.mode === 'ai_collab' ? 'manual' : 'ai_collab';
-    this.worldgenService.switchMode(session.id, newMode).subscribe({
-      error: err => console.error('Mode switch error:', err)
-    });
-  }
-
-  finalize(): void {
-    const session = this.session();
-    if (!session) return;
-
-    this.worldgenService.finalizeSession(session.id).subscribe({
-      next: universe => {
-        this.router.navigate(['/universes', universe.id]);
-      },
-      error: err => {
-        console.error('Finalize error:', err);
-      }
-    });
-  }
-
   private scrollToBottomInstant(): void {
     if (this.chatContainer?.nativeElement) {
       const el = this.chatContainer.nativeElement;
@@ -1057,12 +1019,8 @@ export class UniverseAiBuilderComponent implements OnInit, OnDestroy, AfterViewC
     }
   }
 
-  renderMarkdown(text: string): string {
-    return this.worldgenService.renderMarkdown(text);
-  }
-
   renderMarkdownSafe(text: string): SafeHtml {
-    const html = this.worldgenService.renderMarkdown(text);
+    const html = this.loreService.renderMarkdown(text);
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 }

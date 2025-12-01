@@ -24,6 +24,7 @@ from .models import (
     HomebrewSpecies,
     HomebrewSpell,
     HomebrewSubclass,
+    LoreSession,
     Universe,
     UniverseHardCanonDoc,
     WorldgenSession,
@@ -657,3 +658,75 @@ class WorldgenFieldActionSerializer(serializers.Serializer):
 
     step = serializers.CharField(max_length=50)
     field = serializers.CharField(max_length=100)
+
+
+# ==================== Lore Session Serializers ====================
+
+
+class LoreSessionSerializer(serializers.ModelSerializer):
+    """Full serializer for LoreSession."""
+
+    universe_name = serializers.CharField(source="universe.name", read_only=True)
+
+    class Meta:
+        model = LoreSession
+        fields = [
+            "id",
+            "universe",
+            "universe_name",
+            "status",
+            "current_document_json",
+            "conversation_json",
+            "draft_documents_json",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "universe",
+            "status",
+            "current_document_json",
+            "conversation_json",
+            "draft_documents_json",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class LoreSessionSummarySerializer(serializers.ModelSerializer):
+    """Summary serializer for LoreSession list views."""
+
+    universe_name = serializers.CharField(source="universe.name", read_only=True)
+    document_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LoreSession
+        fields = ["id", "universe", "universe_name", "status", "document_count", "created_at", "updated_at"]
+
+    def get_document_count(self, obj):
+        """Get count of draft documents in session."""
+        return len(obj.draft_documents_json) if obj.draft_documents_json else 0
+
+
+class LoreChatMessageSerializer(serializers.Serializer):
+    """Serializer for sending a lore chat message."""
+
+    message = serializers.CharField(max_length=10000)
+
+
+class LoreDocumentUpdateSerializer(serializers.Serializer):
+    """Serializer for manually updating the current document."""
+
+    title = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    content = serializers.CharField(required=False, allow_blank=True)
+    tags = serializers.ListField(
+        child=serializers.CharField(max_length=50),
+        required=False,
+        allow_empty=True,
+    )
+
+
+class LoreNewDocumentSerializer(serializers.Serializer):
+    """Serializer for starting a new document."""
+
+    title = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")

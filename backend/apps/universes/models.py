@@ -197,6 +197,100 @@ class WorldgenSession(models.Model):
         )
 
 
+class LoreSession(models.Model):
+    """
+    Session for developing lore documents through AI-assisted chat.
+
+    Similar to WorldgenSession, this tracks conversation history and draft documents.
+    Users can develop multiple lore documents in a session before finalizing them
+    as UniverseHardCanonDoc entries.
+    """
+
+    class Status(models.TextChoices):
+        ACTIVE = "active", "Active"
+        COMPLETED = "completed", "Completed"
+        ABANDONED = "abandoned", "Abandoned"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="lore_sessions",
+    )
+    universe = models.ForeignKey(
+        Universe,
+        on_delete=models.CASCADE,
+        related_name="lore_sessions",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.ACTIVE,
+    )
+
+    # Current document being developed
+    current_document_json = models.JSONField(
+        default=dict,
+        help_text="Current document draft: {title: str, content: str, tags: list[str]}",
+    )
+
+    # Conversation history
+    conversation_json = models.JSONField(
+        default=list,
+        help_text="Array of {role: 'user'|'assistant', content: str, timestamp: str}",
+    )
+
+    # All documents created in this session (before finalization)
+    draft_documents_json = models.JSONField(
+        default=list,
+        help_text="Array of draft documents: [{title, content, tags}, ...]",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Lore Session"
+        verbose_name_plural = "Lore Sessions"
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        doc_count = len(self.draft_documents_json) if self.draft_documents_json else 0
+        return f"Lore Session ({self.universe.name}) - {doc_count} docs"
+
+    def add_message(self, role: str, content: str):
+        """Add a message to the conversation history."""
+        from datetime import datetime, timezone
+
+        if not isinstance(self.conversation_json, list):
+            self.conversation_json = []
+        self.conversation_json.append(
+            {
+                "role": role,
+                "content": content,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
+    def save_current_document(self):
+        """Save the current document to draft_documents list."""
+        if self.current_document_json and self.current_document_json.get("title"):
+            if not isinstance(self.draft_documents_json, list):
+                self.draft_documents_json = []
+            self.draft_documents_json.append(self.current_document_json.copy())
+            self.current_document_json = {}
+
+    def start_new_document(self, title: str = ""):
+        """Start a new document, saving current if it has content."""
+        if self.current_document_json and self.current_document_json.get("content"):
+            self.save_current_document()
+        self.current_document_json = {
+            "title": title,
+            "content": "",
+            "tags": [],
+        }
+
+
 # Import homebrew models to make them available from this module
 from .homebrew_models import (  # noqa: E402, F401
     HomebrewBackground,

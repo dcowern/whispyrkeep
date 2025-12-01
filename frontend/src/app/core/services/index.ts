@@ -9,3 +9,4 @@ export * from './export.service';
 export * from './llm-config.service';
 export * from './llm-endpoint.service';
 export * from './worldgen.service';
+export * from './lore.service';

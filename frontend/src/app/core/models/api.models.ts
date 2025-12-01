@@ -503,3 +503,102 @@ export interface WorldgenChatResponse {
   current_step: WorldgenStepName;
   extracted_fields?: string[];  // Field paths that were auto-populated, e.g., ["basics.name", "lore.factions_religions"]
 }
+
+/**
+ * Consistency Check models
+ */
+export type ConsistencyCheckStatus = 'pending' | 'in_progress' | 'conflict_found' | 'completed' | 'failed';
+
+export interface ConflictResult {
+  field_a: string;
+  field_b: string;
+  field_a_label: string;
+  field_b_label: string;
+  has_conflict: boolean;
+  conflict_description: string | null;
+  suggested_resolution: string | null;
+  resolution_target: 'a' | 'b' | 'both' | null;
+}
+
+export interface ConsistencyCheckProgress {
+  check_id: string | null;
+  status: ConsistencyCheckStatus;
+  total_pairs: number;
+  checked_pairs: number;
+  current_pair: string | null;
+  conflicts_found: number;
+  conflicts_resolved: number;
+  error_message: string | null;
+  current_conflict?: ConflictResult | null;
+  message?: string;
+}
+
+export interface ConsistencyCheckStartResponse {
+  check_id: string | null;
+  status: ConsistencyCheckStatus | 'completed';
+  total_pairs: number;
+  checked_pairs?: number;
+  current_pair?: string | null;
+  message?: string;
+}
+
+/**
+ * Lore Session models for chat-based lore document development
+ */
+export type LoreSessionStatus = 'active' | 'completed' | 'abandoned';
+
+export interface LoreDocumentDraft {
+  title: string;
+  content: string;
+  tags: string[];
+}
+
+export interface LoreChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
+export interface LoreSession {
+  id: string;
+  universe: string;
+  universe_name: string;
+  status: LoreSessionStatus;
+  current_document_json: LoreDocumentDraft;
+  conversation_json: LoreChatMessage[];
+  draft_documents_json: LoreDocumentDraft[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoreSessionSummary {
+  id: string;
+  universe: string;
+  universe_name: string;
+  status: LoreSessionStatus;
+  document_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoreChatResponse {
+  response: string;
+  current_document: LoreDocumentDraft;
+  draft_documents: LoreDocumentDraft[];
+}
+
+export interface HardCanonDoc {
+  id: string;
+  universe: string;
+  source_type: 'upload' | 'worldgen' | 'user_edit';
+  title: string;
+  raw_text: string;
+  checksum: string;
+  never_compact: boolean;
+  created_at: string;
+}
+
+export interface LoreFinalizeResponse {
+  created_documents: HardCanonDoc[];
+  count: number;
+}
